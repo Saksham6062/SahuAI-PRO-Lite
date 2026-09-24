@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html lang="en"><head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v7.8 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, MCP tools, unlimited agent-swarm skill, MP Board examiner, OpenRouter web search, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, MCP tools, unlimited agent-swarm skill, MP Board examiner, OpenRouter web search, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v7.8 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -12,7 +13,8 @@
     <link rel="apple-touch-icon" href="./icon-192.png">
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- v7.9.13 perf bugfix: Tailwind Play runtime CDN removed. The complete
+         precompiled utility set is embedded at the end of <head>. -->
     
     <!-- Font Awesome -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +37,9 @@
     <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas-pro"></script>
+    <!-- v7.9.13 bugfix: dead html2canvas-pro dependency removed (never called). -->
+    <!-- v7.9.13 security: DOMPurify sanitizes all model output HTML (XSS bugfix). -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
 
     <style>
         /* ================================================================
@@ -139,7 +143,7 @@
 
             --text-primary: #e9edf4;
             --text-secondary: #9aa5b6;
-            --text-muted: #5d6879;
+            --text-muted: #7c8899; /* v7.9.13 a11y bugfix: 5.08:1 on #11151d (was #5d6879, 3.24:1) */
 
             --accent: #818cf8;
             --accent-hover: #9299f9;
@@ -1940,6 +1944,10 @@
             margin-bottom: 0.625rem;
         }
 
+        /* v7.9.13 bugfix: phase headers are now clickable (toggleResearchStage) */
+        .research-header { cursor: pointer; -webkit-user-select: none; user-select: none; }
+        .research-stage.collapsed .research-header { opacity: 0.7; }
+
         .search-engine-info { min-width: 0; flex: 1; }
 
         .search-round-think {
@@ -2871,7 +2879,244 @@
             }
         }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.block{display:block}.grid{display:grid}.hidden{display:none}.h-screen{height:100vh}.w-full{width:100%}.max-w-none{max-width:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.gap-1{gap:0.25rem}.overflow-hidden{overflow:hidden}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-l-2{border-left-width:2px}.border-\[var\(--border\)\]{border-color:var(--border)}.bg-\[var\(--bg-secondary\)\]{background-color:var(--bg-secondary)}.bg-\[var\(--bg-tertiary\)\]{background-color:var(--bg-tertiary)}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.pl-2{padding-left:0.5rem}.text-\[10px\]{font-size:10px}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-cyan-500{--tw-text-opacity:1;color:rgb(6 182 212 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-green-500{--tw-text-opacity:1;color:rgb(34 197 94 / var(--tw-text-opacity, 1))}.text-indigo-500{--tw-text-opacity:1;color:rgb(99 102 241 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.text-pink-500{--tw-text-opacity:1;color:rgb(236 72 153 / var(--tw-text-opacity, 1))}.text-purple-500{--tw-text-opacity:1;color:rgb(168 85 247 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-sky-500{--tw-text-opacity:1;color:rgb(14 165 233 / var(--tw-text-opacity, 1))}.text-teal-500{--tw-text-opacity:1;color:rgb(20 184 166 / var(--tw-text-opacity, 1))}.text-violet-500{--tw-text-opacity:1;color:rgb(139 92 246 / var(--tw-text-opacity, 1))}.text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8 / var(--tw-text-opacity, 1))}.text-\[var\(--accent\)\]{color:var(--accent)}.text-\[var\(--text-secondary\)\]{color:var(--text-secondary)}.outline-none{outline:2px solid transparent;outline-offset:2px}</style></head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.block{display:block}.grid{display:grid}.hidden{display:none}.h-screen{height:100vh}.w-full{width:100%}.max-w-none{max-width:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.gap-1{gap:0.25rem}.overflow-hidden{overflow:hidden}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-l-2{border-left-width:2px}.border-\[var\(--border\)\]{border-color:var(--border)}.bg-\[var\(--bg-secondary\)\]{background-color:var(--bg-secondary)}.bg-\[var\(--bg-tertiary\)\]{background-color:var(--bg-tertiary)}.p-1\.5{padding:0.375rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.pl-2{padding-left:0.5rem}.text-\[10px\]{font-size:10px}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.text-amber-500{--tw-text-opacity:1;color:rgb(245 158 11 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-blue-500{--tw-text-opacity:1;color:rgb(59 130 246 / var(--tw-text-opacity, 1))}.text-cyan-500{--tw-text-opacity:1;color:rgb(6 182 212 / var(--tw-text-opacity, 1))}.text-emerald-500{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-green-500{--tw-text-opacity:1;color:rgb(34 197 94 / var(--tw-text-opacity, 1))}.text-indigo-500{--tw-text-opacity:1;color:rgb(99 102 241 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.text-pink-500{--tw-text-opacity:1;color:rgb(236 72 153 / var(--tw-text-opacity, 1))}.text-purple-500{--tw-text-opacity:1;color:rgb(168 85 247 / var(--tw-text-opacity, 1))}.text-red-500{--tw-text-opacity:1;color:rgb(239 68 68 / var(--tw-text-opacity, 1))}.text-sky-500{--tw-text-opacity:1;color:rgb(14 165 233 / var(--tw-text-opacity, 1))}.text-teal-500{--tw-text-opacity:1;color:rgb(20 184 166 / var(--tw-text-opacity, 1))}.text-violet-500{--tw-text-opacity:1;color:rgb(139 92 246 / var(--tw-text-opacity, 1))}.text-yellow-500{--tw-text-opacity:1;color:rgb(234 179 8 / var(--tw-text-opacity, 1))}.text-\[var\(--accent\)\]{color:var(--accent)}.text-\[var\(--text-secondary\)\]{color:var(--text-secondary)}.outline-none{outline:2px solid transparent;outline-offset:2px}
+/* v7.9.13: precompiled Tailwind extension - the Play CDN runtime was
+   removed from production; these utilities give the embedded block
+   complete coverage of every class used in this app. */
+.flex{display:flex}
+.flex-1{flex:1 1 0%}
+.flex-col{flex-direction:column}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.gap-2{gap:0.5rem}
+.gap-3{gap:0.75rem}
+.min-w-0{min-width:0}
+.relative{position:relative}
+.cursor-pointer{cursor:pointer}
+.select-none{-webkit-user-select:none;user-select:none}
+.object-cover{object-fit:cover}
+.opacity-70{opacity:0.7}
+.overflow-y-auto{overflow-y:auto}
+.break-words{overflow-wrap:break-word}
+.col-span-full{grid-column:1 / -1}
+.text-center{text-align:center}
+.text-decoration-none{text-decoration-line:none}
+.whitespace-pre-wrap{white-space:pre-wrap}
+.font-semibold{font-weight:600}
+.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+.leading-4{line-height:1rem}
+.leading-tight{line-height:1.25}
+.text-lg{font-size:1.125rem;line-height:1.75rem}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.rounded-2xl{border-radius:1rem}
+.rounded-full{border-radius:9999px}
+.shadow-lg{box-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}
+.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}
+.border-0{border-width:0px}
+.border-t{border-top-width:1px}
+.border-dashed{border-style:dashed}
+.border-transparent{border-color:transparent}
+.border-l-4{border-left-width:4px}
+.w-0\.5{width:0.125rem}
+.h-0\.5{height:0.125rem}
+.mt-0\.5{margin-top:0.125rem}
+.mb-0\.5{margin-bottom:0.125rem}
+.ml-0\.5{margin-left:0.125rem}
+.mr-0\.5{margin-right:0.125rem}
+.p-0\.5{padding:0.125rem}
+.pt-0\.5{padding-top:0.125rem}
+.pl-0\.5{padding-left:0.125rem}
+.px-0\.5{padding-left:0.125rem;padding-right:0.125rem}
+.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}
+.gap-0\.5{gap:0.125rem}
+.max-h-0\.5{max-height:0.125rem}
+.w-1{width:0.25rem}
+.h-1{height:0.25rem}
+.mt-1{margin-top:0.25rem}
+.mb-1{margin-bottom:0.25rem}
+.ml-1{margin-left:0.25rem}
+.mr-1{margin-right:0.25rem}
+.p-1{padding:0.25rem}
+.pt-1{padding-top:0.25rem}
+.pl-1{padding-left:0.25rem}
+.px-1{padding-left:0.25rem;padding-right:0.25rem}
+.py-1{padding-top:0.25rem;padding-bottom:0.25rem}
+.gap-1{gap:0.25rem}
+.max-h-1{max-height:0.25rem}
+.w-1\.5{width:0.375rem}
+.h-1\.5{height:0.375rem}
+.mt-1\.5{margin-top:0.375rem}
+.mb-1\.5{margin-bottom:0.375rem}
+.ml-1\.5{margin-left:0.375rem}
+.mr-1\.5{margin-right:0.375rem}
+.p-1\.5{padding:0.375rem}
+.pt-1\.5{padding-top:0.375rem}
+.pl-1\.5{padding-left:0.375rem}
+.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}
+.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}
+.gap-1\.5{gap:0.375rem}
+.max-h-1\.5{max-height:0.375rem}
+.w-2{width:0.5rem}
+.h-2{height:0.5rem}
+.mt-2{margin-top:0.5rem}
+.mb-2{margin-bottom:0.5rem}
+.ml-2{margin-left:0.5rem}
+.mr-2{margin-right:0.5rem}
+.p-2{padding:0.5rem}
+.pt-2{padding-top:0.5rem}
+.pl-2{padding-left:0.5rem}
+.px-2{padding-left:0.5rem;padding-right:0.5rem}
+.py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+.gap-2{gap:0.5rem}
+.max-h-2{max-height:0.5rem}
+.w-3{width:0.75rem}
+.h-3{height:0.75rem}
+.mt-3{margin-top:0.75rem}
+.mb-3{margin-bottom:0.75rem}
+.ml-3{margin-left:0.75rem}
+.mr-3{margin-right:0.75rem}
+.p-3{padding:0.75rem}
+.pt-3{padding-top:0.75rem}
+.pl-3{padding-left:0.75rem}
+.px-3{padding-left:0.75rem;padding-right:0.75rem}
+.py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+.gap-3{gap:0.75rem}
+.max-h-3{max-height:0.75rem}
+.w-4{width:1rem}
+.h-4{height:1rem}
+.mt-4{margin-top:1rem}
+.mb-4{margin-bottom:1rem}
+.ml-4{margin-left:1rem}
+.mr-4{margin-right:1rem}
+.p-4{padding:1rem}
+.pt-4{padding-top:1rem}
+.pl-4{padding-left:1rem}
+.px-4{padding-left:1rem;padding-right:1rem}
+.py-4{padding-top:1rem;padding-bottom:1rem}
+.gap-4{gap:1rem}
+.max-h-4{max-height:1rem}
+.w-6{width:1.5rem}
+.h-6{height:1.5rem}
+.mt-6{margin-top:1.5rem}
+.mb-6{margin-bottom:1.5rem}
+.ml-6{margin-left:1.5rem}
+.mr-6{margin-right:1.5rem}
+.p-6{padding:1.5rem}
+.pt-6{padding-top:1.5rem}
+.pl-6{padding-left:1.5rem}
+.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.py-6{padding-top:1.5rem;padding-bottom:1.5rem}
+.gap-6{gap:1.5rem}
+.max-h-6{max-height:1.5rem}
+.w-8{width:2rem}
+.h-8{height:2rem}
+.mt-8{margin-top:2rem}
+.mb-8{margin-bottom:2rem}
+.ml-8{margin-left:2rem}
+.mr-8{margin-right:2rem}
+.p-8{padding:2rem}
+.pt-8{padding-top:2rem}
+.pl-8{padding-left:2rem}
+.px-8{padding-left:2rem;padding-right:2rem}
+.py-8{padding-top:2rem;padding-bottom:2rem}
+.gap-8{gap:2rem}
+.max-h-8{max-height:2rem}
+.w-10{width:2.5rem}
+.h-10{height:2.5rem}
+.mt-10{margin-top:2.5rem}
+.mb-10{margin-bottom:2.5rem}
+.ml-10{margin-left:2.5rem}
+.mr-10{margin-right:2.5rem}
+.p-10{padding:2.5rem}
+.pt-10{padding-top:2.5rem}
+.pl-10{padding-left:2.5rem}
+.px-10{padding-left:2.5rem;padding-right:2.5rem}
+.py-10{padding-top:2.5rem;padding-bottom:2.5rem}
+.gap-10{gap:2.5rem}
+.max-h-10{max-height:2.5rem}
+.w-36{width:9rem}
+.h-36{height:9rem}
+.mt-36{margin-top:9rem}
+.mb-36{margin-bottom:9rem}
+.ml-36{margin-left:9rem}
+.mr-36{margin-right:9rem}
+.p-36{padding:9rem}
+.pt-36{padding-top:9rem}
+.pl-36{padding-left:9rem}
+.px-36{padding-left:9rem;padding-right:9rem}
+.py-36{padding-top:9rem;padding-bottom:9rem}
+.gap-36{gap:9rem}
+.max-h-36{max-height:9rem}
+.w-40{width:10rem}
+.h-40{height:10rem}
+.mt-40{margin-top:10rem}
+.mb-40{margin-bottom:10rem}
+.ml-40{margin-left:10rem}
+.mr-40{margin-right:10rem}
+.p-40{padding:10rem}
+.pt-40{padding-top:10rem}
+.pl-40{padding-left:10rem}
+.px-40{padding-left:10rem;padding-right:10rem}
+.py-40{padding-top:10rem;padding-bottom:10rem}
+.gap-40{gap:10rem}
+.max-h-40{max-height:10rem}
+.w-60{width:15rem}
+.h-60{height:15rem}
+.mt-60{margin-top:15rem}
+.mb-60{margin-bottom:15rem}
+.ml-60{margin-left:15rem}
+.mr-60{margin-right:15rem}
+.p-60{padding:15rem}
+.pt-60{padding-top:15rem}
+.pl-60{padding-left:15rem}
+.px-60{padding-left:15rem;padding-right:15rem}
+.py-60{padding-top:15rem;padding-bottom:15rem}
+.gap-60{gap:15rem}
+.max-h-60{max-height:15rem}
+.w-64{width:16rem}
+.h-64{height:16rem}
+.mt-64{margin-top:16rem}
+.mb-64{margin-bottom:16rem}
+.ml-64{margin-left:16rem}
+.mr-64{margin-right:16rem}
+.p-64{padding:16rem}
+.pt-64{padding-top:16rem}
+.pl-64{padding-left:16rem}
+.px-64{padding-left:16rem;padding-right:16rem}
+.py-64{padding-top:16rem;padding-bottom:16rem}
+.gap-64{gap:16rem}
+.max-h-64{max-height:16rem}
+.h-full{height:100%}
+.max-h-none{max-height:none}
+.-mt-1{margin-top:-0.25rem}
+.bg-blue-100{background-color:#dbeafe}
+.bg-green-500{background-color:#22c55e}
+.border-green-500{border-color:#22c55e}
+.bg-yellow-400{background-color:#facc15}
+.text-yellow-500{color:#eab308}
+.bg-red-300{background-color:#fca5a5}
+.border-red-300{border-color:#fca5a5}
+.border-red-500{border-color:#ef4444}
+.text-blue-600{color:#2563eb}
+.text-green-600{color:#16a34a}
+.text-rose-500{color:#f43f5e}
+.bg-gray-200{background-color:#e5e7eb}
+.text-white{color:#fff}
+.text-\[11px\]{font-size:11px}
+.text-\[8px\]{font-size:8px}
+.text-\[var\(--text-primary\)\]{color:var(--text-primary)}
+.bg-\[var\(--accent\)\]{background-color:var(--accent)}
+.border-\[var\(--accent\)\]{border-color:var(--accent)}
+.hover\:text-yellow-500:hover{color:#eab308}
+.\hover\:underline:hover{text-decoration-line:underline}
+.hover\:underline:hover{text-decoration-line:underline}
+.hover\:text-\[var\(--text-primary\)\]:hover{color:var(--text-primary)}
+.hover\:border-\[var\(--accent\)\]:hover{border-color:var(--accent)}
+.group:hover .group-hover\:underline{text-decoration-line:underline}
+@media (min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head>
 <body class="h-screen overflow-hidden">
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -2888,7 +3133,7 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 5.0</p>
+                    <p class="sidebar-version">Version 7.9.12</p>
                 </div>
             </div>
             
@@ -4196,7 +4441,7 @@
                 <!-- Documentation Content (Version 5.0) -->
                 <div class="prose max-w-none">
                     <h1 class="gradient-text">🤖 Manthan Agent – Official Saksham Intelligence AI Models Chat</h1>
-                    <h3><em>Version 5.0 | Powered by Saksham Intelligence</em></h3>
+                    <h3><em>Version 7.9.12 | Powered by Saksham Intelligence</em></h3>
                     
                     <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
                     
@@ -4296,7 +4541,7 @@
                     <textarea id="canvas-code-area" spellcheck="false"></textarea>
                 </div>
                 <div id="canvas-preview" class="canvas-preview active">
-                    <iframe id="canvas-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-same-origin allow-modals"></iframe>
+                    <iframe id="canvas-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
                 </div>
             </div>
         </div>
@@ -4417,7 +4662,7 @@
         // Safety Models
         function checkSafety(content) {}
         
-        console.log('✅ Manthan Agent v5.0 HTML/CSS Loaded - JavaScript implementation expected in index.js');
+        console.log('✅ Manthan Agent v7.9.12 HTML/CSS Loaded');
     </script>
     
     <!-- Link to JavaScript File -->
@@ -4872,8 +5117,8 @@ const PROVIDERS = {
         }
     },
     fireworks: {
-        name: 'Zhipu AI',
-        endpoint: 'https://api.z.ai/api/pass/v4/chat/completions',
+        name: 'Zhipu AI (Z.ai)',
+        endpoint: 'https://api.z.ai/api/paas/v4/chat/completions',
         keyName: 'sahu_fireworks_key',
         color: 'fireworks',
         icon: '🎆',
@@ -5157,6 +5402,17 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+/**
+ * Escape a string for safe embedding into an HTML attribute value.
+ * v7.9.13 bugfix: escapeHtml does NOT escape quotes - inline onclick
+ * handlers built with it broke on any answer containing apostrophes.
+ */
+function escapeAttr(s) {
+    return String(s === null || s === undefined ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 /**
@@ -6124,7 +6380,7 @@ function renderResearchConfig() {
     
     let modelOptions = '<option value="">Default (First Available)</option>';
     state.activeProviders.forEach(p => {
-        const provider = PROVIDERS[p] || state.customProviders.find(cp => cp.name === p);
+        const provider = PROVIDERS[p] || state.customProviders.find(cp => cp.id === p);
         if (provider && provider.models) {
             Object.keys(provider.models).forEach(mName => {
                 const mId = provider.models[mName];
@@ -6188,10 +6444,14 @@ function updateResearchStageConfig(key, val) {
  * Save all settings
  */
 function saveSettings() {
-    // Save API keys
-    Object.keys(PROVIDERS).forEach(k => {
+    // Save API keys (v7.9.13 bugfix: custom providers included)
+    const _keyProviders = [
+        ...Object.keys(PROVIDERS).map(k => [k, PROVIDERS[k]]),
+        ...(state.customProviders || []).map(cp => [cp.id, cp])
+    ];
+    _keyProviders.forEach(([k, p]) => {
         const input = document.getElementById(`key_${k}`);
-        if (input) localStorage.setItem(PROVIDERS[k].keyName, input.value);
+        if (input && p) localStorage.setItem(p.keyName, input.value);
     });
     
     // Save custom instructions
@@ -6210,8 +6470,14 @@ function saveSettings() {
     localStorage.setItem('sahu2_max_tokens', state.maxTokens);
     
     // Save pipeline settings
-    state.autoFallback = document.getElementById('autoFallback')?.checked ?? true;
-    state.promptRefinerEnabled = document.getElementById('promptRefinerCheck')?.checked ?? true;
+    // v7.9.13 bugfix: removed UI controls used to clobber saved state via
+    // "?? true" fallbacks. Missing controls now leave the saved value alone.
+    {
+        const _af = document.getElementById('autoFallback');
+        if (_af) state.autoFallback = _af.checked;
+        const _pr = document.getElementById('promptRefinerCheck');
+        if (_pr) state.promptRefinerEnabled = _pr.checked;
+    }
     localStorage.setItem('sahu_auto_fallback', state.autoFallback);
     localStorage.setItem('sahu_prompt_refiner', state.promptRefinerEnabled);
     
@@ -6231,36 +6497,66 @@ function saveSettings() {
     localStorage.setItem('sahu_search_engines', JSON.stringify(state.activeSearchEngines));
     
     // Save v5.0 feature toggles
-    state.features.neuralConsensus = document.getElementById('neuralConsensusCheck')?.checked ?? false;
-    state.features.debateMode = document.getElementById('debateModeCheck')?.checked ?? false;
-    state.features.temporalReasoning = document.getElementById('temporalReasoningCheck')?.checked ?? false;
-    state.features.adaptiveReasoning = document.getElementById('adaptiveReasoningCheck')?.checked ?? false;
-    state.features.uncertaintyBadge = document.getElementById('uncertaintyBadgeCheck')?.checked ?? false;
-    state.features.tokenEstimator = document.getElementById('tokenEstimatorCheck')?.checked ?? false;
-    state.features.responseRating = document.getElementById('responseRatingCheck')?.checked ?? false;
-    state.features.threeTierMemory = document.getElementById('threeTierMemoryCheck')?.checked ?? false;
-    state.features.selfCorrectingCode = document.getElementById('selfCorrectingCodeCheck')?.checked ?? false;
-    state.features.usageAnalytics = document.getElementById('usageAnalyticsCheck')?.checked ?? false;
-    state.features.agentSwarm = document.getElementById('agentSwarmCheck')?.checked ?? false;
-    state.features.rapidLearning = document.getElementById('rapidLearningCheck')?.checked ?? false;
-    state.features.physicalIntegration = document.getElementById('physicalIntegrationCheck')?.checked ?? false;
-    state.features.constitutionalSafety = document.getElementById('constitutionalSafetyCheck')?.checked ?? false;
+    // v7.9.13 bugfix: the checkboxes no longer exist in the UI but were still
+    // read here - every save forced all 14 flags to false. Missing controls
+    // now leave the saved value untouched.
+    {
+        const _flag = (id, key) => {
+            const el = document.getElementById(id);
+            if (el) state.features[key] = el.checked;
+        };
+        _flag('neuralConsensusCheck', 'neuralConsensus');
+        _flag('debateModeCheck', 'debateMode');
+        _flag('temporalReasoningCheck', 'temporalReasoning');
+        _flag('adaptiveReasoningCheck', 'adaptiveReasoning');
+        _flag('uncertaintyBadgeCheck', 'uncertaintyBadge');
+        _flag('tokenEstimatorCheck', 'tokenEstimator');
+        _flag('responseRatingCheck', 'responseRating');
+        _flag('threeTierMemoryCheck', 'threeTierMemory');
+        _flag('selfCorrectingCodeCheck', 'selfCorrectingCode');
+        _flag('usageAnalyticsCheck', 'usageAnalytics');
+        _flag('agentSwarmCheck', 'agentSwarm');
+        _flag('rapidLearningCheck', 'rapidLearning');
+        _flag('physicalIntegrationCheck', 'physicalIntegration');
+        _flag('constitutionalSafetyCheck', 'constitutionalSafety');
+    }
     localStorage.setItem('sahu2_features', JSON.stringify(state.features));
     
     // Save safety models
-    state.safetyModels.graniteGuard = document.getElementById('safetyGraniteCheck')?.checked ?? false;
-    state.safetyModels.shieldGemma = document.getElementById('safetyShieldGemmaCheck')?.checked ?? false;
-    state.safetyModels.llamaGuard = document.getElementById('safetyLlamaGuardCheck')?.checked ?? false;
+    // v7.9.13 bugfix: guard reads - missing checkboxes used to silently
+    // disable every safety model on each save.
+    {
+        const _sm = (id, key) => {
+            const el = document.getElementById(id);
+            if (el) state.safetyModels[key] = el.checked;
+        };
+        _sm('safetyGraniteCheck', 'graniteGuard');
+        _sm('safetyShieldGemmaCheck', 'shieldGemma');
+        _sm('safetyLlamaGuardCheck', 'llamaGuard');
+    }
     localStorage.setItem('sahu_safety_models', JSON.stringify(state.safetyModels));
     
     // Save voice config
-    state.voiceConfig.asr = document.getElementById('asrModelSelect')?.value || 'openai/whisper-large-v3';
-    state.voiceConfig.tts = document.getElementById('ttsModelSelect')?.value || 'nvidia/magpie-tts-multilingual';
+    // v7.9.13 bugfix: guard reads - missing selects used to reset the voice
+    // configuration to defaults on every save.
+    {
+        const _asr = document.getElementById('asrModelSelect');
+        if (_asr) state.voiceConfig.asr = _asr.value;
+        const _tts = document.getElementById('ttsModelSelect');
+        if (_tts) state.voiceConfig.tts = _tts.value;
+    }
     localStorage.setItem('sahu_voice_config', JSON.stringify(state.voiceConfig));
     
     // Save single model mode
-    state.singleModelMode = document.getElementById('singleModelCheck')?.checked ?? false;
-    state.singleModelId = document.getElementById('singleModelSelect')?.value || 'z-ai/glm-5.3-flash';
+    // v7.9.13 bugfix: guard reads (the single-model UI was removed by design
+    // and loadState forces the mode off; these guards just stop the dead
+    // reads from clobbering state on save).
+    {
+        const _smm = document.getElementById('singleModelCheck');
+        if (_smm) state.singleModelMode = _smm.checked;
+        const _smi = document.getElementById('singleModelSelect');
+        if (_smi) state.singleModelId = _smi.value;
+    }
     localStorage.setItem('sahu_single_model_mode', state.singleModelMode);
     localStorage.setItem('sahu_single_model_id', state.singleModelId);
     
@@ -6301,13 +6597,19 @@ function renderProviderCheckboxes() {
     const container = document.getElementById('providerCheckboxes');
     if (!container) return;
 
-    container.innerHTML = Object.entries(PROVIDERS).map(([k, p]) => `
+    // v7.9.13 CRITICAL bugfix: custom providers were never rendered here,
+    // so they could never be enabled or used. Merge them into the list.
+    const _allProviders = [
+        ...Object.entries(PROVIDERS),
+        ...(state.customProviders || []).map(cp => [cp.id, cp])
+    ];
+    container.innerHTML = _allProviders.map(([k, p]) => `
         <div class="provider-item-wrap">
             <label class="provider-item ${state.activeProviders.includes(k) ? 'active' : ''}">
                 <input type="checkbox" class="provider-checkbox" ${state.activeProviders.includes(k) ? 'checked' : ''} onchange="toggleProvider('${k}', this.checked)">
                 <div class="provider-info">
                     <div class="provider-name">
-                        <span class="provider-icon">${p.icon}</span>
+                        <span class="provider-icon">${p.icon || '🔌'}</span>
                         <span>${p.name}</span>
                     </div>
                 </div>
@@ -6325,7 +6627,12 @@ function renderApiKeyInputs() {
     const c = document.getElementById('apiKeyInputs');
     if (!c) return;
     
-    c.innerHTML = Object.entries(PROVIDERS).map(([k, p]) => `
+    // v7.9.13 bugfix: custom provider keys were never rendered or restored.
+    const _allKeyProviders = [
+        ...Object.entries(PROVIDERS),
+        ...(state.customProviders || []).map(cp => [cp.id, cp])
+    ];
+    c.innerHTML = _allKeyProviders.map(([k, p]) => `
         <div class="api-key-item">
             <div class="api-key-header">
                 <span class="provider-icon">${p.icon}</span>
@@ -6335,8 +6642,8 @@ function renderApiKeyInputs() {
         </div>
     `).join('');
     
-    Object.keys(PROVIDERS).forEach(k => {
-        const v = localStorage.getItem(PROVIDERS[k].keyName);
+    _allKeyProviders.forEach(([k, p]) => {
+        const v = localStorage.getItem(p.keyName);
         const input = document.getElementById(`key_${k}`);
         if (v && input) input.value = v;
     });
@@ -6514,7 +6821,13 @@ function addCustomProvider() {
     };
     
     state.customProviders.push(provider);
-    localStorage.setItem(PROVIDERS[k].keyName, key);
+    // v7.9.13 CRITICAL bugfix: `k` was never in scope here - adding a provider
+    // threw "ReferenceError: k is not defined" and the key was never saved.
+    localStorage.setItem(provider.keyName, key);
+    // v7.9.13 bugfix: auto-enable the new provider so it is immediately usable
+    // (previously it was added but never activated - dead end-to-end).
+    if (!state.activeProviders.includes(id)) state.activeProviders.push(id);
+    localStorage.setItem('sahu_active_providers', JSON.stringify(state.activeProviders));
     localStorage.setItem('sahu_custom_providers', JSON.stringify(state.customProviders));
     
     showToast('Custom provider added!');
@@ -8236,9 +8549,13 @@ async function executeTool(cmd) {
     }
     
     if (tool === 'CALC') {
+        // v7.9.13 security bugfix: eval() replaced with the vetted tokenizer
+        // (sahuSafeCalc - the same engine the CALC: directive uses). The old
+        // path allowed ** chains to blow up and any future filter slip would
+        // have meant arbitrary JS execution.
         try {
-            const result = eval(arg.replace(/[^-()\d/*+.]/g, ''));
-            return `CALC: ${result}`;
+            const r = sahuSafeCalc(arg);
+            return (r && r.ok) ? `CALC: ${r.text}` : 'CALC ERROR';
         } catch (e) {
             return 'CALC ERROR';
         }
@@ -8598,18 +8915,34 @@ function formatMarkdown(text, sources = null) {
         .replace(/PREVIEW\s*:[^\n]*\n+(?=```(?:html|react|jsx|tsx))/gi, '');
     
     
+    // v7.9.13 bugfix: fenced code blocks are extracted FIRST and restored
+    // after the markdown passes. Previously the citation rewriter ran before
+    // code fences were handled, so array indexing like arr[1] inside any code
+    // block was rewritten into citation HTML and corrupted the display (and
+    // the Copy/Run actions received the corrupted text).
+    const _sahuFences = [];
+    const artifactRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    text = text.replace(artifactRegex, (match, lang, code) => {
+        _sahuFences.push({ lang: lang || 'text', code: code });
+        return 'SAHUFENCE' + (_sahuFences.length - 1) + 'TOKEN';
+    });
+
     // Citation handling (FIX 2: use provided sources when rendering saved chats)
     const _srcList = (Array.isArray(sources) && sources.length) ? sources : (state.lastSources || []);
+    // v7.9.13 security bugfix: citation links were interpolated unescaped and
+    // unvalidated - a crafted source entry could inject attributes/markup.
+    // Only http(s) links pass now, and every interpolation is escaped.
     text = text.replace(/\[(\d+)\]/g, (match, id) => {
         const src = _srcList[parseInt(id) - 1];
-        if (src) {
+        if (src && src.link && /^https?:\/\//i.test(src.link)) {
+            const _lnk = escapeHtml(src.link);
             return `
-                <a href="${src.link}" target="_blank" class="citation relative">
+                <a href="${_lnk}" target="_blank" class="citation relative">
                     [${id}]
                     <div class="citation-tooltip">
                         <div class="citation-tooltip-title">${escapeHtml(src.title)}</div>
                         <div class="citation-tooltip-snippet">${escapeHtml(src.snippet)}</div>
-                        <div class="citation-tooltip-link">${src.link}</div>
+                        <div class="citation-tooltip-link">${_lnk}</div>
                     </div>
                 </a>
             `;
@@ -8617,9 +8950,10 @@ function formatMarkdown(text, sources = null) {
         return match;
     });
     
-    // Code block handling with artifact support
-    const artifactRegex = /```(\w+)?\n([\s\S]*?)```/g;
-    text = text.replace(artifactRegex, (match, lang, code) => {
+    // Code block artifact builder - v7.9.13: extracted into a helper so it
+    // runs AFTER DOMPurify sanitization, when the fences are restored below.
+    // Everything it emits is app-generated; code content is escapeHtml'd.
+    const _sahuArtifactHTML = (lang, code) => {
         lang = lang || 'text';
         const escapedCode = escapeHtml(code);
         const id = 'code-' + Math.random().toString(36).substr(2, 9);
@@ -8678,7 +9012,7 @@ function formatMarkdown(text, sources = null) {
                     <span class="text-[var(--accent)] font-semibold"><i class="fas fa-eye"></i> Live Preview</span>
                     <button onclick="toggleInlinePreview('${previewId}')" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><i class="fas fa-times"></i></button>
                 </div>
-                <iframe srcdoc="${escapeHtml(code).replace(/"/g, '&quot;')}" class="w-full border-0" style="height:400px;background:white;" sandbox="allow-scripts allow-forms allow-same-origin allow-modals allow-popups"></iframe>
+                <iframe srcdoc="${escapeHtml(code).replace(/"/g, '&quot;')}" class="w-full border-0" style="height:400px;background:white;" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
             </div>
         ` : `<div id="${previewId}" style="display:none;"></div>`;
         
@@ -8694,7 +9028,7 @@ function formatMarkdown(text, sources = null) {
                 ${autoPreview}
             </div>
         `;
-    });
+    };
     
     // v6.4: markdown tables, headings and lists
     text = _sahuRichBlocks(text);
@@ -8708,7 +9042,29 @@ function formatMarkdown(text, sources = null) {
     
     // Line breaks
     text = text.replace(/\n/g, '<br>');
-    
+
+    // v7.9.13 security bugfix: sanitize the final HTML with DOMPurify before
+    // it reaches any innerHTML sink (defense-in-depth on top of the strip
+    // pass above). Neutralizes the verified bypasses: unquoted event
+    // handlers, scr+script reassembly, meta refresh, base href, form action,
+    // phishing forms and injected iframes. If the CDN is blocked the app
+    // degrades to the previous strip-pass behavior instead of breaking.
+    if (window.DOMPurify && typeof DOMPurify.sanitize === 'function') {
+        text = DOMPurify.sanitize(text, {
+            FORBID_TAGS: ['style', 'form', 'input', 'meta', 'base', 'link',
+                          'object', 'embed', 'iframe', 'frame', 'frameset',
+                          'textarea', 'select', 'option'],
+            FORBID_ATTR: ['style', 'srcdoc', 'formaction', 'srcset'],
+            ADD_ATTR: ['target']
+        });
+    }
+
+    // v7.9.13: restore the extracted code fences as trusted, app-generated
+    // artifacts (their content is fully escapeHtml'd inside the builder).
+    _sahuFences.forEach((f, i) => {
+        text = text.split('SAHUFENCE' + i + 'TOKEN').join(_sahuArtifactHTML(f.lang, f.code));
+    });
+
     return text;
 }
 
@@ -9646,7 +10002,7 @@ Output format:
                         <span class="font-semibold text-sm">Stage 3: Final Synthesis</span>
                         <p class="text-xs text-[var(--text-secondary)]">${aggModel.modelKey}</p>
                     </div>
-                    <button onclick="togglePin('${escapeHtml(res.content.substring(0, 100))}')" class="text-[var(--text-secondary)] hover:text-yellow-500">
+                    <button data-pin-snippet="${escapeAttr(res.content.substring(0, 100))}" onclick="togglePin(this.getAttribute('data-pin-snippet'))" class="text-[var(--text-secondary)] hover:text-yellow-500">
                         <i class="fas fa-thumbtack"></i>
                     </button>
                 </div>
@@ -9686,6 +10042,22 @@ Output format:
  * @param {HTMLElement} container - Messages container
  * @param {string} chatId - Chat ID
  */
+/**
+ * Toggle (collapse/expand) a Deep Research phase panel.
+ * v7.9.13 CRITICAL bugfix: every research-header onclick called this
+ * function, but it was never defined - clicking a phase header threw
+ * "ReferenceError: toggleResearchStage is not defined" and the
+ * collapse/expand affordance was completely dead.
+ */
+function toggleResearchStage(stageId) {
+    const content = document.getElementById('content-' + stageId);
+    if (!content) return;
+    const stage = document.getElementById(stageId);
+    const willCollapse = content.style.display !== 'none';
+    content.style.display = willCollapse ? 'none' : 'block';
+    if (stage) stage.classList.toggle('collapsed', willCollapse);
+}
+
 async function runDeepResearch(originalContent, container, chatId) {
     let aggregationContext = "";
     let stageOutputs = [];
@@ -9923,7 +10295,7 @@ async function runDeepResearch(originalContent, container, chatId) {
                         ${stage.name}
                     </span>
                     <span class="text-[10px] bg-[var(--bg-tertiary)] px-2 py-1 rounded">
-                        ${stage.id === 'stage5' ? 'Super Master' : (stage.id <= 3 ? '6 Experts' : '5 Experts')}
+                        ${stage.id === 'stage5' ? 'Super Master' : (['stage1','stage2','stage3'].includes(stage.id) ? '6 Experts' : '5 Experts')}
                     </span>
                 </div>
                 <div class="research-content" id="${contentId}" style="display:block;">
@@ -9938,7 +10310,7 @@ async function runDeepResearch(originalContent, container, chatId) {
         
         if (stage.id !== 'stage5') {
             // Stages 1-4: Run expert models - each expert analyzes user expert outputs + their own expertise
-            const numExperts = stage.id <= 3 ? 6 : 5;
+            const numExperts = ['stage1','stage2','stage3'].includes(stage.id) ? 6 : 5;
             
             await Promise.all(stage.experts.slice(0, numExperts).map(async (expertRole, idx) => {
                 if (state.currentChatId !== chatId) return;
@@ -9973,7 +10345,7 @@ async function runDeepResearch(originalContent, container, chatId) {
                 
                 // Build prompt with role-specific instructions
                 let rolePrompt = "";
-                if (stage.id <= 3 && idx === 5) {
+                if (['stage1','stage2','stage3'].includes(stage.id) && idx === 5) {
                     if (stage.id === 1) {
                         rolePrompt = "Focus on identifying PROS, benefits, and positive aspects.";
                     } else if (stage.id === 2) {
@@ -12288,7 +12660,7 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
                 setBusy('Agent Swarm: spawning ' + _swN + ' workers...');
                 let _swRes = { handled: false };
                 try {
-                    _swRes = await _sahuRunAgentSwarm(_swBlk, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, workerSources: [] });
+                    _swRes = await _sahuRunAgentSwarm(_swBlk, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy, workerSources: [] });
                 } catch (e) { _swRes = { handled: false }; }
                 if (_swRes && _swRes.handled && _swRes.answer) {
                     parts.push('[AGENTS] Swarm round complete (' + _swN + ' workers ran in parallel, findings merged). Their synthesized findings:\n' + _swRes.answer + '\nYou may spawn ANOTHER swarm with a different/deeper split, keep using other skills, or - if this is enough - write your final answer starting with ANSWER:');
@@ -12321,7 +12693,7 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
         // run them now and replace the directive with the synthesized answer.
         if (/sahu[_-]agents/i.test(finalAnswer)) {
             try {
-                const _sw = await _sahuRunAgentSwarm(finalAnswer, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace });
+                const _sw = await _sahuRunAgentSwarm(finalAnswer, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy });
                 if (_sw && _sw.handled) finalAnswer = _sw.answer || finalAnswer;
                 else if (_sw && _sw.cleaned) finalAnswer = _sw.cleaned;
             } catch (e) {}
@@ -12706,6 +13078,12 @@ function _sahuParseAgentSwarm(text) {
 }
 
 async function _sahuRunAgentSwarm(text, ctx) {
+    // v7.9.13 CRITICAL bugfix: setBusy only existed inside runSearchMode's
+    // closure, so every swarm run threw "setBusy is not defined" before any
+    // worker spawned (silently swallowed -> "swarm could not run this time").
+    // The caller now passes its own setBusy through ctx; no-op fallback keeps
+    // the function safe when invoked without one.
+    const setBusy = (ctx && typeof ctx.setBusy === 'function') ? ctx.setBusy : (() => {});
     const parsed = _sahuParseAgentSwarm(text);
     if (!parsed) return { handled: false };
     const tasks = parsed.tasks;
@@ -12971,8 +13349,22 @@ function setupKeyboardShortcuts() {
             }
         }
         // Escape: Cancel processing
+        // v7.9.13 bugfix: Escape only flipped a flag while streams kept
+        // downloading and burning tokens. It now aborts every in-flight
+        // request exactly like the Stop button does.
         if (e.key === 'Escape') {
-            state.isProcessing = false;
+            if (state.isProcessing) {
+                if (window.activeAbortControllers && window.activeAbortControllers.size > 0) {
+                    window.activeAbortControllers.forEach(c => { try { c.abort(); } catch (err) {} });
+                    window.activeAbortControllers.clear();
+                }
+                if (window.currentAbortController) {
+                    try { window.currentAbortController.abort(); } catch (err) {}
+                }
+                state.isProcessing = false;
+                updateDynamicButton();
+                showToast('Generation stopped', 'info');
+            }
             const sendBtn = document.getElementById('sendBtn');
             if (sendBtn) sendBtn.disabled = false;
         }
@@ -12982,8 +13374,16 @@ function setupKeyboardShortcuts() {
 /**
  * Main initialization
  */
+// v7.9.13 bugfix: single source of truth for the app identity. The app
+// previously showed v7.8 in the title/toast, "Version 5.0" in the sidebar
+// and docs, while the engine carried v7.9.12 changes.
+const APP_NAME = 'Manthan Agent';
+const APP_VERSION = '7.9.12';
+const APP_TITLE = APP_NAME + ' v' + APP_VERSION + ' - Official Saksham Intelligence AI Models Chat';
+
 async function init() {
-    console.log('🚀 Manthan Agent v7.8 Initializing...');
+    console.log('🚀 Manthan Agent v7.9.12 Initializing...');
+    document.title = APP_TITLE;
     
     // Load state from localStorage
     loadState();
@@ -13006,7 +13406,10 @@ async function init() {
     updateUI();
     
     // Initialize external libraries
-    await initPyodide();
+    // v7.9.13 perf bugfix: init() used to await the full Pyodide WASM
+    // download before wiring keyboard shortcuts and rendering shared
+    // conversations - a blank screen for tens of seconds on slow links.
+    // Pyodide is only needed by the CODE tool, so it loads in background.
     ensureV64Styles();
     initSpeechRecognition();
     
@@ -13015,6 +13418,9 @@ async function init() {
     
     // Set up keyboard shortcuts
     setupKeyboardShortcuts();
+    
+    // Background-load the Python runtime (non-blocking)
+    initPyodide().catch(e => console.warn('Pyodide background init failed:', e));
     
     // Set default mode
     updateMode(state.mode);
@@ -13026,8 +13432,8 @@ async function init() {
     // Update language
     updateLanguage(state.language);
     
-    console.log('✅ Manthan Agent v7.8 Ready');
-    showToast('Manthan Agent v7.8 Loaded');
+    console.log('✅ Manthan Agent v7.9.12 Ready');
+    showToast('Manthan Agent v7.9.12 Loaded');
 }
 
 // ============================================
@@ -13068,6 +13474,7 @@ window.togglePromptRefinerPanel = togglePromptRefinerPanel;
 window.togglePromptRefinerSetting = togglePromptRefinerSetting;
 window.toggleSingleModelMode = toggleSingleModelMode;
 window.saveSettings = saveSettings;
+window.toggleResearchStage = toggleResearchStage;
 window.toggleProvider = toggleProvider;
 window.toggleSearchEngine = toggleSearchEngine;
 window.toggleAllSearchEngines = toggleAllSearchEngines;
@@ -13145,7 +13552,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v7.8 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
