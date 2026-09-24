@@ -2104,13 +2104,25 @@
         .config-role-label { font-size: 0.8rem; color: var(--text-secondary); }
 
         /* API keys */
-        .api-key-header, .connectors-header, .search-engines-header, .providers-list {
+        .api-key-header, .connectors-header, .search-engines-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
             margin-bottom: 0.625rem;
         }
+
+        /* Active Providers list: vertical stack of full-width provider cards.
+           (Previously shared the header rule above, which laid the provider
+           cards out horizontally in a single squeezed row.) */
+        .providers-list {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+            margin-bottom: 0.625rem;
+        }
+        .providers-list .provider-item-wrap { margin-bottom: 0; }
 
         .api-keys-list, .connectors-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
@@ -3564,21 +3576,24 @@
             <div class="modal-body">
                 <!-- Main Settings Menu -->
                 <div id="settings-main" class="settings-view active">
-                    <div class="settings-section"><!-- Customize (Merged Appearance + Instructions) -->
-                        <button onclick="navigateSettings('customize')" class="settings-card">
+        <div class="settings-section">
+                        <!-- Menu order per user request; Documentation card removed -->
+                        <!-- Skills (v5.5) -->
+                        <button onclick="navigateSettings('skills')" class="settings-card">
                             <div class="settings-card-content">
                                 <div class="settings-card-left">
-                                    <div class="settings-card-icon blue">
-                                        <i class="fas fa-paint-brush"></i>
+                                    <div class="settings-card-icon yellow">
+                                        <i class="fas fa-bolt"></i>
                                     </div>
                                     <div>
-                                        <div class="settings-card-title">Customize</div>
-                                        <div class="settings-card-desc">Theme, Language, UI, Instructions</div>
+                                        <div class="settings-card-title">Skills</div>
+                                        <div class="settings-card-desc">Search, scrape, fetch &amp; browse</div>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
-                        </button><!-- Search Engines -->
+                        </button>
+                        <!-- Search Engines -->
                         <button onclick="navigateSettings('search')" class="settings-card">
                             <div class="settings-card-content">
                                 <div class="settings-card-left">
@@ -3593,16 +3608,16 @@
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </button>
-                        <!-- Skills (v5.5) -->
-                        <button onclick="navigateSettings('skills')" class="settings-card">
+                        <!-- Configure Models -->
+                        <button onclick="openModelSelector()" class="settings-card">
                             <div class="settings-card-content">
                                 <div class="settings-card-left">
-                                    <div class="settings-card-icon yellow">
-                                        <i class="fas fa-bolt"></i>
+                                    <div class="settings-card-icon indigo">
+                                        <i class="fas fa-cubes"></i>
                                     </div>
                                     <div>
-                                        <div class="settings-card-title">Skills</div>
-                                        <div class="settings-card-desc">Search, scrape, fetch &amp; browse</div>
+                                        <div class="settings-card-title">Configure Models</div>
+                                        <div class="settings-card-desc">Select and manage models</div>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
@@ -3623,7 +3638,6 @@
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </button>
-                        
                         <!-- API Keys -->
                         <button onclick="navigateSettings('keys')" class="settings-card">
                             <div class="settings-card-content">
@@ -3639,39 +3653,21 @@
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </button>
-                        
-                        <!-- Documentation -->
-                        <button onclick="openDocs()" class="settings-card">
+                        <!-- Customize (Merged Appearance + Instructions) -->
+                        <button onclick="navigateSettings('customize')" class="settings-card">
                             <div class="settings-card-content">
                                 <div class="settings-card-left">
                                     <div class="settings-card-icon blue">
-                                        <i class="fas fa-book"></i>
+                                        <i class="fas fa-paint-brush"></i>
                                     </div>
                                     <div>
-                                        <div class="settings-card-title">Documentation</div>
-                                        <div class="settings-card-desc">How to use Manthan</div>
+                                        <div class="settings-card-title">Customize</div>
+                                        <div class="settings-card-desc">Theme, Language, UI, Instructions</div>
                                     </div>
                                 </div>
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </button>
-                        
-                        <!-- View Source Code -->
-                        <button onclick="openSourceCode()" class="settings-card">
-                            <div class="settings-card-content">
-                                <div class="settings-card-left">
-                                    <div class="settings-card-icon purple">
-                                        <i class="fas fa-code"></i>
-                                    </div>
-                                    <div>
-                                        <div class="settings-card-title">View Source Code</div>
-                                        <div class="settings-card-desc">Inspect the application</div>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-right settings-card-chevron"></i>
-                            </div>
-                        </button>
-                        
                         <!-- Clear History -->
                         <button onclick="clearAllHistory()" class="settings-card">
                             <div class="settings-card-content">
@@ -3687,7 +3683,21 @@
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </button>
-                        
+                        <!-- View Source Code -->
+                        <button onclick="openSourceCode()" class="settings-card">
+                            <div class="settings-card-content">
+                                <div class="settings-card-left">
+                                    <div class="settings-card-icon purple">
+                                        <i class="fas fa-code"></i>
+                                    </div>
+                                    <div>
+                                        <div class="settings-card-title">View Source Code</div>
+                                        <div class="settings-card-desc">Inspect the application</div>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right settings-card-chevron"></i>
+                            </div>
+                        </button>
                         <!-- Install Android App -->
                         <a href="./sahu-moe.apk" download="" class="settings-card" style="text-decoration: none;">
                             <div class="settings-card-content">
@@ -3703,22 +3713,6 @@
                                 <i class="fas fa-chevron-right settings-card-chevron"></i>
                             </div>
                         </a>
-                        
-                        <!-- Configure Models -->
-                        <button onclick="openModelSelector()" class="settings-card">
-                            <div class="settings-card-content">
-                                <div class="settings-card-left">
-                                    <div class="settings-card-icon indigo">
-                                        <i class="fas fa-cubes"></i>
-                                    </div>
-                                    <div>
-                                        <div class="settings-card-title">Configure Models</div>
-                                        <div class="settings-card-desc">Select and manage models</div>
-                                    </div>
-                                </div>
-                                <i class="fas fa-chevron-right settings-card-chevron"></i>
-                            </div>
-                        </button>
                     </div>
                 </div><!-- Voice Settings View -->
                 <!-- Customize View (Merged Appearance + Instructions) -->
