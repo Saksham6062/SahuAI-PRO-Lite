@@ -9463,86 +9463,143 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
             let thinkingText = "";
             let buffer = "";  // Buffer for partial chunks split across reads
             let rawStreamText = "";  // v5.6c: raw log for error diagnosis
-            
+
+            // v7.9.14 STREAMING FIX: the Saksham CORS proxy (used for NVIDIA /
+            // Saksham Intelligence and Z.ai) buffers the ENTIRE SSE body and
+            // forwards it as one burst, so tokens used to arrive in a single
+            // frame and progressive streaming visibly did not work. This state
+            // machine detects a burst: parsed events are held briefly, and if
+            // the stream ENDS while still in detect mode (everything arrived
+            // at once), the answer is revealed progressively instead. Genuine
+            // live streams (direct providers, or an upgraded pass-through
+            // proxy) switch to live mode and stream exactly as before.
+            let _streamMode = 'detect';   // 'detect' -> 'live' | 'burst'
+            let _held = [];               // events parsed but not yet emitted
+            let _liveTimer = null;
+            let _firstDataAt = 0;
+
+            const _emitEvent = (contentChunk, thinkingChunk) => {
+                if (!onToken) return;
+                if (_isThinkingOff()) {
+                    // Thinking OFF: show final answer only
+                    const _vis = _visibleContent(fullText);
+                    const _delta = _vis.length > _lastVisibleLen ? _vis.substring(_lastVisibleLen) : '';
+                    _lastVisibleLen = _vis.length;
+                    onToken(_vis, '', _delta);
+                } else {
+                    onToken(fullText, thinkingText, contentChunk);
+                }
+            };
+
+            const _goLive = () => {
+                if (_streamMode !== 'detect') return;
+                _streamMode = 'live';
+                const held = _held; _held = [];
+                held.forEach(pair => _emitEvent(pair[0], pair[1]));
+            };
+
+            const _noteData = () => {
+                if (!_firstDataAt) _firstDataAt = Date.now();
+                if (_streamMode !== 'detect') return;
+                if (_liveTimer) clearTimeout(_liveTimer);
+                // data paused >160ms -> genuinely live, start emitting now
+                _liveTimer = setTimeout(_goLive, 160);
+                // hard deadline: never hold back a fast live stream for long
+                if (Date.now() - _firstDataAt > 700) _goLive();
+            };
+
+            // v7.9.14: lenient SSE parse - accept both "data: {...}" and
+            // "data:{...}" (some endpoints/proxies omit the space).
+            const _parseSseLine = (line) => {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data:')) return;
+                const jsonStr = trimmed.slice(5).trim();
+                if (jsonStr === '[DONE]') return;
+                try {
+                    const json = JSON.parse(jsonStr);
+                    const contentChunk = json.choices?.[0]?.delta?.content || "";
+                    const thinkingChunk = json.choices?.[0]?.delta?.reasoning_content || json.choices?.[0]?.delta?.reasoning || "";
+                    fullText += contentChunk;
+                    thinkingText += thinkingChunk;
+                    if (contentChunk || thinkingChunk) {
+                        currentTokenCount++;
+                        updateMetrics();
+                    }
+                    if (_streamMode === 'live') {
+                        _emitEvent(contentChunk, thinkingChunk);
+                    } else {
+                        _held.push([contentChunk, thinkingChunk]);
+                    }
+                } catch (e) {
+                    // Skip malformed JSON lines
+                }
+            };
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
+
                 const _decoded = decoder.decode(value, { stream: true });
                 buffer += _decoded;
                 rawStreamText += _decoded;
                 const lines = buffer.split('\n');
                 // Keep the last (potentially incomplete) line in the buffer
                 buffer = lines.pop() || "";
-                
-                for (const line of lines) {
-                    const trimmed = line.trim();
-                    // SSE format: lines start with "data: "
-                    if (trimmed.startsWith('data: ')) {
-                        const jsonStr = trimmed.slice(6).trim();  // Remove "data: " prefix
-                        if (jsonStr === '[DONE]') continue;
-                        
-                        try {
-                            const json = JSON.parse(jsonStr);
-                            const contentChunk = json.choices?.[0]?.delta?.content || "";
-                            const thinkingChunk = json.choices?.[0]?.delta?.reasoning_content || json.choices?.[0]?.delta?.reasoning || "";
-                            
-                            fullText += contentChunk;
-                            thinkingText += thinkingChunk;
-                            
-                            if (contentChunk || thinkingChunk) {
-                                currentTokenCount++;
-                                updateMetrics();
-                            }
 
-                            if (onToken) {
-                                if (_isThinkingOff()) {
-                                    // Thinking OFF: show final answer only
-                                    const _vis = _visibleContent(fullText);
-                                    const _delta = _vis.length > _lastVisibleLen ? _vis.substring(_lastVisibleLen) : '';
-                                    _lastVisibleLen = _vis.length;
-                                    onToken(_vis, '', _delta);
-                                } else {
-                                    onToken(fullText, thinkingText, contentChunk);
-                                }
-                            }
-                        } catch (e) {
-                            // Skip malformed JSON lines
-                        }
-                    }
+                let _hadData = false;
+                for (const line of lines) {
+                    const _before = fullText.length + thinkingText.length;
+                    _parseSseLine(line);
+                    if (fullText.length + thinkingText.length > _before) _hadData = true;
                 }
+                if (_hadData) _noteData();
             }
-            
+
             // Process any remaining data in buffer
-            if (buffer.trim().startsWith('data: ')) {
-                const jsonStr = buffer.trim().slice(6).trim();
-                if (jsonStr !== '[DONE]') {
-                    try {
-                        const json = JSON.parse(jsonStr);
-                        const contentChunk = json.choices?.[0]?.delta?.content || "";
-                        const thinkingChunk = json.choices?.[0]?.delta?.reasoning_content || json.choices?.[0]?.delta?.reasoning || "";
-                        fullText += contentChunk;
-                        thinkingText += thinkingChunk;
-                        if (contentChunk || thinkingChunk) {
-                            currentTokenCount++;
-                            updateMetrics();
+            if (buffer.trim().startsWith('data:')) {
+                _parseSseLine(buffer);
+            }
+
+            if (_liveTimer) clearTimeout(_liveTimer);
+
+            if (_streamMode === 'detect' && fullText.trim()) {
+                // Stream ended while still detecting -> the whole body arrived
+                // as ONE buffered burst (Saksham proxy behavior). Reveal the
+                // answer progressively so the user sees real streaming.
+                _streamMode = 'burst';
+                if (onToken) {
+                    const _off = _isThinkingOff();
+                    if (thinkingText && !_off) onToken("", thinkingText, "");
+                    const _revealText = _off ? _visibleContent(fullText) : fullText;
+                    // Build reveal pieces (~12-24 chars each; long unbroken
+                    // tokens/CJK/code get sliced) and pace them so even huge
+                    // answers reveal in roughly 2.5s.
+                    const _toks = _revealText.split(/(\s+)/);
+                    const pieces = [];
+                    let _cur = '';
+                    for (const tk of _toks) {
+                        if (tk.length > 24) {
+                            if (_cur) { pieces.push(_cur); _cur = ''; }
+                            for (let k = 0; k < tk.length; k += 24) pieces.push(tk.slice(k, k + 24));
+                            continue;
                         }
-                        if (onToken) {
-                            if (_isThinkingOff()) {
-                                const _vis = _visibleContent(fullText);
-                                const _delta = _vis.length > _lastVisibleLen ? _vis.substring(_lastVisibleLen) : '';
-                                _lastVisibleLen = _vis.length;
-                                onToken(_vis, '', _delta);
-                            } else {
-                                onToken(fullText, thinkingText, contentChunk);
-                            }
-                        }
-                    } catch (e) {
-                        // Skip malformed JSON
+                        _cur += tk;
+                        if (_cur.length >= 18) { pieces.push(_cur); _cur = ''; }
+                    }
+                    if (_cur) pieces.push(_cur);
+                    const pace = Math.max(1, Math.min(16, Math.round(2600 / Math.max(pieces.length, 1))));
+                    let _acc = "";
+                    for (const p of pieces) {
+                        if (controller.signal.aborted) break;
+                        _acc += p;
+                        onToken(_acc, _off ? '' : thinkingText, p);
+                        await new Promise(r => setTimeout(r, pace));
                     }
                 }
+            } else {
+                _goLive();  // safety flush of anything still held
             }
-            
+
             // v5.6c: provider answered 200 but streamed ZERO answer text -
             // usually an error payload the SSE parser skipped. Surface the
             // real reason and throw so the fallback chain (next keyed
