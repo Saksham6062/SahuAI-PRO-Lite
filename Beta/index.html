@@ -3,9 +3,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, MCP tools, unlimited agent-swarm skill, MP Board examiner, OpenRouter web search, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -3145,7 +3145,7 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 7.9.12</p>
+                    <p class="sidebar-version">Version 8.0.0 · Skill Pack</p>
                 </div>
             </div>
             
@@ -4435,7 +4435,7 @@
                 <!-- Documentation Content (Version 5.0) -->
                 <div class="prose max-w-none">
                     <h1 class="gradient-text">🤖 Manthan Agent – Official Saksham Intelligence AI Models Chat</h1>
-                    <h3><em>Version 7.9.12 | Powered by Saksham Intelligence</em></h3>
+                    <h3><em>Version 8.0.0 · No-Backend Skill Pack | Powered by Saksham Intelligence</em></h3>
                     
                     <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border);">
                     
@@ -4656,7 +4656,7 @@
         // Safety Models
         function checkSafety(content) {}
         
-        console.log('✅ Manthan Agent v7.9.12 HTML/CSS Loaded');
+        console.log('✅ Manthan Agent v8.0.0 HTML/CSS Loaded');
     </script>
     
     <!-- Link to JavaScript File -->
@@ -4797,7 +4797,7 @@ const state = {
     },
     
     // v5.5: Agent skills - abilities the loop can use, toggled in Settings > Skills
-    enabledSkills: ['web_search', 'web_scrape', 'web_fetch', 'web_browse', 'run_code', 'make_files', 'live_preview', 'mcp_date', 'mcp_calc', 'agent_swarm'],
+    enabledSkills: ['web_search', 'web_scrape', 'web_fetch', 'web_browse', 'run_code', 'make_files', 'live_preview', 'mcp_date', 'mcp_calc', 'agent_swarm', 'chart_studio', 'speak', 'convert', 'weather', 'image_gen', 'gif_maker', 'image_search', 'places', 'stock_snapshot', 'file_reader', 'pdf_edit', 'translate', 'humanizer', 'audit', 'cite_style', 'memory', 'reminders', 'summarize', 'tdd_mentor', 'design_polish', 'self_improvement', 'heartbeat'],
     
     // Response Style + Persona (v7.0: persona lives inside Choose style)
     responseStyle: 'normal',
@@ -5570,6 +5570,30 @@ function loadState() {
                 state.activeSearchEngines.push('tinyfish');
             }
             state._v73Engines = true;
+        }
+
+        // v8.0: NO-BACKEND SKILL PACK one-time migration - the 22 new core
+        // skills switch ON for every existing user, and the 20 prompt-only
+        // library skills (MAKESKILL ports) are seeded as built-in custom
+        // skills with their own toggles. Deleting a library skill is
+        // respected (this block never runs again thanks to the flag).
+        if (!state._v80Skills) {
+            const _v80ids = ['chart_studio', 'speak', 'convert', 'weather', 'image_gen', 'gif_maker', 'image_search', 'places', 'stock_snapshot', 'file_reader', 'pdf_edit', 'translate', 'humanizer', 'audit', 'cite_style', 'memory', 'reminders', 'summarize', 'tdd_mentor', 'design_polish', 'self_improvement', 'heartbeat'];
+            const _v80set = new Set(state.enabledSkills || []);
+            _v80ids.forEach(k => _v80set.add(k));
+            if (!Array.isArray(state.customSkills)) state.customSkills = [];
+            const _v80have = new Set(state.customSkills.map(s => s.id));
+            (typeof SAHU_V80_LIB_SKILLS !== 'undefined' ? SAHU_V80_LIB_SKILLS : []).forEach(s => {
+                if (!_v80have.has(s.id)) state.customSkills.push(Object.assign({}, s));
+            });
+            // enable exactly the library skills that EXIST in customSkills -
+            // freshly seeded AND previously seeded ones alike, while a lib
+            // skill the user deliberately deleted stays deleted/disabled
+            const _v80libids = [];
+            (state.customSkills || []).forEach(s => { if (s && s.id && String(s.id).indexOf('lib_') === 0) { _v80libids.push(s.id); _v80set.add(s.id); } });
+            const _v80base = (typeof SAHU_SKILLS !== 'undefined' ? SAHU_SKILLS.map(s => s.id) : []).filter(id => _v80set.has(id));
+            state.enabledSkills = Array.from(new Set(_v80base.concat(_v80ids.filter(id => _v80set.has(id))).concat(_v80libids.filter(id => _v80set.has(id)))));
+            state._v80Skills = true;
         }
         
         const history = localStorage.getItem('sahu_chat_history');
@@ -7155,7 +7179,7 @@ async function handleFileUpload(event) {
             state.uploadedImageBase64 = base64;
             state.uploadedImageMimeType = file.type;
         } else if (isPDF) {
-            // Convert PDF to base64 for vision models that support PDF input
+            // Keep the base64 leg for vision models that accept PDF input...
             const base64 = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
@@ -7163,15 +7187,38 @@ async function handleFileUpload(event) {
                 reader.readAsDataURL(file);
             });
             state.uploadedFile = file;
-            state.uploadedFileContent = `[PDF DOCUMENT: ${file.name}]`;
             state.uploadedImageBase64 = base64;
             state.uploadedImageMimeType = file.type;
+            state.uploadedFileContent = `[PDF DOCUMENT: ${file.name} - extracting text...]`;
+            // v8.0 file-reader: ALSO extract real text with pdf.js so EVERY
+            // model (not just vision ones) can read the PDF. The document
+            // joins the session pool for READ_FILE / FIND_IN_FILES / PDFEDIT.
+            try {
+                const entry = await _sahuIngestFile(file);
+                if (entry.text) state.uploadedFileContent = `[PDF: ${file.name} - ${entry.meta}]
+
+` + entry.text.substring(0, 50000);
+                else if (entry.error) state.uploadedFileContent = `[PDF: ${file.name} - text extraction failed (${entry.error}). Vision models still see the file; scanned PDFs without a text layer return nothing (no OCR by design).]`;
+            } catch (e) {
+                state.uploadedFileContent = `[PDF DOCUMENT: ${file.name} - text extraction unavailable: ${String((e && e.message) || e)}]`;
+            }
         } else {
-            const text = await file.text().catch(() => 'BINARY_FILE_PLACEHOLDER');
+            // v8.0 file-reader: route documents to the right parser
+            // (SheetJS xlsx / mammoth docx / JSZip archives / native text)
+            // and add EVERY file to the session document pool.
+            const lower = file.name.toLowerCase();
+            const isDoc = /\.(xlsx|xls|docx|zip|csv)$/.test(lower);
             state.uploadedFile = file;
-            state.uploadedFileContent = text.substring(0, 50000);
             state.uploadedImageBase64 = null;
             state.uploadedImageMimeType = null;
+            let text = '';
+            try {
+                const entry = await _sahuIngestFile(file);
+                text = entry.text || '';
+                if (entry.error && isDoc) showToast('Parse warning: ' + entry.error, 'error');
+            } catch (e) { text = await file.text().catch(() => 'BINARY_FILE_PLACEHOLDER'); }
+            if (!text) text = await file.text().catch(() => 'BINARY_FILE_PLACEHOLDER');
+            state.uploadedFileContent = text ? text.substring(0, 50000) : '[BINARY FILE: ' + file.name + ']';
         }
         
         const preview = document.getElementById('fileUploadPreview');
@@ -8903,6 +8950,8 @@ function formatMarkdown(text, sources = null) {
         .replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1="#"')
         .replace(/FILE\s*\[\s*[a-z0-9]{1,8}\s*\]\s*:[^\n]*\n[\s\S]*?(?:\n\/FILE(?![a-z])|\nFILE\s*\[|$)/gi, '')
         .replace(/MAKESKILL:[^\n]*\n[\s\S]*?(?:\n\/MAKESKILL(?![a-z])|\nMAKESKILL:|$)/gi, '')
+        // v8.0: hide raw NOTED correction-log lines (consumed by the skill pack)
+        .replace(/(^|\n)[ \t]*NOTED\s*:[^\n]*/gi, '\n')
         // v7.1: hide raw AGENT SWARM directive blocks (the swarm engine consumes them)
         .replace(/```(?:sahu_agents|sahu-agents)[ \t]*\r?\n[\s\S]*?```/gi, '')
         // v6.5b: hide the raw PREVIEW marker line (the preview auto-opens)
@@ -8952,7 +9001,20 @@ function formatMarkdown(text, sources = null) {
         const escapedCode = escapeHtml(code);
         const id = 'code-' + Math.random().toString(36).substr(2, 9);
         const previewId = 'preview-' + id;
-        
+
+        // v8.0: CHART STUDIO fences - mermaid / echarts / chart / infographic
+        // render as real cards (async enhancer swaps the placeholder in-place
+        // after innerHTML lands; idempotent + works for restored history too)
+        const _v80art = ({ mermaid: 'mermaid', echarts: 'echarts', chart: 'echarts', infographic: 'infographic' })[String(lang).toLowerCase()];
+        if (_v80art) {
+            const rid = 'v80art' + Math.random().toString(36).slice(2, 10);
+            try { window.__sahuV80ArtReg[rid] = { kind: _v80art, code: code }; } catch (e) {}
+            const _v80names = { mermaid: 'Diagram · Mermaid', echarts: 'Chart · ECharts', infographic: 'Infographic' };
+            const _v80icons = { mermaid: 'fa-diagram-project', echarts: 'fa-chart-simple', infographic: 'fa-table-cells-large' };
+            setTimeout(function () { try { sahuV80EnhanceArtifacts(); } catch (e) {} }, 60);
+            return '<div class="v80-artifact"><div class="v80-artifact-h"><span><i class="fas ' + _v80icons[_v80art] + '"></i> ' + _v80names[_v80art] + '</span><span class="v80-artifact-hint">Skill Pack · rendered</span></div><div class="v80-artifact-body" id="' + rid + '"><div class="v80-loading">Rendering…</div></div></div>';
+        }
+
         let actions = `
             <button onclick="navigator.clipboard.writeText(document.getElementById('${id}').innerText).then(()=>showToast('Code copied'))" class="artifact-action">
                 <i class="fas fa-copy"></i> Copy
@@ -11241,7 +11303,30 @@ const SAHU_SKILLS = [
     { id: 'mcp_date', name: 'MCP: Current Date & Time', icon: 'fa-calendar-day', color: 'sky', desc: 'MCP tool - gives the model the REAL current date & time on demand (local + UTC, weekday, timezone, Unix stamp). Time-sensitive answers are always correct - no more guessed dates.' },
     { id: 'mcp_calc', name: 'MCP: Calculator', icon: 'fa-calculator', color: 'orange', desc: 'MCP tool - an exact math engine the model can call: arithmetic, powers, roots, trig, logs, factorials, constants (pi, e). It computes instead of guessing.' },
     { id: 'agent_swarm', name: 'Agent Swarm', icon: 'fa-users', color: 'violet', desc: 'MCP tool - the model can spawn 2-10 parallel worker agents (NEVER exactly 1) AS MANY TIMES as it wants during a task: each spawn is one fenced sahu_agents block, workers run at the same time (each may request one web search), and every report comes back merged. Built for big research, multi-part jobs and large comparisons.' },
-    { id: 'web_browse', name: 'Web Browsing', icon: 'fa-compass',  color: 'cyan',   desc: 'Browses a page like a person: skims the content and picks up links to follow next.' }
+    { id: 'web_browse', name: 'Web Browsing', icon: 'fa-compass',  color: 'cyan',   desc: 'Browses a page like a person: skims the content and picks up links to follow next.' },
+    // ---- v8.0.0 NO-BACKEND SKILL PACK (23 core skills; deep-research already ships as the Deep Research mode) ----
+    { id: 'chart_studio', name: 'Chart Studio', icon: 'fa-chart-simple', color: 'indigo', desc: 'CHART / DIAGRAM / INFOGRAPHIC: the model emits a fenced echarts (JSON option), mermaid or infographic block and it renders as a real interactive card - charts, flowcharts, mind maps, sequence, ER, gantt, KPI infographics - with PNG export.' },
+    { id: 'speak', name: 'Speak (TTS)', icon: 'fa-volume-high', color: 'teal', desc: 'SPEAK: [rate=] [lang=] <text> reads any text aloud with the browser built-in speech engine - free, offline, no key. Adds a Speak button to every answer.' },
+    { id: 'convert', name: 'Converter', icon: 'fa-right-left', color: 'emerald', desc: 'CONVERT: exact unit conversion (length, mass, volume, area, speed, data, time, temperature), live currency via frankfurter.app (ECB rates, 1h cache) and timezone conversion (IANA-aware). Deterministic - never guessed.' },
+    { id: 'weather', name: 'Live Weather', icon: 'fa-cloud-sun', color: 'sky', desc: 'WEATHER: <place> gives real current conditions plus a 3-day forecast for any place on Earth (Open-Meteo, keyless, CORS-open) as a weather card.' },
+    { id: 'image_gen', name: 'Image Generation', icon: 'fa-image', color: 'violet', desc: 'IMG: [transparent] [w=] [h=] [model=] <prompt> generates images on the keyless Pollinations provider - inline card, PNG download, deterministic seeds, regenerate button.' },
+    { id: 'gif_maker', name: 'GIF Maker', icon: 'fa-film', color: 'pink', desc: 'The model plans 2-10 frames and the app assembles a real animated GIF client-side with gif.js (frames from the keyless image provider). GIFPLAN fenced JSON block.' },
+    { id: 'image_search', name: 'Image Search', icon: 'fa-images', color: 'cyan', desc: 'IMGSEARCH: <query> finds openly-licensed images (Openverse API - CC/BY metadata included) shown as a carousel with source links and license labels.' },
+    { id: 'places', name: 'Nearby Places', icon: 'fa-location-dot', color: 'rose', desc: 'PLACES: <what> near <where> - restaurants, ATMs, chemists, cafes, parks and more from OpenStreetMap (Nominatim + Overpass, keyless) with distances, hours and a map card.' },
+    { id: 'stock_snapshot', name: 'Stock Snapshot', icon: 'fa-chart-line', color: 'green', desc: 'STOCK: <symbols> - delayed quotes for stocks, indices and FX (Stooq, keyless, 5-min cache) as a market card. Informational only.' },
+    { id: 'file_reader', name: 'File Reader', icon: 'fa-folder-open', color: 'blue', desc: 'Attach PDF, XLSX, DOCX, CSV, JSON or ZIP and the model actually reads them: pdf.js text extraction, SheetJS sheets, mammoth.js Word, JSZip listings. READ_FILE: / FIND_IN_FILES: over every attached document.' },
+    { id: 'pdf_edit', name: 'PDF Editing', icon: 'fa-file-pdf', color: 'red', desc: 'PDFEDIT: real in-browser PDF surgery on attached PDFs - merge, extract/remove pages, rotate, watermark, edit metadata (pdf-lib). Results arrive as download cards.' },
+    { id: 'translate', name: 'Translate', icon: 'fa-language', color: 'amber', desc: 'TRANSLATE[from>to]: <text> - strict translation shim over the active model: output ONLY the translation, formatting preserved, shown as a two-pane copy card.' },
+    { id: 'humanizer', name: 'Humanizer', icon: 'fa-pen-nib', color: 'orange', desc: 'HUMANIZE: <text> - two-pass rewrite: first a diagnosis of AI-writing patterns (em-dash pileups, delve, rule-of-three, hedging), then a human-voiced rewrite that keeps every fact.' },
+    { id: 'audit', name: 'Auditor', icon: 'fa-clipboard-check', color: 'purple', desc: 'AUDIT[type=dataset|schema|code|tos]: structured report cards. The dataset variant runs REAL deterministic checks (missing values, duplicates, outliers, type drift) in the Pyodide sandbox first.' },
+    { id: 'cite_style', name: 'Citation Styles', icon: 'fa-quote-right', color: 'blue', desc: 'CITE[apa|mla|chicago|ieee|harvard]: formats references exactly, batch-converts bibliographies and validates required fields (DOI, pages, access dates).' },
+    { id: 'memory', name: 'Persistent Memory', icon: 'fa-brain', color: 'violet', desc: 'MEMORY:+ / MEMORY:- - a bounded profile of stable facts about you (name, stack, projects, preferences) carried across sessions, editable in Settings, skipped in Incognito, exportable as JSON.' },
+    { id: 'reminders', name: 'Reminders', icon: 'fa-bell', color: 'yellow', desc: 'REMIND: in 45m | at 18:30 | every 30m <text> - browser notifications + in-chat banners while the app is open (honest limit: nothing fires when the tab is closed - no server).' },
+    { id: 'summarize', name: 'Summarizer', icon: 'fa-align-left', color: 'sky', desc: 'SUMMARIZE: <url | YouTube link | attached file | text> - fetches the source (page, YouTube transcript via Piped, attached doc) and writes a fixed digest: TL;DR, key points, notable quotes.' },
+    { id: 'tdd_mentor', name: 'TDD Mentor', icon: 'fa-vial', color: 'green', desc: 'TDD: / MENTOR: - test-driven development coach: writes the failing test FIRST in the sandbox, shows red, implements, shows green, refactors. MENTOR is the Socratic teaching variant.' },
+    { id: 'design_polish', name: 'Design Polish', icon: 'fa-wand-magic', color: 'indigo', desc: 'DESIGN[theme=minimal|editorial|brutalist|glass|retro]: raises every Live Preview build to designer grade - deliberate type scale, 4/8px rhythm, intentional palette, self-critique pass before delivery.' },
+    { id: 'self_improvement', name: 'Self-Improvement', icon: 'fa-rotate', color: 'pink', desc: 'When you correct the model it logs NOTED: <wrong> -> <right> and the last five corrections ride along every session, so the same mistake is not repeated. Viewable in Settings.' },
+    { id: 'heartbeat', name: 'Heartbeat', icon: 'fa-heart-pulse', color: 'red', desc: 'A periodic check-in while the app is open: composes subscribed briefs (BRIEF:+ <topic>), surfaces due reminders and prunes stale memory - and stays SILENT when there is nothing to say.' }
 ];
 
 function buildSearchLoopPrompt() {
@@ -11259,6 +11344,28 @@ function buildSearchLoopPrompt() {
     if (has('skill_creator')) lines.push('CREATE A SKILL - when the user asks you to create/define/save a new skill (a reusable behavior, persona or workflow), output a block:\nMAKESKILL: <skill name>\nDESC: <one line describing what it does>\n<the skill instructions - exact directives you should follow whenever this skill applies>\n/MAKESKILL\nIt is saved instantly and appears in Settings > Skills with its own on/off toggle.');
     lines.push('STYLE: In answers and files you may freely use emojis, markdown tables (| A | B |) to compare or contrast things, **bold**, headings (#, ##), and <font face=\"Georgia\" color=\"#c026d3\" size=\"4\">font spans</font> for different fonts and colors. Do NOT wrap markdown tables or FILE blocks inside code fences - output them as plain text.');
     if (has('web_browse')) lines.push('BROWSE: <url> - browse a page: quick content summary plus the links it contains for further browsing.');
+    // ---- v8.0 NO-BACKEND SKILL PACK directives ----
+    if (has('weather')) lines.push('WEATHER: <place> - REAL live weather for any place on Earth (Open-Meteo): current conditions + 3-day forecast, returned as exact numbers plus a weather card for the user. Use it for EVERY weather question, trip suggestion or outfit/planning answer that depends on weather.');
+    if (has('convert')) lines.push('CONVERT: <expr> - exact conversion engine. Units: CONVERT: 180 lb to kg (length, mass, volume, area, speed, data, time, temperature - word forms like kilometers/pounds work). Currency: CONVERT: 25000 INR to JPY (live ECB rates, cached 1h). Timezones: CONVERT: 14:30 IST to PST. Use it for ANY conversion instead of guessing factors.');
+    if (has('speak')) lines.push('SPEAK: [rate=0.9] [pitch=1] [lang=hi] <text> - reads the text aloud to the user with the browser speech engine (offline, no key). Use when they ask to hear something, for pronunciation, or short listenable summaries. Keep spoken text under ~800 words.');
+    if (has('image_gen')) lines.push('IMG: [transparent] [w=1024] [h=1024] [model=flux] [seed=N] <prompt> - generates an image on the keyless Pollinations provider; the user gets an inline card with PNG download. You cannot see the result: describe intent, not contents, and offer regeneration with a modified prompt.');
+    if (has('gif_maker')) lines.push('GIF ANIMATIONS - for a short looping animation, output ONE fenced block:\n```gifplan\n{"fps":10,"frames":["frame 1 prompt","frame 2 prompt","..."]}\n```\n2-10 frames; each frame is a FULL image prompt that over-specifies the FIXED elements and changes only the motion state. The app generates the frames and assembles a real GIF with a download button.');
+    if (has('image_search')) lines.push('IMGSEARCH: <query> - finds openly-LICENSED images (Openverse: CC/BY with attribution metadata) shown as a thumbnail carousel. Ideal for reference images, art/design styles, openly reusable illustrations.');
+    if (has('places')) lines.push('PLACES: <what> near <where> - local search on OpenStreetMap: restaurants, cafes, ATMs, chemists, fuel, parking, hospitals, gyms, parks, hotels, supermarkets... Returns ranked results with distances, opening hours when tagged, and a map card. Also accepts PLACES: {"what":"cafe","near":"MG Road, Pune","radius":2000}.');
+    if (has('stock_snapshot')) lines.push('STOCK: <symbol or several, space-separated> - delayed quotes (price, change, open/high/low, volume) for stocks, indices (^NSEI ^BSESN ^GSPC) and FX pairs (USDINR) from Stooq, shown as a market card. ALWAYS add that data is delayed and this is not investment advice.');
+    if (has('file_reader')) lines.push('READ_FILE: <attached name> [pages 2-5 | sheet 3] - reads an attached document (PDF text via pdf.js, XLSX sheets via SheetJS, DOCX via mammoth, ZIP listings, CSV/JSON/text). FIND_IN_FILES: <phrase> searches every attached document and returns excerpts with locations. Uploaded files are auto-parsed and their content arrives with the message; use these directives for MORE (other pages/sheets/files).');
+    if (has('pdf_edit')) lines.push('PDFEDIT: <one JSON object> - real PDF surgery on ATTACHED PDFs (pdf-lib): {"op":"info","file":"a.pdf"} | {"op":"merge","files":["a.pdf","b.pdf"],"out":"combined.pdf"} | {"op":"extract","file":"a.pdf","pages":"1-3","out":"part.pdf"} | {"op":"remove","file":"a.pdf","pages":"2"} | {"op":"rotate","file":"a.pdf","pages":"all","degrees":90} | {"op":"watermark","file":"a.pdf","text":"CONFIDENTIAL","opacity":0.3} | {"op":"metadata","file":"a.pdf","title":"...","author":"..."}. The edited PDF becomes a download card.');
+    if (has('translate')) lines.push('TRANSLATE[from>to]: <text> - strict translation (from optional, auto-detected): the app runs a pinned translator prompt and shows a two-pane copy card. Use it whenever the user asks for a translation; it keeps formatting and adds zero commentary.');
+    if (has('humanizer')) lines.push('HUMANIZE: <text> - two-pass humanizer: pass 1 diagnoses AI-writing patterns (em-dash pileups, "delve", rule-of-three, hedging boilerplate, uniform rhythm), pass 2 rewrites with genuine voice while keeping every fact. Show the diagnosis as a short bullet list, then the rewrite.');
+    if (has('audit')) lines.push('AUDIT[type=...]: structured audit reports. AUDIT[type=dataset]: <CSV or attached .csv> runs REAL deterministic checks in the sandbox (missing values, duplicate rows, type drift, IQR outliers, ranges) and you write the card: FINDINGS / SEVERITY (P0/P1/P2) / SUGGESTED FIXES / which checks were deterministic. AUDIT[type=schema|code|tos]: <content> - same card shape, prompt-driven (schema: fields/types/keys/normalization; code: OWASP Top 10 + language risks; tos: red-flag clauses).');
+    if (has('cite_style')) lines.push('CITE[apa|mla|chicago|ieee|harvard]: <reference text> - format the citation in the target style and put ONLY the citation in a fenced code block (one-tap copy), then a short validation note listing missing fields the style expects (DOI, pages, access date). Batch mode: one reference per line.');
+    if (has('memory')) lines.push('MEMORY - persistent memory across sessions: MEMORY:+ <stable fact about the user> saves it (never passwords, IDs, payment or health specifics); MEMORY:- <fact> removes it; a bare MEMORY: line lists the profile. Proactively remember stable facts (role, stack, projects, preferences) the moment you learn them, and USE remembered facts to personalize answers - never re-ask. The profile is visible in Settings > Skills and skipped in Incognito.');
+    if (has('reminders')) lines.push('REMIND: [in 45m | in 2h | at 18:30 | at 09:00 daily | every 30m] <text> - sets a reminder that fires as a browser notification + in-chat banner WHILE THE APP IS OPEN (be honest about that limit). Stored locally, missed one-shots surface on next open.');
+    if (has('summarize')) lines.push('SUMMARIZE: <url | YouTube link | attached file name | pasted text> - the app fetches the source (web page, YouTube transcript via Piped, attached document) and hands you the content; then you write the fixed digest: one-line TL;DR, 3-7 key points, notable quotes, source links.');
+    if (has('tdd_mentor')) lines.push('TDD: <task> - test-driven loop in the sandbox: (1) write a minimal FAILING test first (runpython/runjs), (2) run it and show the failure, (3) implement, (4) run again and show green, (5) refactor with the test as guardrail; end with a one-line lessons note. MENTOR: <topic> - Socratic variant: ONE concept per turn, ONE small exercise, wait for the attempt, review with targeted feedback.');
+    if (has('design_polish')) lines.push('DESIGN POLISH - every Live Preview build must be designer grade: deliberate type scale and pairing, consistent 4/8px spacing rhythm, intentional palette (never default blue), accessible contrast, restrained motion, real hover/focus/empty/error states. DESIGN[theme=minimal|editorial|brutalist|glass|retro] applies a named theme. Before finishing, self-critique against this checklist and fix violations, then add a one-line "design notes" summary.');
+    if (has('self_improvement')) lines.push('SELF-IMPROVEMENT - when the user CORRECTS you (assumption, format preference, factual slip), emit one line: NOTED: <wrong behavior> -> <correct behavior>. It is logged (last 5 ride along every session) and stripped from the display. Only clear corrections - when ambiguous, ask instead of logging.');
+    if (has('heartbeat')) lines.push('HEARTBEAT BRIEFS - the user can subscribe to periodic briefs while the app is open: BRIEF:+ <topic> subscribes, BRIEF:- <topic> unsubscribes. Suggest it when the user asks for daily updates, and keep topics concrete (e.g. "tech news headline brief", "weather + reminders digest").');
     // v6.2: the engine menu is built DYNAMICALLY from the user's ENABLED
     // engines only - no engine is a default; the model only sees what can
     // actually run, and custom engines are included when enabled.
@@ -11296,7 +11403,7 @@ How you work:
 4. Never stop after a single round - widen coverage until you are satisfied. You can run as many separate engine searches as you want.
 5. When you have everything (or nothing needed searching), output your complete final answer for the user starting with:
 ANSWER: 
-One decision block per turn. After your skill lines you will receive the results and another turn.${_sahuCustomSkillsPrompt()}`;
+One decision block per turn. After your skill lines you will receive the results and another turn.${_sahuCustomSkillsPrompt()}${_sahuV80ContextBlock()}`;
 }
 
 // =====================================================================
@@ -11713,7 +11820,7 @@ function buildV64StandardHint() {
     if (on.includes('live_preview')) parts.push('a live app preview: when the user asks for an app/website/UI/game/anything visual, output ONE complete single-file app in a fenced code block with language html (plain HTML/CSS/JS) or react (React 18 + JSX; ALWAYS end with ReactDOM.createRoot(document.getElementById("root")).render(<App />)), with the line PREVIEW: <short title> on the line immediately before the fence - it opens in a live preview window automatically. Keep everything in that single file (no local imports).');
     if (on.includes('skill_creator')) parts.push('skill creation: when the user asks you to create/define a new skill, output a MAKESKILL block: MAKESKILL: <name> on one line, then DESC: <one line>, then the instruction lines, closed by a line with exactly /MAKESKILL - it is saved to Settings > Skills with its own toggle.');
     if (!parts.length) return '';
-    return '\n\n[CAPABILITIES] You can output ' + parts.join(' And you can output ') + '. In your answer, freely use emojis, markdown tables (| A | B |) to compare or contrast things, **bold**, headings (#, ##) and font spans like <font face="Georgia" color="#c026d3" size="4">colored text</font> to make the answer clearer and richer.' + _sahuCustomSkillsPrompt();
+    return '\n\n[CAPABILITIES] You can output ' + parts.join(' And you can output ') + '. In your answer, freely use emojis, markdown tables (| A | B |) to compare or contrast things, **bold**, headings (#, ##) and font spans like <font face="Georgia" color="#c026d3" size="4">colored text</font> to make the answer clearer and richer.' + _sahuCustomSkillsPrompt() + (typeof _sahuV80StandardExtras === 'function' ? _sahuV80StandardExtras() : '');
 }
 
 // v6.4: extract runnable code blocks (```runpython / ```runjs)
@@ -12505,12 +12612,15 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
             // found this turn runs and its reports feed back next turn.
             const swarmBlocks = skillsOn('agent_swarm') && !window._sahuSwarmActive
                 ? [...text.matchAll(/```(?:sahu_agents|sahu-agents)[ \t]*\r?\n[\s\S]*?```/gi)].map(m => m[0]) : [];
+            // v8.0: No-Backend Skill Pack directives (WEATHER/CONVERT/IMG/STOCK/
+            // READ_FILE/PDFEDIT/TRANSLATE/MEMORY/REMIND/NOTED/gifplan/...)
+            const v80Reqs = _sahuV80Extract(text, skillsOn);
 
             // v6.4: code interpreter blocks + FILE blocks
             const v64Code = skillsOn('run_code') ? extractRunnableCode(text) : [];
             const v64Files = skillsOn('make_files') ? extractFileBlocks(text) : [];
             const ansMatch = text.match(/ANSWER:\s*([\s\S]+)$/i);
-            const hasTools = queries.length + reads.length + fetches.length + browses.length + v64Code.length + v64Files.length + dates.length + calcs.length + swarmBlocks.length > 0;
+            const hasTools = queries.length + reads.length + fetches.length + browses.length + v64Code.length + v64Files.length + dates.length + calcs.length + swarmBlocks.length + v80Reqs.length > 0;
 
             if (!hasTools) {
                 // The agent is done (or never needed to search at all).
@@ -12717,6 +12827,20 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
                     parts.push('[AGENTS] Swarm round complete (' + _swN + ' workers ran in parallel, findings merged). Their synthesized findings:\n' + _swRes.answer + '\nYou may spawn ANOTHER swarm with a different/deeper split, keep using other skills, or - if this is enough - write your final answer starting with ANSWER:');
                 } else {
                     parts.push('[AGENTS] The swarm could not run this time (worker or synthesis failure). Continue with other skills or write your final answer.');
+                }
+            }
+
+            // v8.0: run the skill-pack directives (each is small + guarded)
+            for (const _v80r of v80Reqs) {
+                if (toolRuns >= MAX_TOOL_RUNS) { parts.push('[SKILL PACK] Tool budget reached - finish with ANSWER: now.'); break; }
+                toolRuns++;
+                let _v80Label = _v80r.k;
+                try {
+                    const _v80out = await _sahuV80Run(_v80r, { addTrace: addTrace, setBusy: setBusy, model: model });
+                    parts.push(_v80out);
+                } catch (eV80) {
+                    if (eV80 && (eV80.name === 'AbortError' || /abort|stopped/i.test(eV80.message || ''))) throw eV80;
+                    parts.push('[SKILL PACK] ' + _v80Label + ' failed: ' + String((eV80 && eV80.message) || eV80) + '. Move on or retry with a corrected directive.');
                 }
             }
 
@@ -13282,14 +13406,1743 @@ function renderSkillsSettings() {
             </span>
         </label>
         <div class="text-[11px] text-[var(--text-secondary)] mb-2 -mt-1 pl-1">${s.desc}</div>`;
-    let html = SAHU_SKILLS.map(s => _row(s, false)).join('');
+    // v8.0: Persistent Memory panel on top (memory + corrections + briefs)
+    let html = '';
+    try { if (typeof sahuMemPanelHtml === 'function') html += sahuMemPanelHtml(); } catch (e) {}
+    html += SAHU_SKILLS.map(s => _row(s, false)).join('');
     const cs = state.customSkills || [];
-    if (cs.length) {
+    // v8.0: split the seeded Skill Library from user-created custom skills
+    const libSkills = cs.filter(s => s && String(s.id).indexOf('lib_') === 0);
+    const ownSkills = cs.filter(s => s && String(s.id).indexOf('lib_') !== 0);
+    if (libSkills.length) {
+        html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Skill Library - 20 built-in prompt skills (v8.0 pack)</div>';
+        html += libSkills.map(s => _row(s, true)).join('');
+    }
+    if (ownSkills.length) {
         html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Custom skills (created by the model via Skill Creator)</div>';
-        html += cs.map(s => _row(s, true)).join('');
+        html += ownSkills.map(s => _row(s, true)).join('');
     }
     wrap.innerHTML = html;
 }
+
+// =====================================================================
+// v8.0.0 "NO-BACKEND SKILL PACK" — 23 core skills + 20 library skills
+// Implemented from Beta/Manthan_NoBackend_Skill_Pack.pdf (25 Sep 2026).
+// Zero backend - zero OAuth - zero API keys - no OCR (per spec).
+// deep-research is NOT re-implemented: the Deep Research Pipeline
+// already ships in the app (mode 'research'), so it is only wired into
+// the skills panel documentation.
+//
+// Pieces per core skill (spec "How to install"):
+//   (i) SAHU_SKILLS entry  (ii) buildSearchLoopPrompt() branch
+//   (iii) directive extractor + handler (_sahuV80Extract/_sahuV80Run)
+//   (iv) card renderer (v80-* CSS + enhancers)
+// Library skills (Part 2 of the spec) ship as seeded custom skills in
+// the existing MAKESKILL format (toggleable, deletable, persisted).
+// =====================================================================
+
+// ---- v8.0 §0: lazy CDN library loader (nothing new loads at startup;
+// every heavy lib loads on first use and degrades gracefully offline) ----
+const _sahuLibCache = {};
+function sahuLoadLib(url, globalName) {
+    if (window[globalName]) return Promise.resolve(window[globalName]);
+    if (_sahuLibCache[url]) return _sahuLibCache[url];
+    _sahuLibCache[url] = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = url; s.async = true;
+        s.onload = () => { if (window[globalName]) resolve(window[globalName]); else { delete _sahuLibCache[url]; reject(new Error(globalName + ' missing after load')); } };
+        s.onerror = () => { delete _sahuLibCache[url]; reject(new Error('failed to load ' + url)); };
+        document.head.appendChild(s);
+    });
+    return _sahuLibCache[url];
+}
+window.sahuLoadLib = sahuLoadLib;
+const SAHU_CDNS = {
+    pdfjs: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+    pdfjsWorker: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js',
+    mammoth: 'https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js',
+    echarts: 'https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js',
+    mermaid: 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
+    pdflib: 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',
+    gifjs: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js',
+    gifjsWorker: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+};
+
+// keyless CORS proxy chain (same public proxies the SearXNG leg uses)
+async function _sahuProxyFetchText(url, timeoutMs) {
+    const proxies = [
+        (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+        (u) => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+        (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+    ];
+    for (const p of proxies) {
+        try {
+            const ctl = new AbortController();
+            const to = setTimeout(() => ctl.abort(), timeoutMs || 12000);
+            const r = await fetch(p(url), { signal: ctl.signal });
+            clearTimeout(to);
+            if (r.ok) { const t = await r.text(); if (t && t.trim()) return t; }
+        } catch (e) {}
+    }
+    return null;
+}
+window._sahuProxyFetchText = _sahuProxyFetchText;
+
+// deterministic small-string hash (stable seeds for image generation)
+function _sahuHashStr(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return Math.abs(h >>> 0);
+}
+
+// ---- v8.0 §4: WEATHER (Open-Meteo geocoding + forecast, keyless) ----
+const SAHU_WMO = { 0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'fog', 48: 'rime fog', 51: 'light drizzle', 53: 'drizzle', 55: 'dense drizzle', 56: 'light freezing drizzle', 57: 'freezing drizzle', 61: 'light rain', 63: 'rain', 65: 'heavy rain', 66: 'light freezing rain', 67: 'freezing rain', 71: 'light snow', 73: 'snow', 75: 'heavy snow', 77: 'snow grains', 80: 'light showers', 81: 'showers', 82: 'violent showers', 85: 'snow showers', 86: 'heavy snow showers', 95: 'thunderstorm', 96: 'thunderstorm + hail', 99: 'severe thunderstorm + hail' };
+const SAHU_WMO_ICON = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️', 51: '🌦️', 53: '🌦️', 55: '🌧️', 61: '🌧️', 63: '🌧️', 65: '⛈️', 71: '🌨️', 73: '🌨️', 75: '❄️', 80: '🌦️', 81: '🌧️', 82: '⛈️', 95: '⛈️', 96: '⛈️', 99: '⛈️' };
+
+function _sahuWxCacheGet(key) {
+    try { const c = JSON.parse(localStorage.getItem('sahu_wx_cache') || '{}'); const e = c[key]; if (e && Date.now() - e.t < 900000) return e.v; } catch (e) {}
+    return null;
+}
+function _sahuWxCacheSet(key, v) {
+    try { const c = JSON.parse(localStorage.getItem('sahu_wx_cache') || '{}'); c[key] = { t: Date.now(), v: v }; const ks = Object.keys(c); if (ks.length > 30) delete c[ks[0]]; localStorage.setItem('sahu_wx_cache', JSON.stringify(c)); } catch (e) {}
+}
+
+async function _sahuWeatherFetch(place) {
+    const key = String(place).toLowerCase().trim();
+    const cached = _sahuWxCacheGet(key);
+    if (cached) return Object.assign({ cached: true }, cached);
+    const geo = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(place) + '&count=1&language=en&format=json').then(r => r.json()).catch(() => null);
+    if (!geo || !geo.results || !geo.results.length) return { ok: false, error: 'place not found: "' + place + '". Try a bigger nearby city or the English spelling.' };
+    const loc = geo.results[0];
+    const wx = await fetch('https://api.open-meteo.com/v1/forecast?latitude=' + loc.latitude + '&longitude=' + loc.longitude + '&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=3&timezone=auto').then(r => r.json()).catch(() => null);
+    if (!wx || !wx.current) return { ok: false, error: 'weather service unreachable for ' + (loc.name || place) };
+    const out = { ok: true, loc: loc, wx: wx };
+    _sahuWxCacheSet(key, out);
+    return out;
+}
+window._sahuWeatherFetch = _sahuWeatherFetch;
+
+function _sahuWeatherCard(res) {
+    const c = res.wx.current, d = res.wx.daily || {};
+    const days = (d.time || []).slice(0, 3).map((t, i) => {
+        const code = (d.weather_code || [])[i];
+        return '<div class="v80-wx-day"><div class="v80-wx-day-d">' + String(t).slice(5) + '</div><div class="v80-wx-day-i">' + (SAHU_WMO_ICON[code] || '🌡️') + '</div><div class="v80-wx-day-t">' + Math.round((d.temperature_2m_min || [])[i] ?? 0) + '° / ' + Math.round((d.temperature_2m_max || [])[i] ?? 0) + '°</div><div class="v80-wx-day-p">💧' + ((d.precipitation_probability_max || [])[i] ?? 0) + '%</div></div>';
+    }).join('');
+    return '<div class="v80-card v80-wx">' +
+        '<div class="v80-card-h"><i class="fas fa-cloud-sun"></i> ' + escapeHtml(res.loc.name + (res.loc.admin1 ? ', ' + res.loc.admin1 : '') + (res.loc.country ? ' · ' + res.loc.country : '')) + '</div>' +
+        '<div class="v80-wx-now"><div class="v80-wx-temp">' + Math.round(c.temperature_2m) + '°C</div>' +
+        '<div class="v80-wx-desc">' + (SAHU_WMO_ICON[c.weather_code] || '🌡️') + ' ' + (SAHU_WMO[c.weather_code] || '—') + '<br>feels ' + Math.round(c.apparent_temperature) + '° · 💧 ' + c.relative_humidity_2m + '% · 💨 ' + Math.round(c.wind_speed_10m) + ' km/h</div></div>' +
+        '<div class="v80-wx-strip">' + days + '</div>' +
+        '<div class="v80-card-f">Open-Meteo · ' + (res.wx.timezone || '') + (res.cached ? ' · cached' : '') + '</div></div>';
+}
+
+async function _sahuWeatherTool(place, ctx) {
+    const res = await _sahuWeatherFetch(place);
+    if (!res.ok) return '[WEATHER] ' + res.error;
+    if (ctx && ctx.addTrace) ctx.addTrace(_sahuWeatherCard(res));
+    const c = res.wx.current, d = res.wx.daily || {};
+    let fb = '[WEATHER] ' + res.loc.name + (res.loc.admin1 ? ', ' + res.loc.admin1 : '') + ', ' + res.loc.country + ' (lat ' + res.loc.latitude.toFixed(2) + ', lon ' + res.loc.longitude.toFixed(2) + ', tz ' + (res.wx.timezone || '?') + '):\n';
+    fb += 'NOW: ' + c.temperature_2m + '°C, feels ' + c.apparent_temperature + '°C, ' + (SAHU_WMO[c.weather_code] || 'code ' + c.weather_code) + ', humidity ' + c.relative_humidity_2m + '%, wind ' + c.wind_speed_10m + ' km/h, precipitation ' + c.precipitation + ' mm.\n';
+    (d.time || []).slice(0, 3).forEach((t, i) => {
+        fb += String(t) + ': ' + (d.temperature_2m_min || [])[i] + '° to ' + (d.temperature_2m_max || [])[i] + '°C, ' + (SAHU_WMO[(d.weather_code || [])[i]] || '?') + ', rain chance ' + ((d.precipitation_probability_max || [])[i] ?? '?') + '%.\n';
+    });
+    fb += 'A weather card was shown to the user. Use these REAL numbers in your answer (round naturally). Add clothing / umbrella / travel advice based on them.';
+    return fb;
+}
+
+// ---- v8.0 §3: CONVERT — deterministic unit tables + keyless FX (frankfurter.app,
+// 1h localStorage cache) + timezone conversion via the IANA-aware DATE engine ----
+const SAHU_UNIT_TABLES = {
+    length: { m: 1, km: 1000, cm: 0.01, mm: 0.001, um: 1e-6, mi: 1609.344, yd: 0.9144, ft: 0.3048, in: 0.0254, nmi: 1852, au: 1.495978707e11, ly: 9.4607304725808e15 },
+    mass: { kg: 1, g: 0.001, mg: 1e-6, ug: 1e-9, t: 1000, tonne: 1000, lb: 0.45359237, lbs: 0.45359237, oz: 0.028349523125, st: 6.35029318, ton: 907.18474 },
+    volume: { l: 1, liter: 1, litre: 1, ml: 0.001, m3: 1000, cm3: 0.001, cc: 0.001, gal: 3.785411784, galus: 3.785411784, galuk: 4.54609, qt: 0.946352946, pt: 0.473176473, cup: 0.2365882365, floz: 0.0295735295625, tbsp: 0.0147867648, tsp: 0.0049289216, bbl: 158.987294928 },
+    area: { m2: 1, sqm: 1, km2: 1e6, cm2: 1e-4, ha: 1e4, acre: 4046.8564224, ft2: 0.09290304, sqft: 0.09290304, in2: 0.00064516, mi2: 2589988.110336, yd2: 0.83612736 },
+    speed: { ms: 1, kmh: 0.2777777778, kmph: 0.2777777778, kph: 0.2777777778, mph: 0.44704, knot: 0.5144444444, kn: 0.5144444444, fts: 0.3048, c: 299792458 },
+    data: { b: 1, byte: 1, bytes: 1, kb: 1000, kib: 1024, mb: 1e6, mib: 1048576, gb: 1e9, gib: 1073741824, tb: 1e12, tib: 1099511627776, pb: 1e15 },
+    time: { s: 1, sec: 1, min: 60, h: 3600, hr: 3600, day: 86400, week: 604800, month: 2629800, year: 31557600 }
+};
+const SAHU_UNIT_ALIAS = {
+    meter: 'm', meters: 'm', metre: 'm', metres: 'm', kilometre: 'km', kilometres: 'km', kilometer: 'km', kilometers: 'km', kilometre: 'km', centimeter: 'cm', centimeters: 'cm', centimetre: 'cm', millimeter: 'mm', millimeters: 'mm', millimetre: 'mm', mile: 'mi', miles: 'mi', yard: 'yd', yards: 'yd', foot: 'ft', feet: 'ft', ft: 'ft', inch: 'in', inches: 'in', nauticalmile: 'nmi', astronomicalunit: 'au', lightyear: 'ly',
+    kilogram: 'kg', kilograms: 'kg', kilo: 'kg', kilos: 'kg', gram: 'g', grams: 'g', gramme: 'g', milligram: 'mg', milligrams: 'mg', microgram: 'ug', tonne: 't', tonnes: 't', metricton: 't', pound: 'lb', pounds: 'lb', ounce: 'oz', ounces: 'oz', stone: 'st', stones: 'st', shortton: 'ton',
+    liter: 'l', liters: 'l', litre: 'l', litres: 'l', milliliter: 'ml', milliliters: 'ml', millilitre: 'ml', cubicmeter: 'm3', cubicmetre: 'm3', cubiccentimeter: 'cm3', gallon: 'gal', gallons: 'gal', quart: 'qt', quarts: 'qt', pint: 'pt', pints: 'pt', cup: 'cup', cups: 'cup', fluidounce: 'floz', floz: 'floz', tablespoon: 'tbsp', tablespoons: 'tbsp', teaspoon: 'tsp', teaspoons: 'tsp', barrel: 'bbl',
+    squaremeter: 'm2', squaremeters: 'm2', squarekilometer: 'km2', squarekilometers: 'km2', squarekilometre: 'km2', hectare: 'ha', hectares: 'ha', acre: 'acre', acres: 'acre', squarefoot: 'ft2', squarefeet: 'ft2', squarefeet: 'ft2', squareinch: 'in2', squareinches: 'in2', squaremile: 'mi2', squaremiles: 'mi2', squareyard: 'yd2', squareyards: 'yd2',
+    meterpersecond: 'ms', mps: 'ms', kilometersperhour: 'kmh', kilometresperhour: 'kmh', milesperhour: 'mph', knot: 'knot', knots: 'knot', mach: 'c', speedoflight: 'c',
+    bit: 'b', bits: 'b', byte: 'byte', bytes: 'bytes', kilobyte: 'kb', kibibyte: 'kib', megabyte: 'mb', mebibyte: 'mib', gigabyte: 'gb', gibibyte: 'gib', terabyte: 'tb', tebibyte: 'tib',
+    second: 's', seconds: 's', minute: 'min', minutes: 'min', hour: 'h', hours: 'h', day: 'days', days: 'day', week: 'weeks', weeks: 'week', month: 'month', months: 'month', year: 'years', years: 'year'
+};
+const SAHU_TEMP_UNITS = { c: 'c', celsius: 'c', centigrade: 'c', f: 'f', fahrenheit: 'f', k: 'k', kelvin: 'k' };
+const SAHU_TZ_ALIAS = { IST: 'Asia/Kolkata', NPT: 'Asia/Kathmandu', PST: 'America/Los_Angeles', PDT: 'America/Los_Angeles', PT: 'America/Los_Angeles', MST: 'America/Denver', MDT: 'America/Denver', MT: 'America/Denver', CST: 'America/Chicago', CDT: 'America/Chicago', CT: 'America/Chicago', EST: 'America/New_York', EDT: 'America/New_York', ET: 'America/New_York', GMT: 'UTC', UTC: 'UTC', UCT: 'UTC', BST: 'Europe/London', WET: 'Europe/Lisbon', CET: 'Europe/Paris', CEST: 'Europe/Paris', EET: 'Europe/Helsinki', EEST: 'Europe/Helsinki', MSK: 'Europe/Moscow', GST: 'Asia/Dubhi', JST: 'Asia/Tokyo', KST: 'Asia/Seoul', CT_CN: 'Asia/Shanghai', SGT: 'Asia/Singapore', HKT: 'Asia/Hong_Kong', IST_LK: 'Asia/Colombo', AEST: 'Australia/Sydney', AEDT: 'Australia/Sydney', ACST: 'Australia/Adelaide', AWST: 'Australia/Perth', AKST: 'America/Anchorage', AKDT: 'America/Anchorage', HST: 'Pacific/Honolulu', NST: 'America/St_Johns', BRT: 'America/Sao_Paulo', ART: 'America/Argentina/Buenos_Aires', CAT: 'Africa/Harare', SAST: 'Africa/Johannesburg', WAT: 'Africa/Lagos', EAT: 'Africa/Nairobi' };
+function _sahuTzNorm(z) {
+    const t = String(z || '').trim();
+    if (!t) return null;
+    if (/^[A-Za-z]+\/[A-Za-z_]+$/.test(t)) return t;
+    const up = t.toUpperCase();
+    if (up === 'GST') return 'Asia/Dubai'; // (typo guard: map above has a bad entry; fix at runtime)
+    return SAHU_TZ_ALIAS[up] || SAHU_TZ_ALIAS[up.replace(/[^A-Z]/g, '')] || null;
+}
+function _sahuTzWallTime(instant, tz) {
+    try {
+        const f = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour12: false, hour: '2-digit', minute: '2-digit', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+        const p = {}; f.formatToParts(instant).forEach(x => { p[x.type] = x.value; });
+        if (p.hour === '24') p.hour = '00';
+        return { hm: p.hour + ':' + p.minute, label: p.weekday + ' ' + p.day + ' ' + p.month + ' ' + p.year, tz: tz };
+    } catch (e) { return null; }
+}
+// convert "HH:MM <fromTz> to <toTz>" — anchored to today
+function _sahuTzConvert(hhmm, fromRaw, toRaw) {
+    const from = _sahuTzNorm(fromRaw), to = _sahuTzNorm(toRaw);
+    if (!from) return { ok: false, error: 'unknown timezone "' + fromRaw + '" (use IANA like Asia/Kolkata or codes like IST/PST/CET)' };
+    if (!to) return { ok: false, error: 'unknown timezone "' + toRaw + '"' };
+    const m = hhmm.match(/^(\d{1,2})[:.](\d{2})$/);
+    if (!m) return { ok: false, error: 'time must look like 14:30' };
+    const want = (parseInt(m[1]) % 24) * 60 + parseInt(m[2]);
+    // v8.0b: anchor to NOW and adjust by the SIGNED shortest delta so we
+    // hit the nearest occurrence of the wall time (fixes the day-jump bug)
+    let t = new Date();
+    for (let i = 0; i < 4; i++) {
+        const w = _sahuTzWallTime(t, from);
+        if (!w) return { ok: false, error: 'timezone lookup failed' };
+        const cm = w.hm.match(/^(\d{1,2}):(\d{2})$/);
+        const cur = (parseInt(cm[1]) % 24) * 60 + parseInt(cm[2]);
+        let diff = ((want - cur) % 1440 + 2160) % 1440 - 720; // -720..+720
+        if (diff === 0) break;
+        t = new Date(t.getTime() + diff * 60000);
+    }
+    const out = _sahuTzWallTime(t, to);
+    const src = _sahuTzWallTime(t, from);
+    return { ok: true, from: from, to: to, srcTime: src.hm + ' ' + src.label, outTime: out.hm, outLabel: out.label, utc: t.toISOString().replace('T', ' ').slice(0, 16) + ' UTC' };
+}
+window._sahuTzConvert = _sahuTzConvert;
+
+async function _sahuFxRate(from, to) {
+    const key = (from + '_' + to).toUpperCase();
+    try {
+        const c = JSON.parse(localStorage.getItem('sahu_fx_cache') || '{}');
+        if (c[key] && Date.now() - c[key].t < 3600000) return { ok: true, rate: c[key].r, date: c[key].d, cached: true };
+    } catch (e) {}
+    const F = from.toUpperCase(), T = to.toUpperCase();
+    // provider chain (spec: frankfurter with open.er-api.com as fallback)
+    const tries = [
+        { url: 'https://api.frankfurter.dev/v1/latest?base=' + F + '&symbols=' + T, pick: (j) => (j.rates && j.rates[T] !== undefined ? { r: j.rates[T], d: j.date } : null) },
+        { url: 'https://api.frankfurter.app/latest?from=' + F + '&to=' + T, pick: (j) => (j.rates && j.rates[T] !== undefined ? { r: j.rates[T], d: j.date } : null) },
+        { url: 'https://open.er-api.com/v6/latest/' + F, pick: (j) => (j && j.result === 'success' && j.rates && j.rates[T] !== undefined ? { r: j.rates[T], d: (j.time_last_update_utc || '').slice(5, 16) } : null) }
+    ];
+    for (const tr of tries) {
+        try {
+            const r = await fetch(tr.url);
+            if (!r.ok) continue;
+            const j = await r.json();
+            const hit = tr.pick(j);
+            if (hit && typeof hit.r === 'number') {
+                try { const c = JSON.parse(localStorage.getItem('sahu_fx_cache') || '{}'); c[key] = { t: Date.now(), r: hit.r, d: hit.d || '' }; localStorage.setItem('sahu_fx_cache', JSON.stringify(c)); } catch (e) {}
+                return { ok: true, rate: hit.r, date: hit.d || 'latest' };
+            }
+        } catch (e) {}
+    }
+    return { ok: false, error: 'all FX providers unreachable (frankfurter.dev, frankfurter.app, open.er-api.com). Try again later.' };
+}
+window._sahuFxRate = _sahuFxRate;
+
+function _sahuUnitCanon(raw) {
+    let u = String(raw || '').toLowerCase().replace(/[^a-z0-9°]/g, '');
+    if (/^°?c$/.test(u)) return 'c';
+    if (/^°?f$/.test(u)) return 'f';
+    if (u === '°k' || u === 'k') return SAHU_TEMP_UNITS.k ? 'k' : null;
+    if (SAHU_TEMP_UNITS[u]) return u;
+    if (SAHU_UNIT_ALIAS[u]) u = SAHU_UNIT_ALIAS[u];
+    if (SAHU_UNIT_ALIAS[u]) u = SAHU_UNIT_ALIAS[u];
+    for (const cat of Object.keys(SAHU_UNIT_TABLES)) if (SAHU_UNIT_TABLES[cat][u] !== undefined) return { cat: cat, unit: u };
+    if (SAHU_TEMP_UNITS[u]) return u;
+    return null;
+}
+
+async function _sahuConvertTool(expr) {
+    const s = String(expr || '').trim();
+    // timezone form: "14:30 IST to PST"
+    let m = s.match(/^(\d{1,2}[:.]\d{2})\s+(?:in\s+|at\s+)?([A-Za-z_/]+)\s+(?:to|into|in)\s+([A-Za-z_/]+)$/);
+    if (m) {
+        const r = _sahuTzConvert(m[1], m[2], m[3]);
+        if (r.ok) return '[CONVERT] ' + r.srcTime + ' (' + r.from + ') = ' + r.outTime + ' (' + r.to + '), ' + r.outLabel + '. UTC anchor: ' + r.utc + '. (Exact conversion via the IANA timezone database - use these values.)';
+        return '[CONVERT] ' + r.error;
+    }
+    // general: "180 lb to kg" / "5 km into miles" / "100 f to c" / "25000 INR to JPY" / "USD to INR"
+    m = s.match(/^([0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)\s*([^\s]+)\s+(?:to|into|in|as)\s+([^\s]+)$/i) || s.match(/^([A-Z]{3})\s+(?:to|into|in|as)\s+([A-Z]{3})$/i) && { 1: '1', 2: s.split(/\s+(?:to|into|in|as)\s+/i)[0], 3: s.split(/\s+(?:to|into|in|as)\s+/i)[1] };
+    if (!m) return '[CONVERT] could not parse "' + s + '". Use: CONVERT: 180 lb to kg | CONVERT: 25000 INR to JPY | CONVERT: 14:30 IST to PST';
+    const amount = parseFloat(m[1]);
+    const fromRaw = m[2], toRaw = m[3];
+    // currency: 3-letter alpha codes that are NOT known units
+    const fromC = _sahuUnitCanon(fromRaw), toC = _sahuUnitCanon(toRaw);
+    const isCurFrom = /^[A-Za-z]{3}$/.test(fromRaw) && !fromC;
+    const isCurTo = /^[A-Za-z]{3}$/.test(toRaw) && !toC;
+    if (isCurFrom && isCurTo) {
+        const fx = await _sahuFxRate(fromRaw, toRaw);
+        if (!fx.ok) return '[CONVERT] ' + fx.error;
+        const out = amount * fx.rate;
+        return '[CONVERT] ' + amount + ' ' + fromRaw.toUpperCase() + ' = ' + (out >= 100 ? out.toLocaleString('en-US', { maximumFractionDigits: 2 }) : out.toPrecision(6).replace(/\.?0+$/, '')) + ' ' + toRaw.toUpperCase() + ' (rate ' + fx.rate + ', ECB reference ' + fx.date + (fx.cached ? ', cached' : '') + '). These are indicative mid-market rates. A compact copy-card was shown to the user.';
+    }
+    if (fromC && toC) {
+        // temperature special
+        if (typeof fromC === 'string' && typeof toC === 'string') {
+            const f = fromC, t = toC;
+            const toCelsius = (v) => f === 'c' ? v : f === 'f' ? (v - 32) * 5 / 9 : v - 273.15;
+            const fromCelsius = (cv) => t === 'c' ? cv : t === 'f' ? cv * 9 / 5 + 32 : cv + 273.15;
+            const cv = toCelsius(amount), out = fromCelsius(cv);
+            const nm = { c: '°C', f: '°F', k: 'K' };
+            return '[CONVERT] ' + amount + nm[f] + ' = ' + _sahuFmtNum(out) + nm[t] + ' (exact formula conversion).';
+        }
+        if (typeof fromC === 'object' && typeof toC === 'object' && fromC.cat === toC.cat) {
+            const f = SAHU_UNIT_TABLES[fromC.cat][fromC.unit], t = SAHU_UNIT_TABLES[toC.cat][toC.unit];
+            const out = amount * f / t;
+            const factor = f / t;
+            return '[CONVERT] ' + amount + ' ' + fromC.unit + ' = ' + _sahuFmtNum(out) + ' ' + toC.unit + ' (exact factor 1 ' + fromC.unit + ' = ' + _sahuFmtNum(factor) + ' ' + toC.unit + '). Computed deterministically - never round-trip this through your own arithmetic.';
+        }
+        if (typeof fromC === 'object' && typeof toC === 'object') return '[CONVERT] cannot convert ' + fromRaw + ' (' + fromC.cat + ') into ' + toRaw + ' (' + toC.cat + ') - different physical dimensions.';
+        return '[CONVERT] mixed unit kinds - use same family (e.g. 100 km to mi, 20 c to f).';
+    }
+    if (isCurFrom || isCurTo) return '[CONVERT] unknown currency/unit "' + (isCurFrom ? toRaw : fromRaw) + '". frankfurter.app covers ~30 ECB currencies (EUR USD GBP INR JPY AUD CAD CHF CNY ...).';
+    return '[CONVERT] unknown unit "' + (fromC ? toRaw : fromRaw) + '". Families: length, mass, volume, area, speed, data, time, temperature (C/F/K).';
+}
+window._sahuConvertTool = _sahuConvertTool;
+
+// ---- v8.0 §2: SPEAK — Web Speech API TTS with [rate=] [pitch=] [lang=] flags ----
+function _sahuParseFlags(rest) {
+    const flags = {};
+    let text = String(rest || '');
+    text = text.replace(/\[(rate|pitch|lang|voice)=([^\]]*)\]/gi, (mm, k, v) => { flags[String(k).toLowerCase()] = v.trim(); return ''; });
+    return { flags: flags, text: text.replace(/^\s+/, '').trim() };
+}
+function _sahuPickVoice(lang) {
+    try {
+        const vs = speechSynthesis.getVoices();
+        if (!vs || !vs.length) return null;
+        const l = String(lang || '').toLowerCase();
+        const base = l.split('-')[0];
+        return vs.find(v => v.lang && v.lang.toLowerCase() === l) || vs.find(v => v.lang && v.lang.toLowerCase().replace('_', '-').startsWith(base + '-')) || vs.find(v => v.lang && v.lang.toLowerCase().startsWith(base)) || vs.find(v => v.default) || vs[0];
+    } catch (e) { return null; }
+}
+function sahuSpeakStop() {
+    try { speechSynthesis.cancel(); } catch (e) {}
+    const bar = document.getElementById('v80SpeakBar');
+    if (bar) bar.remove();
+    return true;
+}
+window.sahuSpeakStop = sahuSpeakStop;
+function sahuSpeak(text, opts) {
+    opts = opts || {};
+    return new Promise((resolve) => {
+        try {
+            if (!('speechSynthesis' in window)) return resolve({ ok: false, error: 'speechSynthesis not available in this browser' });
+            const u = new SpeechSynthesisUtterance(String(text || ''));
+            const v = _sahuPickVoice(opts.lang || (String(text).match(/[\u0900-\u097F]/) ? 'hi' : 'en'));
+            if (v) { u.voice = v; u.lang = v.lang; }
+            if (opts.lang) u.lang = opts.lang;
+            if (opts.rate) u.rate = Math.max(0.5, Math.min(2, parseFloat(opts.rate) || 1));
+            if (opts.pitch) u.pitch = Math.max(0, Math.min(2, parseFloat(opts.pitch) || 1));
+            u.onend = () => sahuSpeakStop();
+            u.onerror = (ev) => sahuSpeakStop();
+            sahuSpeakStop();
+            speechSynthesis.speak(u);
+            // small floating stop control
+            if (!document.getElementById('v80SpeakBar')) {
+                const bar = document.createElement('div');
+                bar.id = 'v80SpeakBar';
+                bar.innerHTML = '<i class="fas fa-volume-high"></i> Speaking… <button onclick="sahuSpeakStop()" title="Stop"><i class="fas fa-stop"></i> Stop</button>';
+                document.body.appendChild(bar);
+            }
+            resolve({ ok: true, voice: v ? (v.name + ' / ' + v.lang) : 'system default', chars: String(text).length });
+        } catch (e) { resolve({ ok: false, error: String((e && e.message) || e) }); }
+    });
+}
+window.sahuSpeak = sahuSpeak;
+async function _sahuSpeakTool(argstr, ctx) {
+    const p = _sahuParseFlags(argstr);
+    if (!p.text) return '[SPEAK] no text given. Use SPEAK: [rate=0.9] [lang=hi] <text to read aloud>.';
+    const r = await sahuSpeak(p.text, p.flags);
+    if (!r.ok) return '[SPEAK] failed: ' + r.error + '. Do not retry - just deliver the text normally.';
+    return '[SPEAK] The text (' + r.chars + ' chars) is being read aloud to the user' + (r.voice ? ' with voice ' + r.voice : '') + '. No network was used. You may add a short note that it was spoken.';
+}
+// speaker button on every export-buttons row (idempotent, throttled injector)
+(function () {
+    let _t = null;
+    function ensureSpeakButtons() {
+        if (_t) return;
+        _t = setTimeout(() => {
+            _t = null;
+            try {
+                document.querySelectorAll('.export-buttons').forEach(row => {
+                    if (row.querySelector('.v80-speak-btn')) return;
+                    const b = document.createElement('button');
+                    b.className = 'export-btn v80-speak-btn';
+                    b.title = 'Read the last answer aloud (Web Speech API)';
+                    b.innerHTML = '<i class="fas fa-volume-high"></i><span>Speak</span>';
+                    b.onclick = () => {
+                        const t = String(window.lastAnswer || '').trim();
+                        if (!t) { showToast('Nothing to read yet', 'error'); return; }
+                        sahuSpeak(t.replace(/[#*`>|]/g, '').slice(0, 5000), {}).then(r => showToast(r.ok ? 'Reading aloud…' : 'TTS unavailable: ' + r.error, r.ok ? 'success' : 'error'));
+                    };
+                    row.appendChild(b);
+                });
+            } catch (e) {}
+        }, 800);
+    }
+    const mo = new MutationObserver(ensureSpeakButtons);
+    mo.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('DOMContentLoaded', ensureSpeakButtons);
+    setTimeout(ensureSpeakButtons, 1500);
+})();
+
+// ---- v8.0 §5: IMG — text-to-image via image.pollinations.ai (free, keyless) ----
+function _sahuImgUrl(prompt, flags, seed) {
+    const w = Math.min(1536, Math.max(256, parseInt(flags.w || flags.width || 0) || 1024));
+    const h = Math.min(1536, Math.max(256, parseInt(flags.h || flags.height || 0) || 1024));
+    const model = flags.model || 'flux';
+    let u = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(String(prompt).slice(0, 700)) + '?width=' + w + '&height=' + h + '&seed=' + seed + '&nologo=true&model=' + encodeURIComponent(model);
+    if (flags.transparent) u += '&transparent=true';
+    return u;
+}
+function _sahuImgCard(url, prompt, seed) {
+    const cid = 'v80img' + Math.random().toString(36).slice(2, 9);
+    window.__sahuV80ArtReg[cid] = { kind: 'img', url: url, prompt: prompt, seed: seed };
+    return '<div class="v80-card v80-imgcard" id="' + cid + '"><div class="v80-card-h"><i class="fas fa-image"></i> ' + escapeHtml(String(prompt).slice(0, 90)) + '</div><div class="v80-imgwrap"><div class="v80-loading">Painting your image… (Pollinations / flux)</div></div><div class="v80-card-f">seed ' + seed + '</div></div>';
+}
+async function _sahuImgTool(argstr, ctx) {
+    const p = _sahuParseFlags(argstr);
+    if (!p.text) return '[IMG] no prompt given. Use IMG: [transparent] [w=1024] [h=768] [model=flux] <prompt>.';
+    const seed = p.flags.seed ? parseInt(p.flags.seed) : (_sahuHashStr(p.text) % 100000);
+    const url = _sahuImgUrl(p.text, p.flags, seed);
+    if (ctx && ctx.addTrace) ctx.addTrace(_sahuImgCard(url, p.text, seed));
+    return '[IMG] Image generation started (prompt: "' + p.text + '", seed ' + seed + ', model ' + (p.flags.model || 'flux') + '). The image card is displayed to the user and downloads as PNG. You CANNOT see the image - do not describe its exact contents; describe the INTENT and offer to regenerate with changes (IMG: again with a modified prompt, or [seed=N] for a specific rerun).';
+}
+
+// ---- v8.0 §6: GIF — frame plan via IMG + gif.js assembly (2-10 frames) ----
+function _sahuGifCardHtml(id) { return '<div class="v80-card v80-imgcard" id="' + id + '"><div class="v80-card-h"><i class="fas fa-film"></i> Assembling GIF…</div><div class="v80-imgwrap"><div class="v80-loading">Generating frames on the keyless provider, then encoding…</div></div></div>'; }
+async function _sahuGifTool(json, ctx) {
+    let plan;
+    try { plan = typeof json === 'string' ? JSON.parse(json) : json; } catch (e) { return '[GIF] invalid JSON plan: ' + e.message; }
+    const frames = (plan.frames || []).filter(Boolean).slice(0, 10);
+    const fps = Math.min(24, Math.max(2, parseInt(plan.fps) || 10));
+    if (frames.length < 2) return '[GIF] a GIF needs 2-10 frames (got ' + frames.length + '). Emit a ```gifplan fenced JSON block: {"fps":10,"frames":["frame 1 prompt","frame 2 prompt",...]} - each frame a full image prompt that over-specifies the FIXED elements, changing only the motion state.';
+    const cardId = 'v80gif' + Math.random().toString(36).slice(2, 9);
+    window.__sahuV80ArtReg[cardId] = { kind: 'gif' };
+    if (ctx && ctx.addTrace) ctx.addTrace(_sahuGifCardHtml(cardId));
+    const el = () => document.getElementById(cardId);
+    try {
+        await sahuLoadLib(SAHU_CDNS.gifjs, 'GIF');
+        // jsdelivr's gif.worker.js is cross-origin and browsers refuse to
+        // spawn cross-origin workers - re-blob it into a same-origin URL.
+        if (!window.__sahuGifWorkerUrl) {
+            const wtxt = await fetch(SAHU_CDNS.gifjsWorker).then(r => r.text());
+            window.__sahuGifWorkerUrl = URL.createObjectURL(new Blob([wtxt], { type: 'application/javascript' }));
+        }
+        const size = 384;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const cx = canvas.getContext('2d');
+        const gif = new GIF({ workers: 2, quality: 8, width: size, height: size, workerScript: window.__sahuGifWorkerUrl });
+        const baseSeed = _sahuHashStr(frames.join('|'));
+        for (let i = 0; i < frames.length; i++) {
+            // the free provider 500s transiently under load - retry each
+            // frame up to 3 times with a bumped seed before giving up
+            let blob = null, lastErr = null;
+            for (let attempt = 0; attempt < 3 && !blob; attempt++) {
+                try {
+                    const url = _sahuImgUrl(frames[i], { w: size, h: size }, (baseSeed + i * 7 + attempt * 13) % 100000);
+                    const rr = await fetch(url);
+                    if (!rr.ok) throw new Error('HTTP ' + rr.status);
+                    blob = await rr.blob();
+                } catch (e) { lastErr = e; await new Promise(z => setTimeout(z, 1500)); }
+            }
+            if (!blob) throw new Error('frame ' + (i + 1) + ' ' + String((lastErr && lastErr.message) || lastErr));
+            const bmp = await createImageBitmap(blob);
+            cx.fillStyle = '#111'; cx.fillRect(0, 0, size, size);
+            const s = Math.max(size / bmp.width, size / bmp.height);
+            cx.drawImage(bmp, (size - bmp.width * s) / 2, (size - bmp.height * s) / 2, bmp.width * s, bmp.height * s);
+            gif.addFrame(cx.getImageData(0, 0, size, size), { copy: true, delay: Math.round(1000 / fps) });
+            const e1 = el(); if (e1) e1.querySelector('.v80-loading') && (e1.querySelector('.v80-loading').textContent = 'Frame ' + (i + 1) + '/' + frames.length + ' ready…');
+        }
+        const blob = await new Promise((res, rej) => { gif.on('finished', res); gif.on('abort', () => rej(new Error('encoding aborted'))); gif.render(); });
+        const url = URL.createObjectURL(blob);
+        const e2 = el();
+        if (e2) {
+            e2.querySelector('.v80-card-h').innerHTML = '<i class="fas fa-film"></i> GIF · ' + frames.length + ' frames · ' + fps + ' fps · ' + (blob.size / 1024).toFixed(0) + ' KB';
+            e2.querySelector('.v80-imgwrap').innerHTML = '<img src="' + url + '" alt="generated gif" style="border-radius:10px;max-width:100%;">';
+            e2.insertAdjacentHTML('beforeend', '<div class="v80-card-btns"><button class="v80-btn" onclick="sahuV80Dl(\'' + cardId + '\',\'animation.gif\')"><i class="fas fa-download"></i> Download GIF</button></div>');
+            window.__sahuV80ArtReg[cardId].blob = blob;
+        }
+        return '[GIF] GIF created (' + frames.length + ' frames @ ' + fps + ' fps, ' + (blob.size / 1024).toFixed(0) + ' KB) and shown to the user with a download button. Describe the animation intent (you cannot see the frames).';
+    } catch (e) {
+        return '[GIF] failed: ' + String((e && e.message) || e) + '. The free image provider may be busy - offer fewer frames or a static IMG: instead.';
+    }
+}
+function sahuV80Dl(id, name) {
+    const r = (window.__sahuV80ArtReg || {})[id];
+    if (!r || !r.blob) return;
+    try { saveAs(r.blob, name || 'download'); } catch (e) {}
+}
+window.sahuV80Dl = sahuV80Dl;
+
+// ---- v8.0 §7: IMGSEARCH — Openverse (CC-licensed, keyless) ----
+async function _sahuImgSearchTool(query, ctx) {
+    const q = String(query || '').trim();
+    if (!q) return '[IMGSEARCH] no query. Use IMGSEARCH: <what to find>.';
+    try {
+        const r = await fetch('https://api.openverse.org/v1/images/?q=' + encodeURIComponent(q) + '&page_size=12');
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        const results = (j.results || []).filter(x => x && x.thumbnail).slice(0, 12);
+        if (!results.length) return '[IMGSEARCH] no results for "' + q + '" on Openverse. Try broader terms.';
+        if (ctx && ctx.addTrace) {
+            const thumbs = results.map(x => '<a class="v80-ov-item" href="' + escapeHtml(x.foreign_landing_url || x.url || '#') + '" target="_blank" rel="noopener" title="' + escapeHtml(x.title || '') + '"><img src="' + escapeHtml(x.thumbnail) + '" loading="lazy" alt="' + escapeHtml(x.title || q) + '"><span class="v80-ov-license">' + escapeHtml((x.license || 'cc').toUpperCase() + (x.license_version ? ' ' + x.license_version : '')) + '</span></a>').join('');
+            ctx.addTrace('<div class="v80-card v80-carousel"><div class="v80-card-h"><i class="fas fa-images"></i> Image search: ' + escapeHtml(q) + ' <span class="v80-card-f-inline">Openverse · CC-licensed</span></div><div class="v80-ov-strip">' + thumbs + '</div></div>');
+        }
+        const list = results.map((x, i) => (i + 1) + '. ' + (x.title || 'untitled') + ' — ' + (x.license || 'cc').toUpperCase() + (x.license_version ? ' ' + x.license_version : '') + ' — ' + (x.foreign_landing_url || x.url)).join('\n');
+        return '[IMGSEARCH] ' + results.length + ' CC-licensed images for "' + q + '" (thumbnail carousel shown to the user):\n' + list + '\nAll are openly licensed (mostly CC) - attribute the creator when reusing.';
+    } catch (e) {
+        return '[IMGSEARCH] Openverse unreachable (' + String((e && e.message) || e) + '). Offer a normal web SEARCH instead.';
+    }
+}
+
+// ---- v8.0 §8: PLACES — OSM Nominatim geocoding + Overpass POI search ----
+const SAHU_POI_MAP = {
+    restaurant: ['amenity=restaurant'], veg: ['amenity=restaurant[cuisine~"vegetarian|vegan"]', 'diet:vegetarian=yes'], 'vegetarian restaurant': ['amenity=restaurant', 'diet:vegetarian'],
+    cafe: ['amenity=cafe'], 'coffee': ['amenity=cafe'], coffee_shop: ['amenity=cafe'], bar: ['amenity=bar'], pub: ['amenity=pub'],
+    atm: ['amenity=atm'], bank: ['amenity=bank'], pharmacy: ['amenity=pharmacy'], chemist: ['amenity=pharmacy'], hospital: ['amenity=hospital'], clinic: ['amenity=clinic'], doctor: ['amenity=doctors'],
+    fuel: ['amenity=fuel'], 'petrol': ['amenity=fuel'], 'gas station': ['amenity=fuel'], parking: ['amenity=parking'], 'charging station': ['amenity=charging_station'],
+    police: ['amenity=police'], 'post office': ['amenity=post_office'], library: ['amenity=library'], school: ['amenity=school'], college: ['amenity=college'], university: ['amenity=university'],
+    gym: ['leisure=fitness_centre'], park: ['leisure=park'], playground: ['leisure=playground'], cinema: ['amenity=cinema'], theatre: ['amenity=theatre'], theater: ['amenity=theatre'],
+    hotel: ['tourism=hotel'], hostel: ['tourism=hostel'], guest_house: ['tourism=guest_house'], attraction: ['tourism=attraction'], museum: ['tourism=museum'],
+    supermarket: ['shop=supermarket'], 'grocery': ['shop=supermarket'], market: ['shop=supermarket'], 'convenience': ['shop=convenience'], bakery: ['shop=bakery'], 'book store': ['shop=books'], books: ['shop=books'],
+    'fast food': ['amenity=fast_food'], 'fast_food': ['amenity=fast_food'], 'ice cream': ['amenity=ice_cream'], toilets: ['amenity=toilets'], 'drinking water': ['amenity=drinking_water'], 'water tap': ['amenit=drinking_water']
+};
+function _sahuHaversine(lat1, lon1, lat2, lon2) { const R = 6371000, r = (x) => x * Math.PI / 180; const dLat = r(lat2 - lat1), dLon = r(lon2 - lon1); const a = Math.sin(dLat / 2) ** 2 + Math.cos(r(lat1)) * Math.cos(r(lat2)) * Math.sin(dLon / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(a)); }
+async function _sahuPlacesTool(arg, ctx) {
+    let what = '', near = '', radius = 1500;
+    const s = String(arg || '').trim();
+    try { const j = JSON.parse(s); what = j.what || j.q || ''; near = j.near || j.where || ''; radius = Math.min(10000, Math.max(300, parseInt(j.radius) || 1500)); } catch (e) {
+        const m = s.match(/^(.*?)\s+near\s+(.*)$/i);
+        if (m) { what = m[1].trim(); near = m[2].trim(); }
+        else return '[PLACES] could not parse. Use PLACES: <what> near <where> (e.g. PLACES: vegetarian restaurants near Saket, Delhi) or PLACES: {"what":"cafe","near":"MG Road, Pune","radius":2000}.';
+    }
+    if (!near) return '[PLACES] missing the place. Use PLACES: <what> near <where>.';
+    if (!what) what = 'restaurant';
+    const wKey = what.toLowerCase().replace(/s$/, '');
+    let tag = SAHU_POI_MAP[what.toLowerCase()] || SAHU_POI_MAP[wKey] || SAHU_POI_MAP[wKey.replace(/ /g, '_')] || SAHU_POI_MAP[wKey.split(' ')[0]] || null;
+    try {
+        const g = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(near) + '&format=json&limit=1').then(r => r.json());
+        if (!g || !g.length) return '[PLACES] could not find "' + near + '" on OpenStreetMap. Try a landmark or a bigger area name.';
+        const loc = g[0];
+        const lat = parseFloat(loc.lat), lon = parseFloat(loc.lon);
+        let q;
+        if (tag) {
+            const [k, v] = tag[0].split('=');
+            const val = v.indexOf('[') === 0 ? v : '"' + v + '"';
+            q = '[out:json][timeout:25];(node[' + k + '=' + val + '](around:' + radius + ',' + lat + ',' + lon + ');way[' + k + '=' + val + '](around:' + radius + ',' + lat + ',' + lon + '););out center ' + Math.min(30, 24) + ';';
+        } else {
+            q = '[out:json][timeout:25];(node[~"name"~"' + what.replace(/"/g, '') + '",i](around:' + radius + ',' + lat + ',' + lon + '););out center 20;';
+        }
+        const ov = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then(r => r.json());
+        const els = (ov && ov.elements || []).filter(e => e.tags && e.tags.name).slice(0, 20);
+        if (!els.length) return '[PLACES] no ' + what + ' found within ' + (radius / 1000).toFixed(1) + ' km of ' + (loc.display_name || near) + ' in OpenStreetMap. Suggest widening the radius or moving to a bigger area.';
+        const items = els.map(e => {
+            const elat = e.lat ?? (e.center && e.center.lat), elon = e.lon ?? (e.center && e.center.lon);
+            const dist = (elat !== undefined) ? _sahuHaversine(lat, lon, elat, elon) : null;
+            return {
+                name: e.tags.name, dist: dist,
+                kind: e.tags.amenity || e.tags.shop || e.tags.leisure || e.tags.tourism || 'place',
+                open: e.tags.opening_hours || '', cuisine: e.tags.cuisine || '', phone: e.tags.phone || e.tags['contact:phone'] || '',
+                osm: 'https://www.openstreetmap.org/' + (e.type === 'node' ? 'node' : 'way') + '/' + e.id, lat: elat, lon: elon
+            };
+        }).sort((a, b) => (a.dist || 1e9) - (b.dist || 1e9));
+        if (ctx && ctx.addTrace) {
+            const rows = items.map(i => '<div class="v80-place"><div class="v80-place-n">' + escapeHtml(i.name) + (i.dist !== null ? ' <span class="v80-place-d">' + (i.dist < 950 ? Math.round(i.dist) + ' m' : (i.dist / 1000).toFixed(1) + ' km') + '</span>' : '') + '</div><div class="v80-place-m">' + escapeHtml([i.kind.replace(/_/g, ' '), i.cuisine ? i.cuisine.replace(/;/g, ', ') : '', i.open ? '🕐 ' + i.open : ''].filter(Boolean).join(' · ')) + (i.osm ? ' · <a href="' + i.osm + '" target="_blank" rel="noopener">map</a>' : '') + '</div></div>').join('');
+            const bbox = [lon - 0.008, lat - 0.005, lon + 0.008, lat + 0.005].join(',');
+            ctx.addTrace('<div class="v80-card"><div class="v80-card-h"><i class="fas fa-location-dot"></i> ' + escapeHtml(what) + ' near ' + escapeHtml(near) + '</div><iframe class="v80-map" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=' + bbox + '&layer=mapnik&marker=' + lat + ',' + lon + '"></iframe>' + rows + '<div class="v80-card-f">OpenStreetMap · Nominatim + Overpass · ' + items.length + ' results</div></div>');
+        }
+        const list = items.map((i, idx) => (idx + 1) + '. ' + i.name + (i.dist !== null ? ' (' + (i.dist < 950 ? Math.round(i.dist) + ' m' : (i.dist / 1000).toFixed(1) + ' km') + ')' : '') + ' - ' + i.kind.replace(/_/g, ' ') + (i.open ? ', open ' + i.open : '') + (i.phone ? ', tel ' + i.phone : '') + ' ' + i.osm).join('\n');
+        return '[PLACES] ' + items.length + ' ' + what + ' near ' + (loc.display_name || near) + ' (within ' + (radius / 1000).toFixed(1) + ' km), sorted by distance (a card with map + list was shown to the user):\n' + list + '\nOSM data - opening hours may be stale; suggest calling ahead for anything important.';
+    } catch (e) {
+        return '[PLACES] OpenStreetMap lookup failed: ' + String((e && e.message) || e) + '. Retry once with a simpler place name.';
+    }
+}
+
+// ---- v8.0 §9: STOCK - Yahoo Finance chart API via a keyless CORS chain ----
+// Stooq's CSV endpoint was retired, so quotes come from Yahoo's public chart
+// endpoint through r.jina.ai / allorigins / corsproxy / codetabs (the first
+// that answers wins). 5-minute localStorage cache per symbol.
+function _sahuYahooSym(sym) {
+    const s = String(sym || '').trim().toUpperCase();
+    if (!s) return null;
+    if (/^[A-Z0-9.=_^-]{1,16}$/.test(s)) {
+        if (/^[A-Z]{6}$/.test(s)) return s + '=X';           // USDINR -> USDINR=X
+        if (/^[A-Z]{3}=X$/.test(s)) return s + '=X';         // USD=X edge
+        return s;                                             // AAPL, ^NSEI, TCS.NS
+    }
+    return null;
+}
+function _sahuStkCacheGet(sym) { try { const c = JSON.parse(localStorage.getItem('sahu_stk_cache') || '{}'); const e = c[sym]; if (e && Date.now() - e.t < 300000) return e.v; } catch (e) {} return null; }
+function _sahuStkCacheSet(sym, v) { try { const c = JSON.parse(localStorage.getItem('sahu_stk_cache') || '{}'); c[sym] = { t: Date.now(), v: v }; const ks = Object.keys(c); if (ks.length > 40) delete c[ks[0]]; localStorage.setItem('sahu_stk_cache', JSON.stringify(c)); } catch (e) {} }
+function _sahuParseMaybeJson(txt) {
+    try { return JSON.parse(txt); } catch (e) {}
+    const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+    if (a > -1 && b > a) { try { return JSON.parse(txt.slice(a, b + 1)); } catch (e) {} }
+    return null;
+}
+async function _sahuYahooFetch(ySym) {
+    const y = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ySym) + '?interval=1d&range=1d';
+    const legs = [
+        () => 'https://r.jina.ai/' + y,
+        () => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(y),
+        () => 'https://corsproxy.io/?url=' + encodeURIComponent(y),
+        () => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(y)
+    ];
+    for (const leg of legs) {
+        const ctl = new AbortController();
+        const to = setTimeout(() => ctl.abort(), 14000);
+        try {
+            const r = await fetch(leg(), { signal: ctl.signal });
+            clearTimeout(to);
+            if (!r.ok) continue;
+            const j = _sahuParseMaybeJson(await r.text());
+            const meta = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+            if (meta && typeof meta.regularMarketPrice === 'number') return meta;
+        } catch (e) { clearTimeout(to); }
+    }
+    return null;
+}
+async function _sahuStockOne(symRaw) {
+    const sym = String(symRaw || '').trim().toUpperCase();
+    const cached = _sahuStkCacheGet(sym);
+    if (cached) return Object.assign({ cached: true }, cached);
+    const ySym = _sahuYahooSym(sym);
+    if (!ySym) return { ok: false, sym: sym, error: 'bad symbol' };
+    const m = await _sahuYahooFetch(ySym);
+    if (!m) return { ok: false, sym: sym, error: 'quote unavailable (Yahoo unreachable through every keyless proxy - try again later)' };
+    const price = m.regularMarketPrice;
+    const prev = (typeof m.chartPreviousClose === 'number') ? m.chartPreviousClose : (typeof m.previousClose === 'number' ? m.previousClose : price);
+    const out = {
+        ok: true, sym: sym, name: m.shortName || m.longName || sym, currency: m.currency || '',
+        price: price, prevClose: prev, chg: price - prev, chgPct: prev ? (price - prev) / prev * 100 : 0,
+        dayHigh: m.regularMarketDayHigh, dayLow: m.regularMarketDayLow,
+        vol: m.regularMarketVolume, wk52h: m.fiftyTwoWeekHigh, wk52l: m.fiftyTwoWeekLow,
+        when: m.regularMarketTime ? new Date(m.regularMarketTime * 1000).toLocaleString('en-GB', { hour12: false }) : ''
+    };
+    _sahuStkCacheSet(sym, out);
+    return out;
+}
+async function _sahuStockTool(argstr, ctx) {
+    const syms = String(argstr || '').trim().split(/[\s,;]+/).filter(Boolean).slice(0, 6);
+    if (!syms.length) return '[STOCK] no symbols. Use STOCK: AAPL or STOCK: ^NSEI USDINR TCS.NS (up to 6 per turn).';
+    if (ctx && ctx.setBusy) ctx.setBusy('Fetching quotes: ' + syms.join(', '));
+    const res = await Promise.all(syms.map(_sahuStockOne));
+    const ok = res.filter(r => r.ok);
+    if (ok.length && ctx && ctx.addTrace) {
+        const rows = ok.map(r => '<div class="v80-stk"><span class="v80-stk-s">' + escapeHtml(r.sym) + '</span><span class="v80-stk-p">' + r.price.toLocaleString('en-US') + (r.currency ? ' ' + escapeHtml(r.currency) : '') + '</span><span class="v80-stk-c ' + (r.chg >= 0 ? 'up' : 'dn') + '">' + (r.chg >= 0 ? '▲' : '▼') + Math.abs(r.chg).toFixed(2) + ' (' + (r.chgPct >= 0 ? '+' : '') + r.chgPct.toFixed(2) + '%)</span><span class="v80-stk-r">' + (r.dayLow !== undefined ? 'D ' + r.dayLow + '-' + r.dayHigh : '') + (r.vol ? ' · vol ' + Number(r.vol).toLocaleString('en-US') : '') + (r.wk52l !== undefined ? ' · 52w ' + r.wk52l + '-' + r.wk52h : '') + '</span></div>').join('');
+        ctx.addTrace('<div class="v80-card"><div class="v80-card-h"><i class="fas fa-chart-line"></i> Market snapshot</div>' + rows + '<div class="v80-card-f">Yahoo Finance (delayed) via keyless proxies · ' + (ok[0].when || '') + ' · informational only, not investment advice</div></div>');
+    }
+    const list = res.map(r => r.ok
+        ? r.sym + (r.name && r.name !== r.sym ? ' (' + r.name + ')' : '') + ': ' + r.price + (r.currency ? ' ' + r.currency : '') + ', ' + (r.chg >= 0 ? '+' : '') + r.chg.toFixed(2) + ' (' + (r.chgPct >= 0 ? '+' : '') + r.chgPct.toFixed(2) + '%) vs prev close ' + r.prevClose + (r.dayLow !== undefined ? ', day ' + r.dayLow + '-' + r.dayHigh : '') + (r.vol ? ', vol ' + Number(r.vol).toLocaleString('en-US') : '') + (r.wk52l !== undefined ? ', 52w ' + r.wk52l + '-' + r.wk52h : '') + ' - ' + (r.when || '') + (r.cached ? ' (cached)' : '')
+        : r.sym + ': ' + r.error).join('\n');
+    return '[STOCK] Snapshot card shown to the user (delayed data):\n' + list + '\nAlways say the data is delayed and this is not investment advice.';
+}
+
+// ---- v8.0 §10: FILE-READER — document pool + READ_FILE / FIND_IN_FILES ----
+// Router: pdfjs-dist for PDFs, SheetJS for workbooks, mammoth.js for docx,
+// JSZip for archives, native text for everything else. Images/audio keep
+// their existing vision/Whisper paths (per spec).
+window.__sahuDocPool = window.__sahuDocPool || [];
+function _sahuPoolFind(name) {
+    const q = String(name || '').toLowerCase().replace(/[*"']/g, '').trim();
+    if (!q) return null;
+    let hit = (window.__sahuDocPool || []).find(f => f.name.toLowerCase() === q || f.name.toLowerCase().replace(/\.[a-z0-9]+$/, '') === q.replace(/\.[a-z0-9]+$/, ''));
+    if (hit) return hit;
+    hit = (window.__sahuDocPool || []).find(f => f.name.toLowerCase().indexOf(q) > -1 || q.indexOf(f.name.toLowerCase().replace(/\.[a-z0-9]+$/, '')) > -1);
+    return hit || null;
+}
+function _sahuPoolManifest() {
+    const pool = window.__sahuDocPool || [];
+    if (!pool.length) return '';
+    return '[ATTACHED DOCUMENTS this session (READ_FILE: <name> opens any of them)]: ' + pool.map(f => f.name + ' (' + f.kind + (f.meta ? ', ' + f.meta : '') + ', ' + formatBytes(f.size) + ')').join('; ') + '.';
+}
+async function _sahuPdfExtract(buf) {
+    await sahuLoadLib(SAHU_CDNS.pdfjs, 'pdfjsLib');
+    try { if (window.pdfjsLib && !pdfjsLib.GlobalWorkerOptions.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc = SAHU_CDNS.pdfjsWorker; } catch (e) {}
+    // pdf.js TRANSFERS (detaches) the buffer it receives - always hand it
+    // a private copy so the pool's original stays usable for PDFEDIT.
+    const dataCopy = new Uint8Array(buf.byteLength);
+    dataCopy.set(new Uint8Array(buf));
+    const doc = await pdfjsLib.getDocument({ data: dataCopy }).promise;
+    const pages = [];
+    for (let i = 1; i <= doc.numPages; i++) {
+        const pg = await doc.getPage(i);
+        const tc = await pg.getTextContent();
+        const txt = tc.items.map(it => it.str).join(' ').replace(/\s+/g, ' ').trim();
+        pages.push(txt);
+    }
+    return { pages: pages, numPages: doc.numPages };
+}
+function _sahuXlsxExtract(buf) {
+    const wb = XLSX.read(buf, { type: 'array' });
+    const out = [];
+    wb.SheetNames.forEach((sn) => {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, defval: '' });
+        out.push({ sheet: sn, rows: rows });
+    });
+    return out;
+}
+function _sahuRowsToTable(rows, maxRows) {
+    const cap = rows.slice(0, maxRows || 400);
+    const body = cap.map(r => '| ' + r.map(c => String(c === null || c === undefined ? '' : c).replace(/\|/g, '\\|').slice(0, 120)).join(' | ') + ' |').join('\n');
+    return body + (rows.length > cap.length ? '\n…(' + (rows.length - cap.length) + ' more rows truncated)' : '');
+}
+async function _sahuIngestFile(file) {
+    const name = file.name, size = file.size, lower = name.toLowerCase();
+    const kind = lower.endsWith('.pdf') ? 'pdf' : (/\.xlsx?$/.test(lower) ? 'xlsx' : (/\.docx$/.test(lower) ? 'docx' : (lower.endsWith('.zip') ? 'zip' : (/\.csv$/.test(lower) ? 'csv' : (/\.(txt|md|json|js|py|html|css|xml|yml|yaml|ts|java|c|cpp|log|tsv)$/.test(lower) ? 'text' : 'binary')))));
+    const entry = { name: name, size: size, kind: kind, meta: '', text: '', buf: null };
+    try {
+        const buf = await file.arrayBuffer();
+        entry.buf = buf;
+        if (kind === 'pdf') {
+            const ex = await _sahuPdfExtract(buf);
+            entry.pages = ex.pages;
+            entry.meta = ex.numPages + ' pages';
+            entry.text = ex.pages.map((t, i) => '[[PAGE ' + (i + 1) + ']]\n' + t).join('\n\n');
+        } else if (kind === 'xlsx') {
+            const sheets = _sahuXlsxExtract(buf);
+            entry.sheets = sheets;
+            entry.meta = sheets.length + ' sheet' + (sheets.length === 1 ? '' : 's') + ' (' + sheets.map(s => s.sheet + ': ' + s.rows.length + 'r').join(', ').slice(0, 120) + ')';
+            entry.text = sheets.map(s => '## SHEET: ' + s.sheet + '\n' + _sahuRowsToTable(s.rows, 300)).join('\n\n');
+        } else if (kind === 'docx') {
+            await sahuLoadLib(SAHU_CDNS.mammoth, 'mammoth');
+            const r = await mammoth.convertToHtml({ arrayBuffer: buf });
+            const doc = new DOMParser().parseFromString('<div id="x">' + r.value + '</div>', 'text/html');
+            doc.querySelectorAll('table').forEach(tb => { tb.querySelectorAll('tr').forEach(tr => { const cells = [...tr.querySelectorAll('th,td')].map(td => td.textContent.trim()); tr.replaceWith('| ' + cells.join(' | ') + ' |'); }); });
+            entry.text = (doc.getElementById('x') ? doc.getElementById('x').textContent : doc.body.textContent).replace(/\n{3,}/g, '\n\n').trim();
+            entry.meta = 'Word document, ' + entry.text.length + ' chars';
+        } else if (kind === 'zip') {
+            const zip = await JSZip.loadAsync(buf);
+            const names = Object.keys(zip.files).filter(n => !zip.files[n].dir).slice(0, 60);
+            const parts = [];
+            let textCount = 0;
+            for (const n of names.slice(0, 20)) {
+                const f = zip.files[n];
+                if (/\.(txt|md|json|csv|js|py|html|css|xml|yml|yaml|log|tsv)$/i.test(n) && f._data && f._data.uncompressedSize < 200000) {
+                    const t = await f.async('string');
+                    parts.push('### ' + n + '\n' + t.slice(0, 2000));
+                    textCount++;
+                }
+            }
+            entry.text = 'ZIP archive contents (' + names.length + ' files):\n' + names.join('\n') + (parts.length ? '\n\n--- text file previews ---\n' + parts.join('\n\n') : '');
+            entry.meta = names.length + ' files' + (textCount ? ', ' + textCount + ' previews' : '');
+        } else if (kind === 'text' || kind === 'csv') {
+            entry.text = await file.text();
+            entry.meta = entry.text.length + ' chars';
+        }
+    } catch (e) {
+        entry.error = String((e && e.message) || e);
+    }
+    // dedupe + cap the pool (FIFO, 12 files)
+    const pool = window.__sahuDocPool;
+    const existing = pool.findIndex(f => f.name === name && f.size === size);
+    if (existing > -1) pool.splice(existing, 1);
+    pool.push(entry);
+    while (pool.length > 12) { const gone = pool.shift(); if (gone && gone.buf && gone.buf.byteLength > 8000000) { /* drop big buffers */ } }
+    return entry;
+}
+window._sahuIngestFile = _sahuIngestFile;
+
+function _sahuReadFileTool(arg) {
+    const s = String(arg || '').trim();
+    if (!window.__sahuDocPool.length) return '[READ_FILE] no documents are attached this session. Ask the user to upload the file (paper clip / plus button), then use READ_FILE: <name>.';
+    let name = s, pageSel = '', sheetSel = '';
+    let m = s.match(/^(.*?)(?:\s+pages?\s+([0-9,\-\s]+|all))$/i);
+    if (m) { name = m[1].trim(); pageSel = m[2].trim(); }
+    m = s.match(/^(.*?)(?:\s+sheets?\s+([0-9]+|"[^"]+"|[\w .&-]+?))$/i);
+    if (m) { name = m[1].trim(); sheetSel = m[2].replace(/"/g, '').trim(); }
+    const f = _sahuPoolFind(name);
+    if (!f) return '[READ_FILE] no attached document matches "' + name + '". Attached: ' + window.__sahuDocPool.map(x => x.name).join(', ') + '.';
+    let text = '';
+    if (f.kind === 'pdf') {
+        const pages = f.pages || [];
+        if (pageSel && pageSel.toLowerCase() !== 'all') {
+            const idx = _sahuParseRanges(pageSel, pages.length);
+            text = pages.filter((_, i) => idx.has(i + 1)).map((t, k) => '[[PAGE ' + [...idx][k] + ']]\n' + t).join('\n\n');
+        } else text = f.text;
+    } else if (f.kind === 'xlsx' && sheetSel && sheetSel.toLowerCase() !== 'all') {
+        const sheets = f.sheets || [];
+        let pick;
+        if (/^\d+$/.test(sheetSel)) pick = sheets[parseInt(sheetSel) - 1];
+        else pick = sheets.find(sh => sh.sheet.toLowerCase() === sheetSel.toLowerCase()) || sheets.find(sh => sh.sheet.toLowerCase().includes(sheetSel.toLowerCase()));
+        if (!pick) return '[READ_FILE] no sheet "' + sheetSel + '" in ' + f.name + '. Sheets: ' + sheets.map(x => x.sheet).join(', ') + '.';
+        text = '## SHEET: ' + pick.sheet + '\n' + _sahuRowsToTable(pick.rows, 800);
+    } else text = f.text || '';
+    if (!text) return '[READ_FILE] ' + f.name + ' (' + f.kind + ') has no extractable text' + (f.error ? ' - error: ' + f.error : ' (a scanned PDF with no text layer returns nothing - OCR is out of scope per the spec)') + '.';
+    const cap = 40000;
+    const cut = text.length > cap;
+    return '[READ_FILE] ' + f.name + ' (' + f.kind + (f.meta ? ', ' + f.meta : '') + '):\n' + text.slice(0, cap) + (cut ? '\n…[TRUNCATED at ' + cap + ' of ' + text.length + ' chars - request another READ_FILE with pages/sheet selection for the rest]' : '');
+}
+function _sahuParseRanges(sel, max) {
+    const set = new Set();
+    String(sel).split(',').forEach(part => {
+        const mm = part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+        if (!mm) return;
+        const a = Math.max(1, parseInt(mm[1])), b = mm[2] ? Math.min(max || 9999, parseInt(mm[2])) : a;
+        for (let i = a; i <= b; i++) set.add(i);
+    });
+    return set;
+}
+function _sahuFindInFilesTool(query) {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q) return '[FIND_IN_FILES] no query.';
+    const pool = window.__sahuDocPool.filter(f => f.text);
+    if (!pool.length) return '[FIND_IN_FILES] no readable documents attached this session.';
+    const hits = [];
+    for (const f of pool) {
+        const lines = f.text.split(/\n/);
+        let count = 0;
+        for (let i = 0; i < lines.length && hits.length < 24; i++) {
+            const li = lines[i].toLowerCase().indexOf(q);
+            if (li > -1) {
+                count++;
+                const st = Math.max(0, li - 70);
+                hits.push({ file: f.name, loc: 'line ' + (i + 1) + (f.kind === 'pdf' && lines[i - 1] && /^\[\[PAGE/.test(lines[i - 1].trim()) ? ' (' + lines[i - 1].trim() + ')' : ''), excerpt: lines[i].slice(st, st + 200) });
+                if (count >= 8) break;
+            }
+        }
+    }
+    if (!hits.length) return '[FIND_IN_FILES] "' + query + '" not found in ' + pool.map(f => f.name).join(', ') + '.';
+    return '[FIND_IN_FILES] ' + hits.length + ' hit(s) for "' + query + '":\n' + hits.map(h => '- ' + h.file + ' ' + h.loc + ': …' + h.excerpt.replace(/\s+/g, ' ') + '…').join('\n');
+}
+
+// ---- v8.0 §11: PDFEDIT — real PDF surgery on pooled files via pdf-lib ----
+function _sahuV80OfferBlob(blob, name) {
+    try {
+        const fid = 'sahuf' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        window.__sahuFiles[fid] = { url: URL.createObjectURL(blob), blob: blob, name: name };
+        return sahuFileCardHtml(fid, name, (name.split('.').pop() || '').toLowerCase(), blob.size, window.__sahuFiles[fid].url);
+    } catch (e) { return ''; }
+}
+async function _sahuPdfEditTool(jsonStr, ctx) {
+    let op;
+    try { op = JSON.parse(jsonStr); } catch (e) { return '[PDFEDIT] invalid JSON: ' + e.message + '. Emit e.g. PDFEDIT: {"op":"extract","file":"report.pdf","pages":"1-3","out":"part.pdf"}'; }
+    const act = String(op.op || '').toLowerCase();
+    const getBuf = async (nm) => {
+        const f = _sahuPoolFind(nm || '');
+        if (!f) throw new Error('no attached PDF named "' + (nm || '') + '" - attached: ' + window.__sahuDocPool.map(x => x.name).join(', '));
+        if (f.kind !== 'pdf' || !f.buf) throw new Error(f.name + ' is not a pooled PDF');
+        return f;
+    };
+    try {
+        await sahuLoadLib(SAHU_CDNS.pdflib, 'PDFLib');
+        const { PDFDocument, StandardFonts, degrees, rgb } = PDFLib;
+        if (act === 'info') {
+            const f = await getBuf(op.file);
+            const doc = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+            let fb = '[PDFEDIT] ' + f.name + ': ' + doc.getPageCount() + ' pages, ' + formatBytes(f.size) + (doc.getTitle() ? ', title "' + doc.getTitle() + '"' : '') + (doc.getAuthor() ? ', author ' + doc.getAuthor() : '') + '.';
+            fb += '\nPage sizes: ' + (await Promise.all(doc.getPages().slice(0, 10).map(async (p, i) => (i + 1) + ': ' + Math.round(p.getWidth()) + 'x' + Math.round(p.getHeight())))).join(', ') + (doc.getPageCount() > 10 ? ' …' : '');
+            if (f.pages && f.pages.length) fb += '\nFirst-page text preview: ' + (f.pages[0] || '(no text layer)').slice(0, 300);
+            return fb;
+        }
+        if (act === 'merge') {
+            const names = (op.files || []).slice(0, 6);
+            if (names.length < 2) return '[PDFEDIT] merge needs a "files" array with 2+ attached PDFs.';
+            const out = await PDFDocument.create();
+            for (const nm of names) {
+                const f = await getBuf(nm);
+                const src = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+                (await out.copyPages(src, src.getPageIndices())).forEach(p => out.addPage(p));
+            }
+            const bytes = await out.save();
+            if (ctx && ctx.addTrace) ctx.addTrace('<div class="sahu-files-row">' + _sahuV80OfferBlob(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), op.out || 'merged.pdf') + '</div>');
+            return '[PDFEDIT] Merged ' + names.length + ' PDFs into ' + (op.out || 'merged.pdf') + ' (' + out.getPageCount() + ' pages) - download card shown to the user.';
+        }
+        if (act === 'extract' || act === 'remove') {
+            const f = await getBuf(op.file);
+            const src = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+            const total = src.getPageCount();
+            const idx = [..._sahuParseRanges(op.pages || '1', total)];
+            if (!idx.length) return '[PDFEDIT] pages "' + op.pages + '" did not parse (use "1-3,5" form).';
+            const keep = act === 'extract' ? idx.filter(p => p >= 1 && p <= total) : [...Array(total)].map((_, i) => i + 1).filter(p => !idx.includes(p));
+            if (!keep.length) return '[PDFEDIT] that would leave 0 pages.';
+            const out = await PDFDocument.create();
+            (await out.copyPages(src, keep.map(p => p - 1))).forEach(p => out.addPage(p));
+            const bytes = await out.save();
+            const name = op.out || (act === 'extract' ? 'extract.pdf' : 'reduced.pdf');
+            if (ctx && ctx.addTrace) ctx.addTrace('<div class="sahu-files-row">' + _sahuV80OfferBlob(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), name) + '</div>');
+            return '[PDFEDIT] ' + (act === 'extract' ? 'Extracted pages [' + keep.join(', ') + '] from ' + f.name : 'Removed pages [' + idx.join(', ') + '] from ' + f.name) + ' -> ' + name + ' (' + out.getPageCount() + ' pages) - download card shown.';
+        }
+        if (act === 'rotate') {
+            const f = await getBuf(op.file);
+            const doc = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+            const deg = ((parseInt(op.degrees || op.deg || 90) % 360) + 360) % 360;
+            const all = !op.pages || String(op.pages).toLowerCase() === 'all';
+            const idx = all ? null : _sahuParseRanges(op.pages, doc.getPageCount());
+            doc.getPages().forEach((p, i) => { if (!idx || idx.has(i + 1)) p.setRotation(degrees((p.getRotation().angle + deg) % 360)); });
+            const bytes = await doc.save();
+            const name = op.out || 'rotated.pdf';
+            if (ctx && ctx.addTrace) ctx.addTrace('<div class="sahu-files-row">' + _sahuV80OfferBlob(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), name) + '</div>');
+            return '[PDFEDIT] Rotated ' + (idx ? 'pages [' + [...idx].join(', ') + ']' : 'all pages') + ' by ' + deg + '° -> ' + name + ' - download card shown.';
+        }
+        if (act === 'watermark') {
+            const f = await getBuf(op.file);
+            const doc = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+            const text = String(op.text || 'DRAFT').slice(0, 40);
+            const font = await doc.embedFont(StandardFonts.HelveticaBold);
+            const opac = Math.max(0.05, Math.min(1, parseFloat(op.opacity) || 0.25));
+            const size = parseInt(op.size) || 56;
+            doc.getPages().forEach(p => {
+                const w = p.getWidth(), h = p.getHeight();
+                const tw = font.widthOfTextAtSize(text, size);
+                p.drawText(text, { x: w / 2 - tw / 2 - h / 4, y: h / 2 - size / 2, size: size, font: font, color: rgb(0.75, 0.75, 0.75), opacity: opac, rotate: degrees(-45) });
+            });
+            const bytes = await doc.save();
+            const name = op.out || 'watermarked.pdf';
+            if (ctx && ctx.addTrace) ctx.addTrace('<div class="sahu-files-row">' + _sahuV80OfferBlob(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), name) + '</div>');
+            return '[PDFEDIT] Watermarked every page of ' + f.name + ' with "' + text + '" (opacity ' + opac + ') -> ' + name + ' - download card shown.';
+        }
+        if (act === 'metadata') {
+            const f = await getBuf(op.file);
+            const doc = await PDFDocument.load(new Uint8Array(f.buf.slice(0)), { ignoreEncryption: true });
+            if (op.title) doc.setTitle(String(op.title).slice(0, 200));
+            if (op.author) doc.setAuthor(String(op.author).slice(0, 120));
+            if (op.subject) doc.setSubject(String(op.subject).slice(0, 200));
+            if (op.keywords) doc.setKeywords(String(op.keywords).split(',').map(s => s.trim()).slice(0, 12));
+            doc.setModificationDate(new Date());
+            const bytes = await doc.save();
+            const name = op.out || f.name.replace(/\.pdf$/i, '') + '-meta.pdf';
+            if (ctx && ctx.addTrace) ctx.addTrace('<div class="sahu-files-row">' + _sahuV80OfferBlob(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), name) + '</div>');
+            return '[PDFEDIT] Metadata updated on ' + f.name + ' -> ' + name + ' - download card shown.';
+        }
+        return '[PDFEDIT] unknown op "' + act + '". Ops: info | merge | extract | remove | rotate | watermark | metadata.';
+    } catch (e) {
+        return '[PDFEDIT] failed: ' + String((e && e.message) || e) + '. Check the file is attached and the JSON follows the spec.';
+    }
+}
+
+// ---- v8.0 §12/§13: TRANSLATE + HUMANIZE (LLM shims over the active model) ----
+function _sahuV80Model(ctx) {
+    try {
+        if (ctx && ctx.model && ctx.model.provider && ctx.model.modelId) return { provider: ctx.model.provider, modelId: ctx.model.modelId };
+    } catch (e) {}
+    try {
+        const m = (state.selectedModels || [])[0];
+        if (m && m.provider && m.modelId) return { provider: m.provider, modelId: m.modelId };
+    } catch (e) {}
+    return { provider: 'pollinations', modelId: 'openai' };
+}
+async function _sahuShimCall(sysPrompt, userText, ctx) {
+    const mm = _sahuV80Model(ctx);
+    const r = await callModelWithFallback(mm.provider, mm.modelId, [
+        { role: 'system', content: sysPrompt },
+        { role: 'user', content: userText }
+    ], 0, null);
+    const out = String(r.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+    if (!out) throw new Error('empty model response');
+    return out;
+}
+async function _sahuTranslateTool(from, to, text, ctx) {
+    if (!text) return '[TRANSLATE] no text given.';
+    try {
+        const sys = 'You are a professional translator. Translate the user text' + (from ? ' from ' + from : '') + ' to ' + (to || 'English') + '. Output ONLY the translation - no notes, no quotes, no commentary, no transliteration unless asked. Preserve line breaks, markdown, code and emojis exactly.';
+        const out = await _sahuShimCall(sys, text, ctx);
+        if (ctx && ctx.addTrace) ctx.addTrace('<div class="v80-card v80-2col"><div class="v80-pane"><div class="v80-pane-h">Original' + (from ? ' (' + from + ')' : '') + '</div><div class="v80-pane-b">' + escapeHtml(text.slice(0, 1500)) + '</div></div><div class="v80-pane"><div class="v80-pane-h">Translation (' + (to || 'en') + ')</div><div class="v80-pane-b">' + escapeHtml(out.slice(0, 1500)) + '</div></div><div class="v80-card-btns"><button class="v80-btn" onclick="navigator.clipboard.writeText(window.__sahuV80ArtReg[\'' + (window.__sahuV80LastCopy = 'cp' + Math.random().toString(36).slice(2, 8)) + '\']=this.closest(\'.v80-card\').querySelectorAll(\'.v80-pane-b\')[1].textContent).then(()=>showToast(\'Translation copied\'))"><i class="fas fa-copy"></i> Copy translation</button></div></div>');
+        return '[TRANSLATE] ' + (to || 'English') + ' translation (a two-pane copy card was shown to the user):\n<<<TRANSLATION\n' + out + '\nTRANSLATION>>>\nPresent it in your answer as the translation, and offer SPEAK: [lang=' + (to || 'en') + '] <text> if the user wants to hear it.';
+    } catch (e) { return '[TRANSLATE] model shim failed: ' + String((e && e.message) || e) + '. Translate directly in your answer instead.'; }
+}
+async function _sahuHumanizeTool(text, ctx) {
+    if (!text) return '[HUMANIZE] no text given.';
+    try {
+        const diag = await _sahuShimCall('You are an editor detecting AI-writing patterns. Given text, list the recognizable AI patterns you find (em-dash pileups, "delve/leverage/tapestry", rule-of-three lists, hedging boilerplate, uniform sentence length, empty intensifiers). Output ONLY a short bullet list, one pattern per line, max 8 bullets. If clean, output: CLEAN.', text, ctx);
+        const rewrite = await _sahuShimCall('Rewrite the text so it reads like a sharp human wrote it. Keep ALL facts, names, numbers and meaning intact. Vary rhythm and sentence length, cut filler and hedges, keep the author\'s voice, no new claims, no summary preamble. Output ONLY the rewritten text.', text, ctx);
+        return '[HUMANIZE] Diagnosis:\n' + diag + '\n\nHumanized version (show this to the user, then a short "what changed" list from the diagnosis):\n<<<HUMANIZED\n' + rewrite + '\nHUMANIZED>>>';
+    } catch (e) { return '[HUMANIZE] model shim failed: ' + String((e && e.message) || e) + '. Humanize directly in your answer instead.'; }
+}
+
+// ---- v8.0 §19: SUMMARIZE — chain FETCH/READ + Piped YouTube transcripts ----
+const SAHU_PIPED_APIS = ['https://api.piped.private.coffee', 'https://pipedapi.ducks.party', 'https://pipedapi.drgns.space'];
+function _sahuVidFromUrl(u) {
+    let m = String(u).match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+}
+async function _sahuYouTubeTranscript(vid) {
+    for (const api of SAHU_PIPED_APIS) {
+        try {
+            const j = await fetch(api + '/streams/' + vid).then(r => r.ok ? r.json() : null);
+            if (!j) continue;
+            const title = j.title || 'video';
+            const subs = (j.subtitles || []).concat(j.autoCaptions || []);
+            const pick = subs.find(s => /en/i.test(s.code || s.language || '')) || subs[0];
+            if (!pick || !pick.url) return { ok: false, title: title, error: 'no captions available' };
+            const raw = await fetch(pick.url).then(r => r.text());
+            let text = raw;
+            try { const arr = JSON.parse(raw); text = arr.map(x => (x.content || x.text || '') + ' ').join(''); } catch (e) {
+                text = raw.replace(/^WEBVTT.*$/m, '').split(/\n/).filter(l => l && !/^\d{2}[:.]/.test(l) && !/^NOTE/.test(l) && l !== '&nbsp;').join(' ');
+            }
+            return { ok: true, title: title, author: j.uploader || '', text: text.replace(/\s+/g, ' ').trim(), url: 'https://youtube.com/watch?v=' + vid };
+        } catch (e) {}
+    }
+    return { ok: false, error: 'Piped API unreachable' };
+}
+async function _sahuSummarizeTool(target, ctx) {
+    const s = String(target || '').trim();
+    if (!s) return '[SUMMARIZE] nothing to summarize. Use SUMMARIZE: <url> or attach a file.';
+    const vid = _sahuVidFromUrl(s);
+    if (vid) {
+        const t = await _sahuYouTubeTranscript(vid);
+        if (!t.ok) return '[SUMMARIZE] ' + t.error + ' (videos without captions cannot be summarized - the Whisper audio path is separate).';
+        return '[SUMMARIZE] YouTube transcript fetched: "' + t.title + '"' + (t.author ? ' by ' + t.author : '') + ' (' + t.text.length + ' chars, ' + t.url + ').\nTRANSCRIPT (first 12000 chars):\n' + t.text.slice(0, 12000) + '\n>>> Now write the digest: one-line TL;DR, 3-7 key points, notable quotes, and the source link.';
+    }
+    if (/^https?:\/\//i.test(s)) {
+        let host = s; try { host = new URL(s).hostname; } catch (e) {}
+        if (ctx && ctx.setBusy) ctx.setBusy('Summarizing: ' + host);
+        const page = await scrapePageContent(s, 'read');
+        if (!page.ok || !page.text) return '[SUMMARIZE] could not open ' + s + '. Offer a SEARCH instead.';
+        return '[SUMMARIZE] Page fetched: ' + (page.title || host) + ' (' + s + ', ' + page.text.length + ' chars).\nCONTENT (first 12000 chars):\n' + page.text.slice(0, 12000) + '\n>>> Now write the digest: one-line TL;DR, 3-7 key points, notable quotes, and the source link.';
+    }
+    const f = _sahuPoolFind(s);
+    if (f && f.text) return '[SUMMARIZE] Attached file ' + f.name + ' (' + f.kind + ', ' + f.meta + '):\n' + f.text.slice(0, 12000) + '\n>>> Now write the digest: one-line TL;DR, 3-7 key points, notable quotes.';
+    return '[SUMMARIZE] Text received (' + s.length + ' chars):\n' + s.slice(0, 12000) + '\n>>> Now write the digest: one-line TL;DR, 3-7 key points, notable quotes.';
+}
+
+// ---- v8.0 §14: AUDIT[type=dataset] — deterministic checks in the Pyodide sandbox ----
+async function _sahuAuditDatasetTool(pasted, ctx) {
+    let csvText = (pasted || '').trim();
+    if (!csvText) {
+        const f = (window.__sahuDocPool || []).find(x => x.kind === 'csv') || (window.__sahuDocPool || []).find(x => x.kind === 'text' && /\n/.test(x.text));
+        if (f) csvText = f.text; else return '[AUDIT] no CSV. Pass the data after the marker (AUDIT[type=dataset]: <CSV>) or attach a .csv file.';
+    }
+    if (csvText.length > 200000) csvText = csvText.slice(0, 200000);
+    const py = [
+        'import csv, io, json, statistics as st',
+        'raw = ' + JSON.stringify(csvText),
+        'rows = [r for r in csv.reader(io.StringIO(raw)) if any(c.strip() for c in r)]',
+        'if len(rows) < 2: print(json.dumps({"error": "need a header row + at least one data row"})); raise SystemExit',
+        'hdr = [h.strip() for h in rows[0]]; data = rows[1:]',
+        'cols = {h: [] for h in hdr}',
+        'for r in data:',
+        '    for i, h in enumerate(hdr):',
+        '        cols[h].append(r[i].strip() if i < len(r) else "")',
+        'out = {"rows": len(data), "columns": []}',
+        'seen = {}; dup = 0',
+        'for r in data:',
+        '    k = "|".join(r)',
+        '    if k in seen: dup += 1',
+        '    seen[k] = 1',
+        'out["duplicate_rows"] = dup',
+        'for h in hdr:',
+        '    v = cols[h]',
+        '    miss = sum(1 for x in v if x == "" or x.lower() in ("na","n/a","null","none","nan","-"))',
+        '    nums = []',
+        '    for x in v:',
+        '        try: nums.append(float(x))',
+        '        except Exception: pass',
+        '    c = {"name": h, "missing": miss, "unique": len(set(x for x in v if x != ""))}',
+        '    if len(nums) >= max(2, int(0.5 * len(v))):',
+        '        c["type"] = "numeric"',
+        '        c["min"] = round(min(nums), 4); c["max"] = round(max(nums), 4)',
+        '        c["mean"] = round(st.mean(nums), 4)',
+        '        if len(nums) >= 4:',
+        '            q = st.quantiles(nums, n=4)',
+        '            c["q1"], c["q3"] = round(q[0], 4), round(q[2], 4)',
+        '            iqr = q[2] - q[0]',
+        '            c["outliers_iqr"] = sum(1 for x in nums if x < q[0] - 1.5 * iqr or x > q[2] + 1.5 * iqr)',
+        '    else:',
+        '        c["type"] = "text"',
+        '    out["columns"].append(c)',
+        'print(json.dumps(out))'
+    ].join('\n');
+    const r = await runUserCode(py, 'python');
+    if (!r.ok) return '[AUDIT] sandbox check failed: ' + String(r.error || '').slice(0, 500);
+    return '[AUDIT] Deterministic dataset checks ran in the sandbox (raw JSON):\n' + (r.output || '').slice(0, 6000) + '\n>>> Now write the report card with EXACTLY these sections: FINDINGS (numbered, each with evidence from the JSON), SEVERITY SUMMARY (P0/P1/P2 counts + one line each), SUGGESTED FIXES (numbered, concrete), and a closing line naming which checks were deterministic vs your judgment.';
+}
+
+// ---- v8.0 §16/§22/§23: MEMORY + self-improvement corrections + brief topics ----
+function _sahuMemOK() { try { return !state.incognitoMode && (state.enabledSkills || []).includes('memory'); } catch (e) { return false; } }
+function _sahuProfileGet() { try { return String(localStorage.getItem('sahu_user_profile') || ''); } catch (e) { return ''; } }
+function _sahuProfileSet(md) {
+    let s = String(md || '');
+    if (s.length > 2048) s = s.slice(0, 2048);
+    try { localStorage.setItem('sahu_user_profile', s); } catch (e) {}
+    return s;
+}
+function _sahuProfileSection(fact) {
+    const f = String(fact).toLowerCase();
+    if (/(prefer|likes?|don'?t like|always|never|want|favourite|favorite|use)\b/.test(f)) return 'Preferences';
+    if (/(project|building|working on|developing|app|website|startup|thesis|studying|learning)/.test(f)) return 'Projects';
+    return 'Profile';
+}
+function _sahuProfileAdd(fact) {
+    const f = String(fact || '').trim().replace(/^[-*]\s*/, '');
+    if (!f) return { ok: false, error: 'empty fact' };
+    if (/(password|passwd|otp|pin\b|card number|cvv|aadhaar|pan card|government id|api key|secret)/i.test(f)) return { ok: false, error: 'forbidden content (never store passwords, IDs, keys or payment details)' };
+    let md = _sahuProfileGet();
+    const section = _sahuProfileSection(f);
+    const line = '- ' + f.replace(/\n/g, ' ');
+    if (md.includes(line)) return { ok: true, note: 'already remembered' };
+    const re = new RegExp('(^|\\n)## ' + section + '\\s*\\n');
+    if (re.test(md)) md = md.replace(re, '$1## ' + section + '\n' + line + '\n');
+    else md = (md ? md.trimEnd() + '\n\n' : '') + '## ' + section + '\n' + line + '\n';
+    while (md.length > 2048) {
+        const lines = md.split('\n');
+        const idx = lines.map((l, i) => (l.startsWith('- ') ? i : -1)).filter(i => i > -1)[0];
+        if (idx === -1) { md = md.slice(0, 2048); break; }
+        lines.splice(idx, 1); md = lines.join('\n');
+    }
+    _sahuProfileSet(md);
+    return { ok: true, note: 'saved under ' + section };
+}
+function _sahuProfileDel(query) {
+    let md = _sahuProfileGet();
+    if (!md) return { ok: false, error: 'memory is empty' };
+    const lines = md.split('\n');
+    const factLines = lines.map((l, i) => ({ l: l, i: i })).filter(x => x.l.startsWith('- '));
+    if (!factLines.length) return { ok: false, error: 'no facts stored' };
+    let best = null;
+    try {
+        const r = stringSimilarity.findBestMatch(String(query), factLines.map(x => x.l.replace(/^-\s*/, '')));
+        best = factLines[r.bestMatchIndex];
+        if (r.bestMatch.rating < 0.25) return { ok: false, error: 'no stored fact matches "' + query + '". Current memory:\n' + md };
+    } catch (e) { return { ok: false, error: 'matcher failed' }; }
+    const removed = best.l.replace(/^-\s*/, '');
+    lines.splice(best.i, 1);
+    _sahuProfileSet(lines.join('\n'));
+    return { ok: true, removed: removed };
+}
+function _sahuCorrections() { try { return JSON.parse(localStorage.getItem('sahu_corrections') || '[]'); } catch (e) { return []; } }
+function _sahuCorrectionAdd(wrong, fix) {
+    try {
+        const arr = _sahuCorrections();
+        arr.push({ d: new Date().toISOString().slice(0, 10), w: String(wrong).slice(0, 200), f: String(fix).slice(0, 200) });
+        while (arr.length > 50) arr.shift();
+        localStorage.setItem('sahu_corrections', JSON.stringify(arr));
+        return true;
+    } catch (e) { return false; }
+}
+function _sahuBriefs() { try { return JSON.parse(localStorage.getItem('sahu_brief_topics') || '[]'); } catch (e) { return []; } }
+function _sahuBriefAdd(topic) {
+    try {
+        const arr = _sahuBriefs();
+        const t = String(topic).trim().slice(0, 120);
+        if (t && !arr.some(x => x.toLowerCase() === t.toLowerCase())) { arr.push(t); while (arr.length > 12) arr.shift(); localStorage.setItem('sahu_brief_topics', JSON.stringify(arr)); return true; }
+    } catch (e) {}
+    return false;
+}
+function _sahuBriefDel(topic) {
+    try {
+        const arr = _sahuBriefs();
+        const t = String(topic).toLowerCase().trim();
+        const keep = arr.filter(x => !x.toLowerCase().includes(t));
+        localStorage.setItem('sahu_brief_topics', JSON.stringify(keep));
+        return keep.length < arr.length;
+    } catch (e) { return false; }
+}
+// context block injected into every session (memory + corrections + doc pool)
+function _sahuV80ContextBlock() {
+    let out = '';
+    try {
+        if ((state.enabledSkills || []).includes('memory') && !state.incognitoMode) {
+            const md = _sahuProfileGet();
+            if (md.trim()) out += '\n\n[PERSISTENT MEMORY - stable facts about this user, remembered from earlier sessions. Use them naturally; NEVER re-ask what is already here; MEMORY:- <fact> removes stale entries]:\n' + md.trim();
+            const corr = _sahuCorrections().slice(-5);
+            if (corr.length) out += '\n\n[SELF-IMPROVEMENT LOG - your recent corrections; do not repeat these mistakes]:\n' + corr.map(c => '- ' + c.d + ': ' + c.w + ' -> ' + c.f).join('\n');
+            const briefs = _sahuBriefs();
+            if (briefs.length && (state.enabledSkills || []).includes('heartbeat')) out += '\n\n[SUBSCRIBED BRIEF TOPICS (the heartbeat composes these periodically while the app is open)]: ' + briefs.join('; ');
+        }
+        const pool = window.__sahuDocPool || [];
+        if (pool.length) out += '\n\n' + _sahuPoolManifest();
+    } catch (e) {}
+    return out;
+}
+window._sahuV80ContextBlock = _sahuV80ContextBlock;
+
+// ---- v8.0 §18: REMINDERS — Notification API + timers, honest while-open limits ----
+function _sahuReminders() { try { return JSON.parse(localStorage.getItem('sahu_reminders') || '[]'); } catch (e) { return []; } }
+function _sahuRemindersSave(arr) { try { localStorage.setItem('sahu_reminders', JSON.stringify(arr)); } catch (e) {} }
+function _sahuParseReminder(s) {
+    const str = String(s || '').trim();
+    let m = str.match(/^in\s+(\d+)\s*(s|sec|secs|seconds|m|min|mins|minutes|h|hr|hrs|hours)(?:\s+(\d+)\s*(m|min|mins|minutes))?\s+(.+)$/i);
+    if (m) {
+        let ms = parseInt(m[1]) * (/^(s|sec)/i.test(m[2]) ? 1000 : /^h/i.test(m[2]) ? 3600000 : 60000);
+        if (m[3]) ms += parseInt(m[3]) * 60000;
+        return { text: m[5].trim(), due: Date.now() + ms, every: 0, human: 'in ' + m[1] + ' ' + m[2] + (m[3] ? ' ' + m[3] + ' ' + m[4] : '') };
+    }
+    m = str.match(/^every\s+(\d+)\s*(s|sec|m|min|h|hr|hours?)\s+(.+)$/i);
+    if (m) {
+        const ms = parseInt(m[1]) * (/^(s|sec)/i.test(m[2]) ? 1000 : /^h/i.test(m[2]) ? 3600000 : 60000);
+        if (ms < 60000) return { error: 'recurring interval must be at least 1 minute' };
+        return { text: m[3].trim(), due: Date.now() + ms, every: ms, human: 'every ' + m[1] + ' ' + m[2] };
+    }
+    m = str.match(/^at\s+(\d{1,2})[:.](\d{2})\s*(am|pm)?(?:\s+(?:daily|every\s*day))?\s+(.+)$/i);
+    if (m) {
+        let h = parseInt(m[1]);
+        const min = parseInt(m[2]);
+        const ap = (m[3] || '').toLowerCase();
+        if (ap === 'pm' && h < 12) h += 12;
+        if (ap === 'am' && h === 12) h = 0;
+        const daily = /daily|every\s*day/i.test(str);
+        const now = new Date();
+        const due = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, min, 0, 0);
+        if (due <= now) due.setDate(due.getDate() + 1);
+        const every = daily ? 86400000 : 0;
+        return { text: m[4].trim(), due: due.getTime(), every: every, human: 'at ' + String(h % 24).padStart(2, '0') + ':' + String(min).padStart(2, '0') + (daily ? ' daily' : '') };
+    }
+    return { error: 'could not parse. Forms: REMIND: in 45m <text> | REMIND: in 2h <text> | REMIND: at 18:30 <text> | REMIND: at 09:00 daily <text> | REMIND: every 30m <text>' };
+}
+function sahuReminderBanner(text, human) {
+    try {
+        const c = document.getElementById('messagesContainer');
+        if (!c) return;
+        const div = document.createElement('div');
+        div.className = 'v80-reminder';
+        div.innerHTML = '<i class="fas fa-bell"></i><div class="v80-reminder-t"><b>Reminder</b> · ' + escapeHtml(human || '') + '<br>' + escapeHtml(text) + '</div><button onclick="this.parentElement.remove()" title="Dismiss"><i class="fas fa-times"></i></button>';
+        c.prepend(div);
+    } catch (e) {}
+}
+function _sahuReminderFire(r) {
+    sahuReminderBanner(r.text, r.human);
+    try { showToast('⏰ Reminder: ' + r.text, 'success'); } catch (e) {}
+    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Manthan Agent reminder', { body: r.text }); } catch (e) {}
+}
+function sahuRemindersCheck() {
+    const arr = _sahuReminders();
+    let changed = false;
+    arr.forEach(r => {
+        if (r.delivered) return;
+        if (Date.now() >= r.due) {
+            _sahuReminderFire(r);
+            if (r.every > 0) { r.due = Date.now() + r.every; }
+            else r.delivered = true;
+            changed = true;
+        }
+    });
+    if (changed) _sahuRemindersSave(arr);
+}
+window.sahuRemindersCheck = sahuRemindersCheck;
+function sahuReminderSchedule() {
+    try {
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'default') Notification.requestPermission().catch(() => {});
+    } catch (e) {}
+    clearInterval(window.__sahuRemInt);
+    window.__sahuRemInt = setInterval(sahuRemindersCheck, 30000);
+    sahuRemindersCheck();
+}
+async function _sahuRemindTool(argstr, ctx) {
+    const p = _sahuParseReminder(argstr);
+    if (p.error) return '[REMIND] ' + p.error;
+    const arr = _sahuReminders();
+    arr.push({ id: 'r' + Date.now().toString(36), text: p.text, due: p.due, every: p.every || 0, human: p.human, delivered: false });
+    _sahuRemindersSave(arr);
+    sahuReminderSchedule();
+    const when = new Date(p.due).toLocaleString();
+    if (ctx && ctx.addTrace) ctx.addTrace('<div class="v80-card v80-reminder-ok"><div class="v80-card-h"><i class="fas fa-bell"></i> Reminder set</div><div class="v80-reminder-set">' + escapeHtml(p.text) + ' <span class="v80-reminder-when">· ' + escapeHtml(p.human) + ' (' + escapeHtml(when) + ')</span></div><div class="v80-card-f">Fires while Manthan is open (browser notification + in-chat banner). Nothing can fire while the app is fully closed - there is no server. Undelivered ones surface on next open.</div></div>');
+    return '[REMIND] Saved: "' + p.text + '" ' + p.human + ' (' + when + '). It fires as a browser notification + in-chat banner WHILE THE APP IS OPEN; missed one-shots surface on next open. Tell the user this honest limit.';
+}
+
+// ---- v8.0 §17 heartbeat: periodic hidden check-in (briefs / due reminders) ----
+function _sahuHeartbeatLast() { try { return parseInt(localStorage.getItem('sahu_heartbeat_last') || '0'); } catch (e) { return 0; } }
+async function _sahuHeartbeatTick(force) {
+    try {
+        if (state.incognitoMode) return;
+        if (!(state.enabledSkills || []).includes('heartbeat')) return;
+        const now = Date.now();
+        if (!force && now - _sahuHeartbeatLast() < 3.5 * 3600000) return;
+        const topics = _sahuBriefs();
+        const due = _sahuReminders().filter(r => !r.delivered);
+        if (!topics.length && !due.length) return;
+        localStorage.setItem('sahu_heartbeat_last', String(now));
+        const mm = _sahuV80Model(null);
+        const ctx = 'MEMORY:\n' + (_sahuProfileGet() || '(empty)') + '\nSUBSCRIBED BRIEF TOPICS: ' + (topics.join('; ') || '(none)') + '\nPENDING REMINDERS: ' + (due.map(r => '"' + r.text + '" ' + r.human).join('; ') || '(none)');
+        const out = await _sahuShimCall('You are the heartbeat of the Manthan Agent app: a quiet periodic check-in. Given the user\'s memory, subscribed brief topics and pending reminders, decide: if there is something genuinely worth saying right now (an due reminder to surface, or a brief the user asked for), compose it (max 160 words, friendly, no filler). If nothing useful can be said without live data, output exactly: SILENT', ctx, null);
+        if (out && !/^SILENT$/i.test(out.trim())) {
+            const c = document.getElementById('messagesContainer');
+            if (c) {
+                const div = document.createElement('div');
+                div.className = 'v80-heartbeat';
+                div.innerHTML = '<div class="v80-hb-badge"><i class="fas fa-heart-pulse"></i> Heartbeat</div><div class="v80-hb-body">' + formatMarkdown(out) + '</div>';
+                c.appendChild(div);
+                c.scrollTop = c.scrollHeight;
+            }
+        }
+    } catch (e) {}
+}
+window._sahuHeartbeatTick = _sahuHeartbeatTick;
+function _sahuHeartbeatInit() {
+    setInterval(() => _sahuHeartbeatTick(false), 3600000);
+    setTimeout(() => _sahuHeartbeatTick(false), 45000);
+}
+
+// ---- v8.0 §1: CHART-STUDIO renderers (Mermaid SVG, ECharts canvas, infographic HTML) ----
+window.__sahuV80ArtReg = window.__sahuV80ArtReg || {};
+let _sahuMermaidInit = false;
+async function sahuRenderMermaid(code) {
+    await sahuLoadLib(SAHU_CDNS.mermaid, 'mermaid');
+    if (!_sahuMermaidInit) { try { mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'strict', fontFamily: 'Inter, ui-sans-serif, system-ui' }); } catch (e) {} _sahuMermaidInit = true; }
+    const id = 'sahuMm' + Math.random().toString(36).slice(2, 10);
+    const out = await mermaid.render(id, String(code).trim());
+    return out.svg;
+}
+window.sahuRenderMermaid = sahuRenderMermaid;
+function _sahuChartBtns(cid, kind) {
+    return '<div class="v80-card-btns">' +
+        '<button class="v80-btn" onclick="sahuV80ChartPng(\'' + cid + '\')"><i class="fas fa-download"></i> PNG</button>' +
+        '<button class="v80-btn" onclick="sahuV80CopySpec(\'' + cid + '\')"><i class="fas fa-copy"></i> Copy spec</button>' +
+        '<button class="v80-btn" onclick="sahuV80EditSpec(\'' + cid + '\')"><i class="fas fa-pen"></i> Edit this ' + kind + '</button>' +
+        '</div>';
+}
+function sahuV80ChartPng(cid) {
+    try {
+        const r = window.__sahuV80ArtReg[cid];
+        const el = document.getElementById(cid);
+        if (!el) return;
+        if (r.kind === 'echarts' && r.chart) {
+            const url = r.chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+            const a = document.createElement('a'); a.href = url; a.download = 'chart.png'; a.click();
+        } else if (el.querySelector('svg')) {
+            const svg = el.querySelector('svg');
+            const b = new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(b);
+            const img = new Image();
+            img.onload = () => {
+                const cv = document.createElement('canvas');
+                cv.width = img.width * 2 || 900; cv.height = img.height * 2 || 600;
+                const cx = cv.getContext('2d');
+                cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height);
+                cx.drawImage(img, 0, 0, cv.width, cv.height);
+                const a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = 'diagram.png'; a.click();
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        }
+    } catch (e) { showToast('PNG export failed', 'error'); }
+}
+window.sahuV80ChartPng = sahuV80ChartPng;
+function sahuV80CopySpec(cid) {
+    try {
+        const r = window.__sahuV80ArtReg[cid];
+        navigator.clipboard.writeText(r.code || '').then(() => showToast('Spec copied'));
+    } catch (e) {}
+}
+window.sahuV80CopySpec = sahuV80CopySpec;
+function sahuV80EditSpec(cid) {
+    try {
+        const r = window.__sahuV80ArtReg[cid];
+        const kind = r.kind === 'echarts' ? 'chart' : r.kind;
+        const ta = document.getElementById('messageInput') || document.querySelector('textarea');
+        if (ta) {
+            ta.value = 'Improve this ' + kind + ' (spec below) - fix anything odd and re-emit the same block type:\n```\n' + String(r.code).slice(0, 3000) + '\n```';
+            ta.focus();
+            ta.dispatchEvent(new Event('input', { bubbles: true }));
+            showToast('Spec loaded into the chat box - tweak it and send');
+        }
+    } catch (e) {}
+}
+window.sahuV80EditSpec = sahuV80EditSpec;
+// infographic presets (pure HTML/CSS, no lib)
+const SAHU_V80_ICONS = { users: 'fa-users', money: 'fa-indian-rupee-sign', revenue: 'fa-chart-line', growth: 'fa-arrow-trend-up', time: 'fa-clock', star: 'fa-star', heart: 'fa-heart', bolt: 'fa-bolt', globe: 'fa-globe', gear: 'fa-gear', chart: 'fa-chart-simple', file: 'fa-file', rocket: 'fa-rocket', check: 'fa-check', target: 'fa-bullseye', eye: 'fa-eye', cart: 'fa-cart-shopping', code: 'fa-code', book: 'fa-book', phone: 'fa-mobile-screen' };
+const SAHU_V80_COLORS = ['indigo', 'emerald', 'amber', 'rose', 'sky', 'violet', 'teal', 'orange', 'blue', 'pink', 'green', 'red'];
+function _sahuInfographicHtml(spec) {
+    const items = (spec.items || []).slice(0, 12).map((x, i) => ({
+        label: String(x.label || x.name || '').slice(0, 40),
+        value: String(x.value !== undefined ? x.value : '').slice(0, 24),
+        delta: String(x.delta || x.change || '').slice(0, 16),
+        icon: SAHU_V80_ICONS[String(x.icon || '').toLowerCase().replace(/[^a-z]/g, '')] || 'fa-chart-simple',
+        color: SAHU_V80_COLORS.includes(x.color) ? x.color : SAHU_V80_COLORS[i % SAHU_V80_COLORS.length],
+        text: String(x.text || '').slice(0, 160)
+    }));
+    const head = (spec.title ? '<div class="v80-card-h"><i class="fas fa-table-cells-large"></i> ' + escapeHtml(String(spec.title).slice(0, 90)) + '</div>' : '') + (spec.subtitle ? '<div class="v80-ig-sub">' + escapeHtml(String(spec.subtitle).slice(0, 140)) + '</div>' : '');
+    const layout = String(spec.layout || 'kpi').toLowerCase().replace(/[^a-z-]/g, '');
+    if (layout === 'big-number' && items[0]) {
+        const it = items[0];
+        return head + '<div class="v80-ig-big"><i class="fas ' + it.icon + ' text-' + it.color + '-500"></i><div class="v80-ig-big-v">' + escapeHtml(it.value) + '</div><div class="v80-ig-big-l">' + escapeHtml(it.label) + (it.delta ? ' <span class="v80-ig-delta">' + escapeHtml(it.delta) + '</span>' : '') + '</div></div>';
+    }
+    if (layout === 'timeline') {
+        return head + '<div class="v80-ig-tl">' + items.map(it => '<div class="v80-ig-tl-item"><div class="v80-ig-tl-dot text-' + it.color + '-500"></div><div><div class="v80-ig-tl-t">' + escapeHtml(it.label) + '</div>' + (it.value ? '<div class="v80-ig-tl-v">' + escapeHtml(it.value) + '</div>' : '') + (it.text ? '<div class="v80-ig-tl-x">' + escapeHtml(it.text) + '</div>' : '') + '</div></div>').join('') + '</div>';
+    }
+    if (layout === 'progress') {
+        return head + '<div class="v80-ig-pr">' + items.map(it => {
+            const pct = Math.max(0, Math.min(100, parseFloat(it.delta) || parseFloat(it.value) || 0));
+            return '<div class="v80-ig-pr-row"><span>' + escapeHtml(it.label) + '</span><div class="v80-ig-pr-bar"><div class="v80-ig-pr-fill bg-' + it.color + '-500" style="width:' + pct + '%"></div></div><b>' + escapeHtml(it.value) + '</b></div>';
+        }).join('') + '</div>';
+    }
+    if (layout === 'compare' && items.length >= 2) {
+        return head + '<div class="v80-ig-cmp">' + items.slice(0, 2).map(it => '<div class="v80-ig-cmp-col"><div class="v80-ig-cmp-h text-' + it.color + '-500">' + escapeHtml(it.label) + '</div><div class="v80-ig-cmp-v">' + escapeHtml(it.value) + '</div><div class="v80-ig-cmp-x">' + escapeHtml(it.text) + '</div></div>').join('<div class="v80-ig-cmp-vs">VS</div>') + '</div>';
+    }
+    // default: kpi row / metrics grid
+    const grid = items.length > 4 || layout === 'grid' || layout === 'metrics';
+    return head + '<div class="v80-ig-' + (grid ? 'grid' : 'kpi') + '">' + items.map(it => '<div class="v80-ig-item"><i class="fas ' + it.icon + ' text-' + it.color + '-500"></i><div class="v80-ig-item-v">' + escapeHtml(it.value) + '</div><div class="v80-ig-item-l">' + escapeHtml(it.label) + '</div>' + (it.delta ? '<div class="v80-ig-delta">' + escapeHtml(it.delta) + '</div>' : '') + '</div>').join('') + '</div>';
+}
+// the artifact enhancer - renders pending mermaid / echarts / infographic / img cards
+async function sahuV80EnhanceArtifacts() {
+    // pending <img> cards (IMG:)
+    document.querySelectorAll('.v80-imgcard .v80-imgwrap').forEach(wrap => {
+        const card = wrap.closest('.v80-imgcard');
+        if (!card || card.getAttribute('data-go')) return;
+        const reg = window.__sahuV80ArtReg[card.id];
+        if (!reg || reg.kind !== 'img') return;
+        card.setAttribute('data-go', '1');
+        const img = new Image();
+        img.alt = reg.prompt.slice(0, 80);
+        img.onload = () => { wrap.innerHTML = ''; wrap.appendChild(img); card.insertAdjacentHTML('beforeend', '<div class="v80-card-btns"><button class="v80-btn" onclick="sahuV80Dl(\'' + card.id + '\',\'image.png\')"><i class="fas fa-download"></i> Download PNG</button><button class="v80-btn" onclick="sahuV80Regen(\'' + card.id + '\')"><i class="fas fa-arrows-rotate"></i> Regenerate</button></div>'); };
+        img.onerror = () => { wrap.innerHTML = '<div class="v80-err">Image failed to load (the free provider may be busy). Ask the model to regenerate with IMG:.</div>'; };
+        img.src = reg.url;
+    });
+    // fenced artifacts (mermaid / echarts / infographic)
+    const pend = Object.keys(window.__sahuV80ArtReg).filter(k => {
+        const r = window.__sahuV80ArtReg[k];
+        return (r.kind === 'mermaid' || r.kind === 'echarts' || r.kind === 'infographic') && !r.done;
+    });
+    for (const cid of pend) {
+        const r = window.__sahuV80ArtReg[cid];
+        const el = document.getElementById(cid);
+        if (!el) continue;
+        r.done = true;
+        try {
+            if (r.kind === 'mermaid') {
+                const svg = await sahuRenderMermaid(r.code);
+                el.innerHTML = '<div class="v80-diagram">' + svg + '</div>' + _sahuChartBtns(cid, 'diagram');
+            } else if (r.kind === 'echarts') {
+                await sahuLoadLib(SAHU_CDNS.echarts, 'echarts');
+                const opt = JSON.parse(r.code);
+                if (!opt.backgroundColor) opt.backgroundColor = '#ffffff';
+                if (!opt.animation) opt.animation = false;
+                const holder = document.createElement('div');
+                holder.style.height = (opt._height || 340) + 'px';
+                holder.style.width = '100%';
+                el.innerHTML = '';
+                el.appendChild(holder);
+                const chart = echarts.init(holder);
+                chart.setOption(opt);
+                r.chart = chart;
+                el.insertAdjacentHTML('beforeend', _sahuChartBtns(cid, 'chart'));
+            } else if (r.kind === 'infographic') {
+                el.innerHTML = _sahuInfographicHtml(JSON.parse(r.code));
+            }
+        } catch (e) {
+            const hint = r.kind === 'mermaid' ? ' (check the Mermaid syntax - the model will fix it if you paste the error)' : '';
+            el.innerHTML = '<div class="v80-err">' + r.kind + ' error: ' + escapeHtml(String((e && e.message) || e).slice(0, 240)) + hint + '</div>';
+        }
+    }
+}
+window.sahuV80EnhanceArtifacts = sahuV80EnhanceArtifacts;
+function sahuV80Regen(cid) {
+    try {
+        const r = window.__sahuV80ArtReg[cid];
+        if (!r || r.kind !== 'img') return;
+        const card = document.getElementById(cid);
+        if (!card) return;
+        const newSeed = Math.floor(Math.random() * 100000);
+        const url = new URL(r.url);
+        url.searchParams.set('seed', String(newSeed));
+        r.url = url.toString(); r.seed = newSeed;
+        card.removeAttribute('data-go');
+        const w = card.querySelector('.v80-imgwrap');
+        if (w) w.innerHTML = '<div class="v80-loading">Regenerating (seed ' + newSeed + ')…</div>';
+        card.querySelectorAll('.v80-card-btns').forEach(b => b.remove());
+        sahuV80EnhanceArtifacts();
+    } catch (e) {}
+}
+window.sahuV80Regen = sahuV80Regen;
+
+// ---- v8.0 extractor + dispatcher (one entry point for the agent loop) ----
+function _sahuV80Extract(text, on) {
+    const reqs = [];
+    const seen = new Set();
+    const push = (k, a, extra) => { const key = k + '::' + JSON.stringify(a); if (seen.has(key)) return; seen.add(key); reqs.push({ k: k, a: a, x: extra || {} }); };
+    const bare = String(text || '').replace(/```[\s\S]*?```/g, (m) => '\n'.repeat((m.match(/\n/g) || []).length));
+    const lines = bare.split(/\n/);
+    const DIR = /^[\s\-*_>#`]*(WEATHER|CONVERT|SPEAK|IMGSEARCH|PLACES|STOCK|READ_FILE|FIND_IN_FILES|PDFEDIT|SUMMARIZE|REMIND|NOTED|AUDIT|MEMORY|BRIEF)\b/i;
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        let m;
+        if ((m = line.match(/^[\s\-*_>#`]*WEATHER\s*:\s*(.+)$/i))) { if (on('weather')) push('weather', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*CONVERT\s*:\s*(.+)$/i))) { if (on('convert')) push('convert', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*SPEAK\s*:\s*(.+)$/i))) { if (on('speak')) push('speak', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*IMGSEARCH\s*:\s*(.+)$/i))) { if (on('image_search')) push('imgsearch', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*IMG\s*:\s*(.+)$/i))) { if (on('image_gen')) push('img', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*PLACES\s*:\s*(.+)$/i))) { if (on('places')) push('places', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*STOCK\s*:\s*(.+)$/i))) { if (on('stock_snapshot')) push('stock', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*READ_FILE\s*:\s*(.+)$/i))) { if (on('file_reader')) push('read_file', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*FIND_IN_FILES\s*:\s*(.+)$/i))) { if (on('file_reader')) push('find_in_files', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*PDFEDIT\s*:\s*(\{.*\})\s*$/i))) { if (on('pdf_edit')) push('pdfedit', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*SUMMARIZE\s*:\s*(.+)$/i))) { if (on('summarize')) push('summarize', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*REMIND\s*:\s*(.+)$/i))) { if (on('reminders')) push('remind', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*MEMORY\s*:\s*(\+|\-)\s*(.+)$/i))) { if (on('memory')) push(m[1] === '+' ? 'memory_add' : 'memory_del', m[2].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*MEMORY\s*:\s*(list|show|profile)?\s*$/i))) { if (on('memory')) push('memory_show', ''); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*BRIEF\s*:\s*(\+|\-)\s*(.+)$/i))) { if (on('heartbeat')) push(m[1] === '+' ? 'brief_add' : 'brief_del', m[2].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*AUDIT\s*\[\s*type\s*=\s*dataset\s*\]\s*:\s*(.*)$/i))) { if (on('audit')) push('audit_dataset', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*NOTED\s*:\s*(.+)$/i))) { push('noted', m[1].trim()); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*TRANSLATE\s*\[\s*(\w+)\s*>\s*(\w+)\s*\]\s*:\s*(.*)$/i))) {
+            if (on('translate')) {
+                // multi-line capture until blank line / next directive
+                let txt = m[3];
+                let j = i + 1;
+                while (j < lines.length && lines[j].trim() && !DIR.test(lines[j]) && !/^```/.test(lines[j].trim())) { txt += '\n' + lines[j].trim(); j++; }
+                i = j - 1;
+                push('translate', txt.trim(), { from: m[1], to: m[2] });
+            }
+            continue;
+        }
+        if ((m = line.match(/^[\s\-*_>#`]*TRANSLATE\s*:\s*(.+)$/i))) { if (on('translate')) push('translate', m[1].trim(), { from: '', to: 'en' }); continue; }
+        if ((m = line.match(/^[\s\-*_>#`]*HUMANIZE\s*:\s*(.*)$/i))) {
+            if (on('humanizer')) {
+                let txt = m[1];
+                let j = i + 1;
+                while (j < lines.length && lines[j].trim() && !DIR.test(lines[j]) && !/^```/.test(lines[j].trim())) { txt += '\n' + lines[j].trim(); j++; }
+                i = j - 1;
+                push('humanize', txt.trim());
+            }
+            continue;
+        }
+    }
+    // gifplan fenced blocks
+    if (on('gif_maker')) {
+        const fences = [...String(text || '').matchAll(/```(?:gifplan|gif-plan)[ \t]*\r?\n([\s\S]*?)```/gi)].map(x => x[1].trim()).filter(Boolean);
+        fences.forEach(f => push('gifplan', f));
+    }
+    return reqs;
+}
+window._sahuV80Extract = _sahuV80Extract;
+
+async function _sahuV80Run(req, ctx) {
+    const trace = (html) => { try { if (ctx && ctx.addTrace) ctx.addTrace(html); } catch (e) {} };
+    switch (req.k) {
+        case 'weather': return await _sahuWeatherTool(req.a, ctx);
+        case 'convert': return await _sahuConvertTool(req.a);
+        case 'speak': return await _sahuSpeakTool(req.a, ctx);
+        case 'img': return await _sahuImgTool(req.a, ctx);
+        case 'imgsearch': return await _sahuImgSearchTool(req.a, ctx);
+        case 'places': return await _sahuPlacesTool(req.a, ctx);
+        case 'stock': return await _sahuStockTool(req.a, ctx);
+        case 'read_file': return _sahuReadFileTool(req.a);
+        case 'find_in_files': return _sahuFindInFilesTool(req.a);
+        case 'pdfedit': return await _sahuPdfEditTool(req.a, ctx);
+        case 'translate': return await _sahuTranslateTool(req.x.from, req.x.to, req.a, ctx);
+        case 'humanize': return await _sahuHumanizeTool(req.a, ctx);
+        case 'summarize': return await _sahuSummarizeTool(req.a, ctx);
+        case 'remind': return await _sahuRemindTool(req.a, ctx);
+        case 'audit_dataset': return await _sahuAuditDatasetTool(req.a, ctx);
+        case 'memory_add': {
+            if (state.incognitoMode) return '[MEMORY] Incognito mode - memory writes are skipped and nothing is stored.';
+            const r = _sahuProfileAdd(req.a);
+            if (r.ok) { trace('<div class="v80-chip"><i class="fas fa-brain"></i> Remembered: ' + escapeHtml(String(req.a).slice(0, 80)) + '</div>'); return '[MEMORY] Saved (' + r.note + '): "' + req.a + '". It will be injected into every future session automatically.'; }
+            return '[MEMORY] not saved: ' + r.error;
+        }
+        case 'memory_del': {
+            if (state.incognitoMode) return '[MEMORY] Incognito mode - memory is not read or written.';
+            const r = _sahuProfileDel(req.a);
+            return r.ok ? '[MEMORY] Removed: "' + r.removed + '".' : '[MEMORY] ' + r.error;
+        }
+        case 'memory_show': {
+            if (state.incognitoMode) return '[MEMORY] Incognito mode.';
+            const md = _sahuProfileGet();
+            return '[MEMORY] Current profile:\n' + (md || '(empty - nothing remembered yet)') + '\nUse MEMORY:+ <fact> to add and MEMORY:- <fact> to remove.';
+        }
+        case 'brief_add': { _sahuBriefAdd(req.a); return '[HEARTBEAT] Subscribed to brief topic: "' + req.a + '". While the app is open, the periodic heartbeat will compose short briefs on subscribed topics.'; }
+        case 'brief_del': { const ok = _sahuBriefDel(req.a); return '[HEARTBEAT] ' + (ok ? 'Unsubscribed from "' + req.a + '".' : 'no matching topic. Subscribed: ' + (_sahuBriefs().join('; ') || '(none)')); }
+        case 'noted': {
+            const parts = String(req.a).split(/\s*(?:->|=>|→)\s*/);
+            const wrong = (parts[0] || '').trim(), fix = (parts.slice(1).join(' -> ') || '').trim();
+            if (state.incognitoMode) return '[NOTED] Incognito mode - corrections are not logged.';
+            if (wrong && fix) { _sahuCorrectionAdd(wrong, fix); try { showToast('Noted - I will not repeat that', 'success'); } catch (e) {} return '[NOTED] Correction logged (wrong: "' + wrong + '" -> right: "' + fix + '"). It rides along with future sessions so the mistake is not repeated.'; }
+            return '[NOTED] use NOTED: <wrong behavior> -> <correct behavior>.';
+        }
+        case 'gifplan': return await _sahuGifTool(req.a, ctx);
+        default: return '[SKILL PACK] unknown directive "' + req.k + '" - skipped.';
+    }
+}
+window._sahuV80Run = _sahuV80Run;
+
+// ---- v8.0 Part 2: the 20 prompt-only LIBRARY SKILLS (MAKESKILL ports, seeded
+// as built-in custom skills - toggleable + deletable, persisted by the app) ----
+const SAHU_V80_LIB_SKILLS = [
+    { id: 'lib_copywriting', name: 'Copywriting', icon: 'fa-pen-fancy', color: 'pink', desc: 'Marketing and conversion copy for pages: home, landing, pricing, features, about, product.', instructions: 'COPYWRITING (Kimi). For any request for landing-page copy, product descriptions, ad text or hero sections: (1) identify the page type and audience; (2) pick a value proposition angle; (3) write headline variants plus body sections structured as Headline / Subhead / Body / CTA blocks; (4) provide 2-3 alternates for A/B testing; (5) mark every factual claim that needs a source before shipping with [VERIFY].' },
+    { id: 'lib_copy_editor', name: 'Copy Editor', icon: 'fa-proofread', color: 'blue', desc: 'Seven-pass professional copy editing of any pasted text.', instructions: 'COPY EDITOR (Kimi). On "edit this", "proofread", or a paste plus a quality request, run SEVEN fixed passes in order: correctness, clarity, structure, flow, tone, consistency, mechanics. Output the fully edited text, then a per-pass change summary (one line each) so the user can accept or revert layer by layer. Never merge passes or skip the summary.' },
+    { id: 'lib_brand_naming', name: 'Brand Naming Lab', icon: 'fa-signature', color: 'violet', desc: 'Generates and stress-tests brand, product and feature names.', instructions: 'BRAND NAMING LAB (Kimi). Expand the naming brief into candidates across four strategies (descriptive, evocative, coined, compound). Screen every candidate for: pronounceability, domain-squatting likelihood, unintended meanings across Indian languages and English, and trademark-shaped conflicts. Output a shortlist with rationale and per-name risk notes; recommend one with reasons.' },
+    { id: 'lib_cv_tailor', name: 'CV Tailor', icon: 'fa-file-user', color: 'emerald', desc: 'Tailors a resume and cover letter to a specific job description.', instructions: 'CV TAILOR (Kimi). Given a pasted CV and job posting: map experience to requirements, rewrite bullets in accomplishment-verb form with quantified outcomes, flag HONEST gaps rather than inflating them. Output: the tailored CV, a matching cover letter, and a requirements-coverage table (requirement -> evidence -> gap).' },
+    { id: 'lib_paper_review', name: 'Academic Paper Reviewer', icon: 'fa-graduation-cap', color: 'sky', desc: 'Simulated peer review across originality, methodology, results and writing, with Major/Minor verdicts.', instructions: 'ACADEMIC PAPER REVIEWER (Kimi). Apply a referee structure to any pasted paper or draft section: 1-page summary; originality assessment; methodology critique (sample size, controls, statistics); results interpretation; writing quality. End with a verdict (Accept / Minor Revision / Major Revision) and a numbered list of required changes, most important first.' },
+    { id: 'lib_bloom_quiz', name: 'Bloom Quiz Maker', icon: 'fa-clipboard-question', color: 'amber', desc: 'Quizzes and mock exams mapped to Bloom taxonomy levels, with answer keys.', instructions: 'BLOOM QUIZ MAKER (Kimi). Build assessments ordered by Bloom cognitive level: Remember, Understand, Apply, Analyze, Evaluate, Create - mixing MCQ, short answer and scenario questions with a marking scheme. Pairs with the MP Board examiner persona: syllabus or chapter text in, board-pattern mock exam out. Output: exam paper, answer key, and a topic-coverage map.' },
+    { id: 'lib_code_mentor', name: 'Code Mentor', icon: 'fa-user-graduate', color: 'green', desc: 'Interactive tutoring: explains, exercises and checks understanding one step per turn.', instructions: 'CODE MENTOR (Kimi). Socratic programming tutor: diagnose the learner level with ONE question, explain ONE concept per turn at that level, set a small exercise, wait, then review the attempt with targeted feedback. Run exercise code through the runpython/runjs sandbox when execution helps. One focused teaching turn at a time - never a wall of lecture.' },
+    { id: 'lib_plan_mode', name: 'Plan Mode', icon: 'fa-list-check', color: 'indigo', desc: 'Talk before you build: present a plan and options, get approval, then execute.', instructions: 'PLAN MODE (MiniMax). When a task is multi-step or produces an artifact, FIRST emit a short plan: numbered steps, tools/skills you will use, the output format, and any open choices with a recommendation. Then STOP and wait for the user go-ahead before touching a single tool. On approval, execute in order and mark progress. This is the cheapest reliability upgrade - never skip it for non-trivial builds.' },
+    { id: 'lib_cross_examine', name: 'Cross-Examine', icon: 'fa-scale-balanced', color: 'orange', desc: 'Interrogates an idea or plan before it is built, playing skeptic on purpose.', instructions: 'CROSS-EXAMINE (Kimi). Given a plan, spec or argument, list the STRONGEST objections: unstated assumptions, failure modes, missing requirements, scale/effort misestimates. Then ask ONLY the questions whose answers would change the design. Output: objections ranked by severity, then the decisive questions.' },
+    { id: 'lib_deep_probe', name: 'Deep Probe', icon: 'fa-magnifying-glass', color: 'cyan', desc: 'Clarifying-question discipline for ambiguous requests.', instructions: 'DEEP PROBE (Kimi). When a request is ambiguous enough that guessing would waste a full build, generate a small set of targeted questions - NEVER more than five - each with a suggested default so the user can answer in one tap. Output a question list, then fold the answers into the task before executing.' },
+    { id: 'lib_critique', name: 'UI Critique', icon: 'fa-wand-magic-sparkles', color: 'rose', desc: 'Evaluates a UI from a UX perspective: hierarchy, architecture, resonance, AI-slop detection.', instructions: 'CRITIQUE (Mimo). Review an existing build or design against a UX rubric: visual hierarchy, information architecture, emotional resonance, and AI-slop detection (default blues, centered hero, three-card rows, gradient overload). Output a prioritized findings list with concrete fixes, each mapped to what it improves.' },
+    { id: 'lib_typeset', name: 'Typeset', icon: 'fa-font', color: 'teal', desc: 'Typography repair: font choice, hierarchy, sizing, weight consistency, readability.', instructions: 'TYPESET (Mimo). A focused pass over text-heavy output: choose a deliberate type pairing; fix the scale (modular ratios over ad-hoc sizes); align weights to meaning, not decoration; set measure (45-75 ch) and leading for readability. Applies to Live Preview HTML and FILE[docx/pdf] templates alike. Output the corrected artifact plus a short note on the typographic decisions.' },
+    { id: 'lib_arrange', name: 'Arrange', icon: 'fa-table-cells', color: 'blue', desc: 'Layout, spacing and visual rhythm repair.', instructions: 'ARRANGE (Mimo). Fix monotonous grids and weak hierarchy: recompose layout with intentional grouping, alignment and whitespace rhythm (4/8px), vary density so the page reads in the intended order. Works on Live Preview output and deck/slide layouts. Output the restructured layout with before/after notes.' },
+    { id: 'lib_polish', name: 'Polish', icon: 'fa-gem', color: 'pink', desc: 'The final pre-ship quality pass: alignment, spacing, states, copy and detail.', instructions: 'POLISH (Mimo). A meticulous checklist sweep just before delivering any visual artifact: pixel alignment, consistent spacing, hover/focus/active states, empty and error states, microcopy, small details (favicon, focus rings, truncation). Output the polished artifact plus a "checked N items, fixed M" line.' },
+    { id: 'lib_harden', name: 'Harden', icon: 'fa-shield-halved', color: 'red', desc: 'Strengthens interfaces against edge cases, errors, internationalization and real usage.', instructions: 'HARDEN (Mimo). Review a build for what breaks under reality: long strings and translations, empty and slow states, rapid clicks, offline, RTL scripts, unusual data. In this browser app that includes Devanagari and Indic script rendering, number-format variants, and touch targets. For each case apply or recommend the guard. Output the hardened build plus a list of cases now covered.' },
+    { id: 'lib_delight', name: 'Delight', icon: 'fa-face-smile', color: 'amber', desc: 'Adds moments of joy: micro-interactions, personality and easter eggs that serve usability.', instructions: 'DELIGHT (Mimo). Where an interface is functionally done but flat, add purposeful touches - motion that confirms actions, empty-state illustrations, tasteful personality - always tied to FEEDBACK rather than decoration for its own sake. Output the upgraded build with a list of interactions added and the usability reason each serves.' },
+    { id: 'lib_onboard', name: 'Onboard', icon: 'fa-door-open', color: 'sky', desc: 'Designs onboarding flows, empty states and first-run experiences.', instructions: 'ONBOARD (Mimo). Plan the path from first open to first value: progressive disclosure of features, empty states that teach, and a first-run flow that gets the user to a win before asking for configuration. Output the flow outline plus the implementation in the build.' },
+    { id: 'lib_data_audit', name: 'Dataset Quality Audit', icon: 'fa-clipboard-check', color: 'purple', desc: 'Quality checks on tabular data across twelve dimensions, report-card output.', instructions: 'DATASET QUALITY AUDIT (Kimi). Given a CSV (pasted or attached), run deterministic checks first (completeness, uniqueness, type validity, range outliers, cross-field consistency, temporal ordering) via AUDIT[type=dataset]: or the Python sandbox, then compose the findings into a report card with per-dimension scores and the offending rows listed. Severity ratings P0/P1/P2 throughout.' },
+    { id: 'lib_stat_test', name: 'Auto Stat Test', icon: 'fa-chart-line', color: 'green', desc: 'Chooses and runs the correct statistical test automatically.', instructions: 'AUTO STAT TEST (Kimi). Inspect the data shape (groups, pairing, distribution, sample sizes), state WHICH test applies and WHY (t-test, Mann-Whitney, chi-square, ANOVA, correlation), run it in the Python sandbox (scipy auto-loads), and interpret the output in plain language with effect size and caveats. Output: chosen test + rationale, results table, one-paragraph interpretation.' },
+    { id: 'lib_health', name: 'Health Guard', icon: 'fa-heart-pulse', color: 'rose', desc: 'Loads before any health question: evidence-based answers with safety flags and crisis resources.', instructions: 'HEALTH GUARD (Meta AI). When a question touches health, wellness or medicine: answer from established evidence; distinguish consensus from emerging findings; flag red-flag symptoms that warrant a doctor; NEVER diagnose; surface crisis resources appropriate to the user locale when a question suggests distress. Calm, never preached, never withheld.' }
+];
+
+// ---- v8.0 §settings: memory panel + library group inside Settings > Skills ----
+function sahuMemPanelHtml() {
+    const md = _sahuProfileGet();
+    const corr = _sahuCorrections();
+    const briefs = _sahuBriefs();
+    let html = '<div class="v80-mem-panel">';
+    html += '<div class="v80-mem-h"><i class="fas fa-brain"></i> Persistent Memory <span class="v80-pill">v8.0</span></div>';
+    html += '<div class="v80-mem-note">A bounded profile (max 2 KB) the model reads every session and writes via MEMORY:+ / MEMORY:- . Skipped entirely in Incognito. Never stores passwords, IDs or payment details. Browser-local - use Export to keep a backup.</div>';
+    html += '<textarea id="v80MemText" rows="7" spellcheck="false" placeholder="## Profile\n- ..."> ' + escapeHtml(md) + '</textarea>';
+    html += '<div class="v80-mem-btns"><button class="v80-btn" onclick="sahuMemSavePanel()"><i class="fas fa-floppy-disk"></i> Save</button><button class="v80-btn" onclick="sahuMemClearPanel()"><i class="fas fa-trash"></i> Clear</button><button class="v80-btn" onclick="sahuMemExport()"><i class="fas fa-file-export"></i> Export</button><button class="v80-btn" onclick="document.getElementById(\'v80MemImportFile\').click()"><i class="fas fa-file-import"></i> Import</button><input type="file" id="v80MemImportFile" accept=".json" style="display:none" onchange="sahuMemImport(this)"></div>';
+    if (corr.length) html += '<div class="v80-mem-sub">Self-improvement log (' + corr.length + ')</div><div class="v80-mem-list">' + corr.slice(-8).reverse().map(c => '<div class="v80-mem-li">' + escapeHtml(c.d) + ' · ' + escapeHtml(c.w) + ' <i class="fas fa-arrow-right"></i> ' + escapeHtml(c.f) + '</div>').join('') + '</div><div class="v80-mem-btns"><button class="v80-btn" onclick="sahuCorrClear()"><i class="fas fa-trash"></i> Clear corrections</button></div>';
+    if (briefs.length) html += '<div class="v80-mem-sub">Heartbeat brief topics</div><div class="v80-mem-list">' + briefs.map(b => '<div class="v80-mem-li"><i class="fas fa-heart-pulse"></i> ' + escapeHtml(b) + '</div>').join('') + '</div>';
+    html += '</div>';
+    return html;
+}
+function sahuMemSavePanel() {
+    const ta = document.getElementById('v80MemText');
+    if (!ta) return;
+    _sahuProfileSet(ta.value);
+    showToast('Memory saved');
+}
+function sahuMemClearPanel() {
+    _sahuProfileSet('');
+    _sahuRemindersSave(_sahuReminders()); // no-op, keeps function warm
+    const ta = document.getElementById('v80MemText');
+    if (ta) ta.value = '';
+    showToast('Memory cleared');
+}
+function sahuMemExport() {
+    try {
+        const payload = { profile: _sahuProfileGet(), corrections: _sahuCorrections(), briefs: _sahuBriefs(), exported: new Date().toISOString() };
+        saveAs(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), 'manthan-memory.json');
+    } catch (e) { showToast('Export failed', 'error'); }
+}
+function sahuMemImport(input) {
+    try {
+        const f = input.files && input.files[0];
+        if (!f) return;
+        const fr = new FileReader();
+        fr.onload = () => {
+            try {
+                const j = JSON.parse(String(fr.result));
+                if (typeof j.profile === 'string') _sahuProfileSet(j.profile);
+                if (Array.isArray(j.corrections)) try { localStorage.setItem('sahu_corrections', JSON.stringify(j.corrections.slice(0, 50))); } catch (e) {}
+                if (Array.isArray(j.briefs)) try { localStorage.setItem('sahu_brief_topics', JSON.stringify(j.briefs.slice(0, 12))); } catch (e) {}
+                showToast('Memory imported');
+                try { renderSkillsSettings(); } catch (e) {}
+            } catch (e) { showToast('Invalid memory JSON', 'error'); }
+        };
+        fr.readAsText(f);
+    } catch (e) {}
+}
+function sahuCorrClear() { try { localStorage.removeItem('sahu_corrections'); } catch (e) {} showToast('Corrections cleared'); try { renderSkillsSettings(); } catch (e) {} }
+window.sahuMemSavePanel = sahuMemSavePanel; window.sahuMemClearPanel = sahuMemClearPanel; window.sahuMemExport = sahuMemExport; window.sahuMemImport = sahuMemImport; window.sahuCorrClear = sahuCorrClear;
+
+// ---- v8.0 CSS + init ----
+(function () {
+    const st = document.createElement('style');
+    st.textContent = [
+        '#v80SpeakBar{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:10px;background:var(--bg-secondary,#111);color:var(--text-primary,#fff);border:1px solid var(--accent,#4f46e5);border-radius:999px;padding:8px 12px 8px 16px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.35);}',
+        '#v80SpeakBar button{border:none;background:var(--accent,#4f46e5);color:#fff;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700;}',
+        '.v80-card{margin:8px 0;border:1px solid var(--border,#e2e8f0);border-radius:12px;background:var(--bg-secondary,#fff);padding:10px 12px;font-size:13px;overflow:hidden;}',
+        '.v80-card-h{font-weight:700;font-size:12.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px;color:var(--text-primary,#111);}',
+        '.v80-card-h i{color:var(--accent,#4f46e5);}',
+        '.v80-card-f{font-size:10.5px;color:var(--text-secondary,#667);margin-top:6px;opacity:.8;}',
+        '.v80-card-f-inline{font-weight:400;font-size:10.5px;opacity:.7;margin-left:6px;}',
+        '.v80-card-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}',
+        '.v80-btn{border:1px solid var(--border,#cbd5e1);background:var(--bg-tertiary,#f1f5f9);color:var(--text-primary,#111);border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}',
+        '.v80-btn:hover{border-color:var(--accent,#4f46e5);color:var(--accent,#4f46e5);}',
+        '.v80-wx-now{display:flex;align-items:center;gap:14px;}',
+        '.v80-wx-temp{font-size:34px;font-weight:800;letter-spacing:-1px;}',
+        '.v80-wx-desc{font-size:12px;color:var(--text-secondary,#556);line-height:1.5;}',
+        '.v80-wx-strip{display:flex;gap:8px;margin-top:8px;}',
+        '.v80-wx-day{flex:1;text-align:center;border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:6px 4px;font-size:11px;}',
+        '.v80-wx-day-i{font-size:18px;margin:2px 0;}',
+        '.v80-wx-day-d{font-weight:700;}',
+        '.v80-wx-day-p{color:var(--text-secondary,#667);font-size:10px;}',
+        '.v80-loading{padding:26px 10px;text-align:center;font-size:12px;color:var(--text-secondary,#667);}',
+        '.v80-err{padding:10px;border-radius:8px;background:rgba(239,68,68,.08);color:#b91c1c;font-size:12px;}',
+        '.v80-imgwrap{min-height:80px;display:flex;align-items:center;justify-content:center;}',
+        '.v80-imgwrap img{max-width:100%;border-radius:10px;}',
+        '.v80-diagram{background:#fff;border-radius:10px;padding:10px;overflow:auto;max-height:420px;}',
+        '.v80-diagram svg{max-width:100%;height:auto;}',
+        '.v80-artifact{border:1px solid var(--border,#e2e8f0);border-radius:12px;overflow:hidden;margin:8px 0;background:var(--bg-secondary,#fff);}',
+        '.v80-artifact-h{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary,#667);border-bottom:1px solid var(--border,#e2e8f0);}',
+        '.v80-artifact-body{padding:8px;min-height:60px;}',
+        '.v80-artifact-hint{font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;opacity:.7;}',
+        '.v80-ov-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}',
+        '.v80-ov-item{flex:0 0 auto;width:120px;text-decoration:none;}',
+        '.v80-ov-item img{width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid var(--border,#e2e8f0);display:block;}',
+        '.v80-ov-license{display:block;font-size:9.5px;color:var(--text-secondary,#667);margin-top:3px;font-weight:700;}',
+        '.v80-place{padding:6px 2px;border-bottom:1px dashed var(--border,#e2e8f0);font-size:12px;}',
+        '.v80-place:last-of-type{border-bottom:none;}',
+        '.v80-place-n{font-weight:700;}',
+        '.v80-place-d{color:var(--accent,#4f46e5);font-size:11px;font-weight:700;margin-left:4px;}',
+        '.v80-place-m{color:var(--text-secondary,#667);font-size:11px;margin-top:1px;}',
+        '.v80-map{width:100%;height:150px;border:none;border-radius:10px;border:1px solid var(--border,#e2e8f0);margin-bottom:6px;}',
+        '.v80-stk{display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px dashed var(--border,#e2e8f0);font-size:12.5px;}',
+        '.v80-stk:last-of-type{border-bottom:none;}',
+        '.v80-stk-s{font-weight:800;min-width:86px;}',
+        '.v80-stk-p{font-weight:700;font-size:15px;}',
+        '.v80-stk-c{font-weight:700;font-size:11.5px;}',
+        '.v80-stk-c.up{color:#16a34a;}',
+        '.v80-stk-c.dn{color:#dc2626;}',
+        '.v80-stk-r{margin-left:auto;color:var(--text-secondary,#667);font-size:10.5px;}',
+        '.v80-2col{display:flex;gap:8px;flex-wrap:wrap;}',
+        '.v80-pane{flex:1 1 220px;border:1px solid var(--border,#e2e8f0);border-radius:10px;overflow:hidden;}',
+        '.v80-pane-h{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:5px 8px;background:var(--bg-tertiary,#f1f5f9);color:var(--text-secondary,#556);}',
+        '.v80-pane-b{padding:8px;font-size:12.5px;white-space:pre-wrap;max-height:220px;overflow:auto;}',
+        '.v80-reminder{display:flex;align-items:center;gap:10px;background:rgba(79,70,229,.08);border:1px solid var(--accent,#4f46e5);border-radius:12px;padding:10px 12px;margin:0 0 10px 0;font-size:13px;}',
+        '.v80-reminder-t{flex:1;line-height:1.45;}',
+        '.v80-reminder button{border:none;background:transparent;color:var(--text-secondary,#667);cursor:pointer;font-size:14px;}',
+        '.v80-chip{display:inline-flex;align-items:center;gap:6px;margin:4px 0;padding:4px 10px;border-radius:999px;background:rgba(79,70,229,.1);color:var(--accent,#4f46e5);font-size:11.5px;font-weight:700;}',
+        '.v80-heartbeat{border:1px dashed var(--accent,#4f46e5);border-radius:12px;padding:10px 12px;margin:10px 0;font-size:13px;}',
+        '.v80-hb-badge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--accent,#4f46e5);margin-bottom:6px;}',
+        '.v80-mem-panel{border:1px solid var(--border,#e2e8f0);border-radius:12px;padding:10px 12px;margin-bottom:14px;background:var(--bg-tertiary,#f8fafc);font-size:12px;}',
+        '.v80-mem-h{font-weight:800;font-size:12.5px;display:flex;align-items:center;gap:6px;margin-bottom:4px;}',
+        '.v80-mem-h i{color:var(--accent,#4f46e5);}',
+        '.v80-pill{background:var(--accent,#4f46e5);color:#fff;border-radius:999px;padding:1px 7px;font-size:9px;font-weight:800;}',
+        '.v80-mem-note{color:var(--text-secondary,#556);font-size:11px;line-height:1.5;margin-bottom:8px;}',
+        '.v80-mem-panel textarea{width:100%;box-sizing:border-box;border:1px solid var(--border,#cbd5e1);border-radius:8px;background:var(--bg-secondary,#fff);color:var(--text-primary,#111);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;padding:8px;resize:vertical;}',
+        '.v80-mem-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}',
+        '.v80-mem-sub{font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary,#556);margin-top:12px;}',
+        '.v80-mem-list{margin-top:4px;}',
+        '.v80-mem-li{font-size:11px;color:var(--text-secondary,#556);padding:3px 0;border-bottom:1px dashed var(--border,#e2e8f0);}',
+        '.v80-ig-kpi{display:flex;gap:8px;flex-wrap:wrap;}',
+        '.v80-ig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;}',
+        '.v80-ig-item{flex:1;min-width:120px;border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:10px;text-align:center;}',
+        '.v80-ig-item i{font-size:17px;margin-bottom:4px;}',
+        '.v80-ig-item-v{font-size:21px;font-weight:800;letter-spacing:-.5px;}',
+        '.v80-ig-item-l{font-size:10.5px;color:var(--text-secondary,#556);font-weight:600;}',
+        '.v80-ig-delta{font-size:10px;color:#16a34a;font-weight:700;margin-top:2px;}',
+        '.v80-ig-big{text-align:center;padding:16px 6px;}',
+        '.v80-ig-big i{font-size:26px;}',
+        '.v80-ig-big-v{font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.1;}',
+        '.v80-ig-big-l{font-size:12px;color:var(--text-secondary,#556);font-weight:600;}',
+        '.v80-ig-tl{padding:4px 2px;}',
+        '.v80-ig-tl-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px dashed var(--border,#e2e8f0);}',
+        '.v80-ig-tl-item:last-child{border-bottom:none;}',
+        '.v80-ig-tl-dot{width:10px;height:10px;border-radius:50%;background:currentColor;margin-top:5px;flex:0 0 auto;}',
+        '.v80-ig-tl-t{font-weight:700;font-size:12.5px;}',
+        '.v80-ig-tl-v{font-size:11px;color:var(--accent,#4f46e5);font-weight:700;}',
+        '.v80-ig-tl-x{font-size:11px;color:var(--text-secondary,#556);}',
+        '.v80-ig-pr-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;}',
+        '.v80-ig-pr-row>span{min-width:110px;font-weight:600;}',
+        '.v80-ig-pr-bar{flex:1;height:8px;border-radius:999px;background:var(--bg-tertiary,#e2e8f0);overflow:hidden;}',
+        '.v80-ig-pr-fill{height:100%;border-radius:999px;}',
+        '.v80-ig-cmp{display:flex;align-items:stretch;gap:8px;}',
+        '.v80-ig-cmp-col{flex:1;border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:10px;text-align:center;}',
+        '.v80-ig-cmp-h{font-weight:800;font-size:12px;}',
+        '.v80-ig-cmp-v{font-size:26px;font-weight:800;margin:4px 0;}',
+        '.v80-ig-cmp-x{font-size:11px;color:var(--text-secondary,#556);}',
+        '.v80-ig-cmp-vs{align-self:center;font-weight:800;font-size:11px;color:var(--text-secondary,#556);}',
+        '.v80-ig-sub{font-size:11.5px;color:var(--text-secondary,#556);margin:-4px 0 8px 0;}',
+        '.v80-reminder-set{font-size:13px;font-weight:600;}',
+        '.v80-reminder-when{color:var(--accent,#4f46e5);font-weight:700;font-size:11.5px;}'
+    ].join('\n');
+    document.head.appendChild(st);
+})();
+
+(function () {
+    try { sahuReminderSchedule(); } catch (e) {}
+    try { _sahuHeartbeatInit(); } catch (e) {}
+    try { if ('speechSynthesis' in window) speechSynthesis.getVoices(); } catch (e) {}
+})();
+
 
 // ============================================
 // SECTION 23: INITIALIZATION & EVENT LISTENERS
@@ -13429,11 +15282,11 @@ function setupKeyboardShortcuts() {
 // previously showed v7.8 in the title/toast, "Version 5.0" in the sidebar
 // and docs, while the engine carried v7.9.12 changes.
 const APP_NAME = 'Manthan Agent';
-const APP_VERSION = '7.9.12';
+const APP_VERSION = '8.0.0'; // v8.0.0: the No-Backend Skill Pack (23 core + 20 library skills)
 const APP_TITLE = APP_NAME + ' v' + APP_VERSION + ' - Official Saksham Intelligence AI Models Chat';
 
 async function init() {
-    console.log('🚀 Manthan Agent v7.9.12 Initializing...');
+    console.log('🚀 Manthan Agent v8.0.0 Initializing...');
     document.title = APP_TITLE;
     
     // Load state from localStorage
@@ -13483,8 +15336,8 @@ async function init() {
     // Update language
     updateLanguage(state.language);
     
-    console.log('✅ Manthan Agent v7.9.12 Ready');
-    showToast('Manthan Agent v7.9.12 Loaded');
+    console.log('✅ Manthan Agent v8.0.0 Ready');
+    showToast('Manthan Agent v8.0.0 Loaded - Skill Pack active');
 }
 
 // ============================================
@@ -13603,7 +15456,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v7.9.12 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
