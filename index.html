@@ -3,9 +3,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MiniMax-style Plan Mode, 3-tier Deep Research, MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -3254,7 +3254,7 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 9.14 · Research Tiers</p>
+                    <p class="sidebar-version">Version 9.15 · Plan Mode</p>
                 </div>
             </div>
             
@@ -3316,7 +3316,7 @@
                         <option value="research">🧠 Research</option>
                         <option value="image">🎨 Image Studio</option>
                         <option value="fast">⚡ Fast Search</option>
-                        <option value="travel">✈️ Travel Plan</option>
+                        <option value="plan">🧭 Plan Mode</option>
                         <option value="study">🎓 Study</option>
                         <option value="search">🔍 Manthan Search</option>
                     </select>
@@ -3491,9 +3491,9 @@
                                 <i class="fas fa-graduation-cap text-amber-500"></i>
                                 <span>Study</span>
                             </button>
-                            <button onclick="setTaskMode('travel'); toggleToolsMenu();" class="tools-action-item">
-                                <i class="fas fa-plane text-sky-500"></i>
-                                <span>Travel Planner</span>
+                            <button onclick="setTaskMode('plan'); toggleToolsMenu();" class="tools-action-item">
+                                <i class="fas fa-drafting-compass text-violet-500"></i>
+                                <span>Plan Mode</span>
                             </button>
                         </div>
                         <!-- Nav Section -->
@@ -4809,7 +4809,7 @@
         // Safety Models
         function checkSafety(content) {}
         
-        console.log('✅ Manthan Agent v9.14 HTML/CSS Loaded');
+        console.log('✅ Manthan Agent v9.15 HTML/CSS Loaded');
     </script>
     
     <!-- Link to JavaScript File -->
@@ -5631,6 +5631,9 @@ function loadState() {
         if (saved) {
             const parsed = JSON.parse(saved);
             Object.assign(state, parsed);
+            // v9.15: Travel Planner -> Plan Mode rename migration
+            if (state.mode === 'travel') state.mode = 'plan';
+            if (state.activeModeTag === 'travel') state.activeModeTag = 'plan';
             // v5.4 migration: purge references to removed models/providers/engines
             try {
                 if (Array.isArray(state.selectedModels)) {
@@ -5899,6 +5902,9 @@ function toggleWebSearchFromMenu(checked) {
  * @param {string} mode - New mode
  */
 function updateMode(mode) {
+    // v9.15: Travel Planner became Plan Mode (MiniMax plan-mode spec).
+    // Old saved sessions still carry mode='travel' — normalize on entry.
+    if (mode === 'travel') mode = 'plan';
     state.mode = mode;
     const btn = document.getElementById('taskTypeBtn');
     const welcome = document.getElementById('defaultWelcomeContent');
@@ -5928,17 +5934,19 @@ function updateMode(mode) {
     if (budgetSelect) budgetSelect.value = state.thinkingBudget;
     
     // Handle mode-specific UI - task type button is no longer in chatbar
-    if (mode === 'task' || mode === 'artifacts' || mode === 'appdev' || mode === 'research' || mode === 'travel' || mode === 'study' || mode === 'image' || mode === 'fast') {
+    if (mode === 'task' || mode === 'artifacts' || mode === 'appdev' || mode === 'research' || mode === 'plan' || mode === 'study' || mode === 'image' || mode === 'fast') {
         // Update activeModeTag for pills above chatbar
         state.activeModeTag = mode;
-        const modeLabels = { task: 'Task', artifacts: 'Artifacts', appdev: 'App Dev', research: 'Research', travel: 'Travel Plan', study: 'Study', image: 'Image Studio', fast: 'Fast Search' };
+        const modeLabels = { task: 'Task', artifacts: 'Artifacts', appdev: 'App Dev', research: 'Research', plan: 'Plan Mode', study: 'Study', image: 'Image Studio', fast: 'Fast Search' };
         // v9.8: research flow placeholder (ChatGPT-style themes input)
         const _rgInput = document.getElementById('userInput');
         if (_rgInput) _rgInput.placeholder = (mode === 'research') ? 'Describe the themes you want to research...' : 'Ask Manthan...';
         // v9.9: research level pill follows the mode
         const _rlvWrap = document.getElementById('sahuRlvWrap');
         if (_rlvWrap) _rlvWrap.classList.toggle('hidden', mode !== 'research');
-        showToast((modeLabels[mode] || mode) + ' Mode Active');
+        // v9.15: avoid "Plan Mode Mode Active" — label already ends in "Mode"
+        const _mLbl = modeLabels[mode] || mode;
+        showToast(_mLbl.endsWith(' Mode') ? _mLbl + ' Active' : _mLbl + ' Mode Active');
     } else {
         state.activeModeTag = null;
     }
@@ -5963,7 +5971,7 @@ function updateMode(mode) {
         if (discovery) discovery.style.display = 'none';
     }
     
-    if (mode !== 'task' && mode !== 'search' && mode !== 'artifacts' && mode !== 'appdev' && mode !== 'research' && mode !== 'travel' && mode !== 'study') {
+    if (mode !== 'task' && mode !== 'search' && mode !== 'artifacts' && mode !== 'appdev' && mode !== 'research' && mode !== 'plan' && mode !== 'study') {
         showToast('Mode: ' + mode.charAt(0).toUpperCase() + mode.slice(1));
     }
     
@@ -6019,7 +6027,7 @@ function renderInputModeTags() {
     const tag = document.getElementById('chatbarModeTag');
     if (!tag) return;
     
-    const modeLabels = { task: 'Task', artifacts: 'Artifacts', appdev: 'App Dev', research: 'Research', travel: 'Travel Plan', study: 'Study', image: 'Image Studio', fast: 'Fast Search' };
+    const modeLabels = { task: 'Task', artifacts: 'Artifacts', appdev: 'App Dev', research: 'Research', plan: 'Plan Mode', study: 'Study', image: 'Image Studio', fast: 'Fast Search' };
     const mode = state.activeModeTag;
     
     if (mode && modeLabels[mode]) {
@@ -9473,7 +9481,7 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
         dynamicMaxTokens = 60000;  // Higher for task/appdev/artifacts mode - needs to output full apps
         let modeLabel = state.mode === 'appdev' ? 'APP DEV' : (state.mode === 'artifacts' ? 'ARTIFACTS' : 'TASK/CODE');
         sysPrompt += `\nMODE: HIGH CAPACITY (${modeLabel}). Generating extended code output.`;
-    } else if (state.mode === 'research' || state.mode === 'search' || state.mode === 'travel' || state.mode === 'study') {
+    } else if (state.mode === 'research' || state.mode === 'search' || state.mode === 'plan' || state.mode === 'study') {
         dynamicMaxTokens = 30000;
         if (state.mode === 'research' && window.__sahuRLv === 'advanced') dynamicMaxTokens = 40000;
         if (state.mode === 'research' && window.__sahuRLv === 'ultra') dynamicMaxTokens = 60000;
@@ -9505,8 +9513,8 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
         sysPrompt += "\nMODE: DEEP RESEARCH. Protocol: Analyze provided search results deeply. Synthesize multiple sources. Be exhaustive and detailed." + ((window.__sahuRLv === 'advanced') ? "\nRESEARCH LEVEL: ADVANCED. Run at least twice as many searches as usual, cover counterarguments and opposing evidence, cross-verify every key claim, and explicitly compare sources against each other." : (window.__sahuRLv === 'ultra') ? "\nRESEARCH LEVEL: ULTRA. Maximum-depth research: exhaust every useful angle with as many searches as the tool budget allows, verify each claim across multiple independent sources, include expert perspectives, data, timelines and edge cases. Thoroughness takes absolute priority over speed. End with a confidence assessment per major finding." : "");
         } else if (state.mode === 'image') {
         sysPrompt += "\nMODE: IMAGE STUDIO (v9). You are an image-generation assistant: EVERY reply in this mode MUST generate at least one image with the IMG: directive (e.g. IMG: [seed=42] a watercolor cityscape of Bhopal at dusk, warm palette). Rules:\n1. Creation requests: emit IMG: with a rich prompt - subject, style, composition, lighting, mood. When the user is exploring, offer 2-4 variations with different [seed] or styles in the same reply.\n2. Edit requests (change, modify, remove or add something): emit IMG: with a full prompt that re-describes the image plus the requested changes (regeneration-based editing); suggest keeping the same [seed] for visual consistency.\n3. NEVER write Python, matplotlib or any code to make images in this mode - always IMG:.\n4. Keep any accompanying text to one or two short sentences - the image IS the answer.\n5. If the user asks a plain text question, answer it briefly, then remind them Image Studio is optimized for image generation.";
-    } else if (state.mode === 'travel') {
-        sysPrompt += "\nMODE: TRAVEL PLANNER (v7.0). You are an expert travel planner working from the LIVE web search context provided. OUTPUT in this exact order (Markdown, real tables):\n1. ## Overview - 2-3 sentences: who this trip suits; STATE YOUR ASSUMPTIONS (pace=balanced, budget=mid-range, 2 travelers) if the user did not specify them.\n2. ## Best Time to Visit - seasons, weather, crowds, prices (cite [n]).\n3. ## Day-by-Day Itinerary - table | Day | Area | Morning | Afternoon | Evening | - cluster sights by area to cut transit; 1 lunch + 1 dinner suggestion per day; mark must-book items with a warning icon.\n4. ## Budget Breakdown - table | Category | Est. cost/person/day | Notes | - lodging, food, transport, attractions + 10% buffer; costs as ranges in local currency.\n5. ## Food - 5-8 dishes/restaurants with areas and price level.\n6. ## Transport - airport to city, passes, apps, walkability.\n7. ## Booking Tips - what to book ahead, typical price ranges from sources, search links (Google Flights/Booking.com, no affiliate links).\n8. ## Practical Tips - visa, plugs, safety, etiquette, weather packing.\nRULES: cite every price/seasonal claim from the search context as [n]; if data is missing write 'verify locally' instead of inventing; 2 anchor attractions + 1 hidden gem per day; end with: 'Want me to adjust pace, budget, or swap a day?'";
+    } else if (state.mode === 'plan') {
+        sysPrompt += "\nMODE: PLAN MODE (v9.15, MiniMax plan-mode — talk before you build). You are a planning partner: do NOT execute the task yet. Survey the request, surface the design decisions, raise hidden risks, and get an aligned direction from the user — only after they confirm do you switch to execution. OUTPUT (Markdown) in this exact shape:\n1. ## Understanding - 2-4 sentences: what you believe is being asked; STATE YOUR ASSUMPTIONS (scale, stack, budget, timeline, constraints) when the user did not specify them.\n2. ## Scope - table | In scope | Out of scope | - draw the boundary so done is unambiguous.\n3. ## Options - 2-3 genuinely viable approaches; for each: what it is, what it optimizes, what it costs (effort, complexity, lock-in). Use a comparison table when there are 2+.\n4. ## Trade-offs & Risks - what each option locks in, plus hidden risks the user has not mentioned (migration, security, cost cliffs, reversibility, blast radius).\n5. ## Open Questions - ONLY the questions whose answers would change the plan (max 5; if the request is unambiguous, say so and skip this section).\n6. ## Recommended Path - your pick, why, and a numbered execution outline (concrete steps, each independently verifiable).\nGATE: end with exactly: PLAN READY - reply go to execute, or tell me what to change. Do NOT write the actual code/document/content in the planning turn; outline structure only.\nEXECUTION: after the user replies go / approved / picks an option, deliver the approved path completely (full working result, no placeholders) and mark any deviation inline as DEVIATION: with a one-line reason.\nSKIP: if there is exactly one obvious approach and nothing to decide (quick fact, small edit, typo fix), say Plan not needed - answering directly, then just answer.\nRULES: ground options, versions, prices and risks in the LIVE web search context when provided and cite as [n]; if a planning fact is missing write verify instead of inventing; never pad Open Questions with questions the answer cannot change.";
     } else if (state.mode === 'study') {
         sysPrompt += "\nMODE: STUDY TUTOR (v7.0, Socratic - modeled on ChatGPT Study Mode / Gemini Guided Learning / Claude Learning). The user is STUDYING. Obey these rules above all else:\n1. DIAGNOSE FIRST: before teaching, ask 1-2 short questions about their goal and current level. If unanswered, assume 10th-grade level and say so.\n2. TEACH IN SMALL STEPS: one idea per turn, build on what they already know, and end EVERY turn with exactly ONE check-for-understanding question (never multiple).\n3. HINTS, NOT ANSWERS: for homework-style questions respond with a guiding question or hint. Escalate: nudge -> strategy -> similar worked example -> full solution ONLY after one genuine attempt OR an explicit second request for the answer.\n4. CHECK & REINFORCE: after hard parts ask them to restate it in their own words; correct charitably, immediately, briefly.\n5. ACTIVE RECALL: after each concept offer a 1-question quiz; grade it and keep track of what is covered.\n6. TONE: warm, plain-spoken, brief (under 150 words unless a worked example). One question per turn.\n7. WRAP-UP: on request, produce a bullet summary of what was covered, what is next, and 3 graded practice problems.\nNever do the user's work for them; never moralize - just guide.";
     } else if (state.mode === 'search') {
@@ -11053,8 +11061,10 @@ async function sendMessage() {
         // tool go through the model-first agentic loop (runSearchMode):
         // the model decides whether to search at all, what to search,
         // re-searches and re-thinks as many times as it wants.
-        // v7.0: Travel Plan mode also grounds itself with the live pre-search
-        const shouldSearch = state.mode === 'research' || state.mode === 'travel';
+        // v7.0 → v9.15: Plan Mode (ex-Travel Planner) also grounds itself with
+        // the live pre-search — read-only grounding, no side effects (MiniMax
+        // plan-mode pauses only for tools WITH side effects).
+        const shouldSearch = state.mode === 'research' || state.mode === 'plan';
         
         if (shouldSearch && container) {
             container.innerHTML += `
@@ -11129,10 +11139,11 @@ async function sendMessage() {
         // Route to appropriate handler based on mode
         if (state.mode === 'research') {
             await runDeepResearch(fullPrompt, container, thisChatId);
-        } else if (state.mode === 'travel') {
-            // v7.0 TRAVEL PLAN MODE: grounded by the pre-search above; the
-            // structured day-by-day itinerary comes from the mode system prompt.
-            showToast('Travel Planner: grounded with live search', 'info');
+        } else if (state.mode === 'plan') {
+            // v9.15 PLAN MODE (MiniMax plan-mode): grounded by the pre-search
+            // above; the structured plan + confirmation gate comes from the
+            // mode system prompt ("talk before you build").
+            showToast('Plan Mode: grounded with live search', 'info');
             await runStandardAggregation(fullPrompt, container, thisChatId);
         } else if (state.mode === 'study') {
             // v7.0 STUDY MODE: Socratic tutor - the mode system prompt drives it
@@ -15580,11 +15591,11 @@ function setupKeyboardShortcuts() {
 // previously showed v7.8 in the title/toast, "Version 5.0" in the sidebar
 // and docs, while the engine carried v7.9.12 changes.
 const APP_NAME = 'Manthan Agent';
-const APP_VERSION = '9.14'; // v8.0.0: the No-Backend Skill Pack (23 core + 20 library skills)
+const APP_VERSION = '9.15'; // v9.15: Plan Mode (MiniMax plan-mode) replaces Travel Planner
 const APP_TITLE = APP_NAME + ' v' + APP_VERSION + ' - Official Saksham Intelligence AI Models Chat';
 
 async function init() {
-    console.log('🚀 Manthan Agent v9.14 Initializing...');
+    console.log('🚀 Manthan Agent v9.15 Initializing...');
     document.title = APP_TITLE;
     
     // Load state from localStorage
@@ -15634,8 +15645,8 @@ async function init() {
     // Update language
     updateLanguage(state.language);
     
-    console.log('✅ Manthan Agent v9.14 Ready');
-    showToast('Manthan Agent v9.14 Loaded - Research Tiers active');
+    console.log('✅ Manthan Agent v9.15 Ready');
+    showToast('Manthan Agent v9.15 Loaded - Plan Mode active');
 }
 
 // ============================================
@@ -15754,7 +15765,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
