@@ -3,9 +3,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MiniMax-style Plan Mode, 3-tier Deep Research, MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v9.16 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, 65 skills: No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, transparent PNGs, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), SQL Sandbox (real SQLite), PPTD deck studio, Paged.js print-grade PDF, live voice input, vision input (image analysis), transparent image generation, MiniMax-style Plan Mode, 3-tier Deep Research, MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v9.16 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -3254,7 +3254,7 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 9.15 · Plan Mode</p>
+                    <p class="sidebar-version">Version 9.16 · Skill Wave: SQL · Decks · Paged PDF · Voice · Vision</p>
                 </div>
             </div>
             
@@ -4809,7 +4809,7 @@
         // Safety Models
         function checkSafety(content) {}
         
-        console.log('✅ Manthan Agent v9.15 HTML/CSS Loaded');
+        console.log('✅ Manthan Agent v9.16 HTML/CSS Loaded');
     </script>
     
     <!-- Link to JavaScript File -->
@@ -7223,7 +7223,7 @@ function renderModelSelector() {
                             ${selected ? 'checked' : ''}
                             onchange="toggleModelSelection('${providerKey}', '${_v66q(modelKey)}', '${_v66q(modelId)}', this.checked)">
                         <div class="model-info">
-                            <div class="model-name">${escapeHtml(String(modelKey))}</div>
+                            <div class="model-name">${escapeHtml(String(modelKey))}${(typeof _sahuIsVisionModel === 'function' && _sahuIsVisionModel(modelId)) ? '<span class="v916-vbadge" title="Vision - this model can see attached images">👁</span>' : ''}</div>
                         </div>
                     </div>
                     `;
@@ -9188,12 +9188,12 @@ function formatMarkdown(text, sources = null) {
         // v8.0: CHART STUDIO fences - mermaid / echarts / chart / infographic
         // render as real cards (async enhancer swaps the placeholder in-place
         // after innerHTML lands; idempotent + works for restored history too)
-        const _v80art = ({ mermaid: 'mermaid', echarts: 'echarts', chart: 'echarts', infographic: 'infographic' })[String(lang).toLowerCase()];
+        const _v80art = ({ mermaid: 'mermaid', echarts: 'echarts', chart: 'echarts', infographic: 'infographic', pptd: 'pptd', deck: 'pptd', pagedpdf: 'pagedpdf' })[String(lang).toLowerCase()];
         if (_v80art) {
             const rid = 'v80art' + Math.random().toString(36).slice(2, 10);
             try { window.__sahuV80ArtReg[rid] = { kind: _v80art, code: code }; } catch (e) {}
-            const _v80names = { mermaid: 'Diagram · Mermaid', echarts: 'Chart · ECharts', infographic: 'Infographic' };
-            const _v80icons = { mermaid: 'fa-diagram-project', echarts: 'fa-chart-simple', infographic: 'fa-table-cells-large' };
+            const _v80names = { mermaid: 'Diagram · Mermaid', echarts: 'Chart · ECharts', infographic: 'Infographic', pptd: 'Deck · PPTD', pagedpdf: 'Print PDF · Paged.js' };
+            const _v80icons = { mermaid: 'fa-diagram-project', echarts: 'fa-chart-simple', infographic: 'fa-table-cells-large', pptd: 'fa-display', pagedpdf: 'fa-file-pdf' };
             setTimeout(function () { try { sahuV80EnhanceArtifacts(); } catch (e) {} }, 60);
             return '<div class="v80-artifact"><div class="v80-artifact-h"><span><i class="fas ' + _v80icons[_v80art] + '"></i> ' + _v80names[_v80art] + '</span><span class="v80-artifact-hint">Skill Pack · rendered</span></div><div class="v80-artifact-body" id="' + rid + '"><div class="v80-loading">Rendering…</div></div></div>';
         }
@@ -9533,7 +9533,10 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
     }
     
     // Image attachment handling for vision models
-    const isVisionModel = modelId.includes('vision') || modelId.includes('vl') || modelId.includes('phi-3.5-vision') || modelId.includes('phi-4-multimodal') || modelId.includes('llama-3.2-90b-vision') || modelId.includes('gemma-4') || modelId.includes('qwen3-vl') || modelId.includes('qwen3.5-vl') || modelId.includes('qwen3.5-397b') || modelId.includes('qwen3.5-122b') || modelId.includes('mistral-small-4-119b') || modelId.includes('kimi-k2');
+    // v9.16: broad shared vision detection (window._sahuIsVisionModel, defined in the
+    // v9.16 block). The old list missed Gemini, Claude, GLM-4.6V/5V, GPT-5.x, o3, Kimi-K3,
+    // ERNIE-4.5-VL (case-sensitive 'vl' never matched 'VL'), Llama-4...
+    const isVisionModel = (typeof _sahuIsVisionModel === 'function') ? _sahuIsVisionModel(modelId) : false;
     if (state.uploadedImageBase64 && isVisionModel) {
         // Inject image into the last user message using multimodal content format
         const lastMsg = finalMessages[finalMessages.length - 1];
@@ -13724,7 +13727,7 @@ function renderSkillsSettings() {
     const libSkills = cs.filter(s => s && String(s.id).indexOf('lib_') === 0);
     const ownSkills = cs.filter(s => s && String(s.id).indexOf('lib_') !== 0);
     if (libSkills.length) {
-        html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Skill Library - 20 built-in prompt skills (v8.0 pack)</div>';
+        html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Skill Library - 27 built-in prompt skills (v8.0 + v9.16 packs)</div>';
         html += libSkills.map(s => _row(s, true)).join('');
     }
     if (ownSkills.length) {
@@ -14017,7 +14020,11 @@ window._sahuConvertTool = _sahuConvertTool;
 function _sahuParseFlags(rest) {
     const flags = {};
     let text = String(rest || '');
-    text = text.replace(/\[(rate|pitch|lang|voice)=([^\]]*)\]/gi, (mm, k, v) => { flags[String(k).toLowerCase()] = v.trim(); return ''; });
+    // v9.16: generic flag parser - [key=value] pairs (w, h, width, height, model, seed, fps, rate, pitch, lang, voice...)
+    // + bare boolean flags ([transparent], [nologo]). Previously only rate/pitch/lang/voice parsed, so
+    // IMG: [w=512] [seed=7] [transparent] silently did nothing (size always 1024, transparent never set).
+    text = text.replace(/\[([a-z][a-z0-9_]*)=([^\]]*)\]/gi, (mm, k, v) => { flags[String(k).toLowerCase()] = v.trim(); return ''; });
+    text = text.replace(/\[(transparent|nologo|square|private)\]/gi, (mm, k) => { flags[String(k).toLowerCase()] = true; return ''; });
     return { flags: flags, text: text.replace(/^\s+/, '').trim() };
 }
 function _sahuPickVoice(lang) {
@@ -15591,11 +15598,11 @@ function setupKeyboardShortcuts() {
 // previously showed v7.8 in the title/toast, "Version 5.0" in the sidebar
 // and docs, while the engine carried v7.9.12 changes.
 const APP_NAME = 'Manthan Agent';
-const APP_VERSION = '9.15'; // v9.15: Plan Mode (MiniMax plan-mode) replaces Travel Planner
+const APP_VERSION = '9.16'; // v9.16: Skill Wave - SQL Sandbox, Deck Studio (PPTD), Paged PDF, Live Voice, Vision Input + 7 engineering library skills
 const APP_TITLE = APP_NAME + ' v' + APP_VERSION + ' - Official Saksham Intelligence AI Models Chat';
 
 async function init() {
-    console.log('🚀 Manthan Agent v9.15 Initializing...');
+    console.log('🚀 Manthan Agent v9.16 Initializing...');
     document.title = APP_TITLE;
     
     // Load state from localStorage
@@ -15765,7 +15772,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v9.15 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v9.16 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
@@ -17702,6 +17709,1061 @@ try { window.renderInputModeTags(); } catch (e) {}
             });
         }
     } catch (e) {}
+})();
+
+</script>
+<script>
+// ---- v9.16 §0: namespace + CSS + CDN registry entries ----
+window.__V916 = window.__V916 || { rec: null, db: null, dbInit: null };
+var V916_SKILL_IDS = ['sql_sandbox', 'deck_studio', 'pdf_studio', 'voice_input', 'vision_input'];
+
+try {
+    SAHU_CDNS.sqljs = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js';
+    SAHU_CDNS.pagedjs = 'https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.js';
+} catch (e) {}
+
+(function () {
+    var css = [
+        '.v916-micbtn { position: relative; }',
+        '.v916-micbtn.v916-listening { color: #ef4444 !important; animation: v916pulse 1.1s ease-in-out infinite; }',
+        '.v916-micbtn.v916-listening::after { content: "rec"; position: absolute; top: -7px; right: -4px; font-size: 8px; font-weight: 700; color: #ef4444; }',
+        '@keyframes v916pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.45); } 50% { box-shadow: 0 0 0 7px rgba(239,68,68,0); } }',
+        '.v916-vbadge { display: inline-block; margin-left: 6px; font-size: 10px; vertical-align: 1px; opacity: .8; cursor: help; }',
+        '.v916-vbadge svg { width: 12px; height: 12px; }',
+        '.v916-sql-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0; font-size: 11px; color: var(--text-secondary, #6b7280); }',
+        '.v916-sql-meta b { color: var(--text-primary, #111827); }',
+        '.v916-tblwrap { overflow-x: auto; max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(120,120,140,.25); }',
+        '.v916-tblwrap table { border-collapse: collapse; width: 100%; font-size: 11.5px; background: rgba(255,255,255,.04); }',
+        '.v916-tblwrap th { position: sticky; top: 0; background: rgba(99,102,241,.18); text-align: left; padding: 5px 8px; font-weight: 700; white-space: nowrap; }',
+        '.v916-tblwrap td { padding: 4px 8px; border-top: 1px solid rgba(120,120,140,.18); white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }',
+        '.v916-decklist { display: flex; flex-direction: column; gap: 10px; max-height: 430px; overflow-y: auto; padding: 2px; }',
+        '.v916-slide { aspect-ratio: 16/9; border-radius: 8px; padding: 5% 6%; box-sizing: border-box; position: relative; overflow: hidden; font-family: Arial, Helvetica, sans-serif; min-width: 0; }',
+        '.v916-slide .v916-s-title { font-size: clamp(11px, 2.6vw, 22px); font-weight: 800; line-height: 1.15; }',
+        '.v916-slide .v916-s-sub { font-size: clamp(8px, 1.5vw, 13px); margin-top: 3%; line-height: 1.3; }',
+        '.v916-slide .v916-s-bullet { font-size: clamp(7px, 1.35vw, 12px); line-height: 1.45; margin: 2.2% 0; display: flex; gap: 6px; }',
+        '.v916-slide .v916-s-dot { flex: 0 0 auto; width: .45em; height: .45em; border-radius: 50%; margin-top: .45em; }',
+        '.v916-slide .v916-s-num { position: absolute; bottom: 3.5%; right: 4%; font-size: clamp(6px, 1vw, 9px); opacity: .55; }',
+        '.v916-slide .v916-s-foot { position: absolute; bottom: 3.5%; left: 6%; font-size: clamp(6px, .95vw, 9px); opacity: .5; }',
+        '.v916-slide .v916-s-band { position: absolute; left: 0; top: 0; bottom: 0; width: 4.5%; }',
+        '.v916-slide .v916-s-eyebrow { font-size: clamp(6px, 1.05vw, 10px); letter-spacing: .18em; text-transform: uppercase; font-weight: 700; opacity: .75; margin-bottom: 2%; }',
+        '.v916-slide .v916-s-col { flex: 1 1 0; min-width: 0; }',
+        '.v916-slide .v916-s-cols { display: flex; gap: 5%; margin-top: 3%; }',
+        '.v916-slide .v916-s-colhead { font-size: clamp(7px, 1.5vw, 13px); font-weight: 800; margin-bottom: 2.5%; }',
+        '.v916-slide .v916-s-statv { font-size: clamp(14px, 3vw, 26px); font-weight: 800; line-height: 1; }',
+        '.v916-slide .v916-s-statl { font-size: clamp(6px, 1.1vw, 10px); opacity: .7; margin-top: 4%; line-height: 1.25; }',
+        '.v916-slide .v916-s-quote { font-size: clamp(9px, 1.9vw, 16px); font-style: italic; line-height: 1.4; max-width: 85%; }',
+        '.v916-slide .v916-s-author { font-size: clamp(7px, 1.2vw, 11px); margin-top: 4%; opacity: .7; }',
+        '.v916-slide .v916-s-table { width: 100%; border-collapse: collapse; font-size: clamp(6px, 1.15vw, 11px); margin-top: 3%; }',
+        '.v916-slide .v916-s-table th, .v916-slide .v916-s-table td { padding: 1.6% 2%; text-align: left; border-bottom: 1px solid rgba(0,0,0,.12); }',
+        '.v916-slide .v916-s-tablewrap { overflow: hidden; }',
+        '.v916-slide.v916-center { display: flex; flex-direction: column; justify-content: center; }',
+        '.v916-pagedview { width: 340px; max-height: 440px; overflow-y: auto; overflow-x: hidden; border-radius: 8px; background: #d1d5db; padding: 6px; box-sizing: border-box; margin-top: 4px; }',
+        '.v916-pagedview iframe { width: 794px; border: 0; background: #fff; transform: scale(0.42); transform-origin: top left; pointer-events: none; display: block; }',
+        '.v916-qa-ok { font-size: 11px; color: #059669; font-weight: 600; margin: 4px 0; }',
+        '.v916-qa-bad { font-size: 11px; color: #d97706; font-weight: 600; margin: 4px 0; }'
+    ].join('\n');
+    var st = document.createElement('style');
+    st.setAttribute('data-v916', '1');
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+})();
+
+// ---- v9.16 §1: the 7 TIER-A engineering & dev library skills ----
+try {
+    var V916_LIBS = [
+        { id: 'lib_code_diagram', name: 'Code-to-Diagram', icon: 'fa-diagram-project', color: 'indigo',
+          desc: 'Turns pasted code, file trees and dependency lists into real architecture and flow diagrams.',
+          instructions: 'CODE-TO-DIAGRAM (Kimi). When the user pastes code, a folder tree, API routes or module imports and wants to UNDERSTAND or DOCUMENT the structure: (1) inventory the pieces (modules, components, endpoints, data entities) and the direction of every dependency; (2) pick the RIGHT diagram: component/dependency graph, request flow (sequence), ER for data models, flowchart for logic; (3) emit it as a fenced mermaid block so it renders as an interactive card; (4) walk through the diagram in 3-6 sentences: entry points, layering, the single riskiest coupling. Never invent nodes that are not in the pasted code - if something is ambiguous, mark it with a dashed shape and say why.' },
+        { id: 'lib_backend_build', name: 'Backend Builder', icon: 'fa-server', color: 'emerald',
+          desc: 'tRPC + Drizzle + Hono backend discipline: schema and API design first, then a complete runnable project as files.',
+          instructions: 'BACKEND BUILDER (Kimi). For any "build the backend / API / service" request: (1) DESIGN FIRST - data model (tables, columns, relations, indexes), then API surface (routes, methods, request/response types, error cases) - present both as compact tables before writing code; (2) DEFAULT STACK: Hono (server), tRPC (typesafe RPC) where it fits, Drizzle ORM for schema/queries, TypeScript throughout - but follow the user if they name a stack; (3) DELIVER as FILE blocks: src/schema.ts, src/routes.ts (or one file per resource), src/index.ts, drizzle config, package.json, plus a README with the exact run steps (install, migrate, dev); (4) include input validation on every mutation and honest error handling (no try/catch swallows); (5) state explicitly what cannot run in this browser app (a persistent server) and what the user must run locally. Browser-runnable pieces (pure logic, Hono edge handlers, the Drizzle schema) may also land in a runjs block as a live proof.' },
+        { id: 'lib_webapp_build', name: 'Webapp Builder', icon: 'fa-laptop-code', color: 'blue',
+          desc: 'React + TypeScript + Tailwind + shadcn/ui build rules for designer-grade single-file apps in Live Preview.',
+          instructions: 'WEBAPP BUILDER (Kimi). For any app/website/UI/game request that should RUN (not just be described): (1) emit ONE complete single-file app in a fenced react block (React 18 + JSX + TypeScript-style typing where natural, Tailwind classes; CDN libraries allowed; end with ReactDOM.createRoot(...).render(<App />)) with the line PREVIEW: <short title> before the fence; (2) STRUCTURE inside the file, top to bottom: types/interfaces, constants + seed data, small pure helpers, custom hooks, leaf components, page components, App with state wiring - never one giant component; (3) DESIGN RULES: deliberate palette (no default blue #3B82F6 as primary), 4/8px spacing rhythm, real hover/focus/empty/error/loading states, accessible contrast, mobile-friendly layout, input persistence where it makes sense; (4) every button works - no dead UI; if a feature needs a server, simulate it honestly in-memory and label it "local demo"; (5) finish with a 3-line note: what is real, what is simulated, what to add next.' },
+        { id: 'lib_vibe_swarm', name: 'Vibecoding Swarm', icon: 'fa-users-viewfinder', color: 'violet',
+          desc: 'Parallel app building: splits a build across swarm workers (scaffold/logic/style), then assembles the merged app.',
+          instructions: 'VIBECODING SWARM (Kimi). For a genuinely LARGE app build (3+ distinct areas, e.g. pages + state + design system): (1) draft the app skeleton yourself first (component tree, state shape, palette/type tokens) so workers share one contract; (2) spawn an AGENT SWARM whose tasks are the build seams - one worker per page/feature area, one for shared logic/hooks, one for the design system or styling pass - each task stating the EXACT files/components it owns and the shared contract it must keep; (3) after the reports return, YOU assemble the final single-file app in one PREVIEW react block (workers give you parts, you are the integrator); (4) run a self-review pass against the Webapp Builder rules and fix integration seams (props mismatch, duplicated helpers, inconsistent tokens). Simple apps: build directly, no swarm.' },
+        { id: 'lib_swarm_workspace', name: 'Swarm Workspace', icon: 'fa-people-arrows', color: 'cyan',
+          desc: 'Coordination rules for parallel agents: task claiming, boundaries, handoffs and conflict-free merges.',
+          instructions: 'SWARM WORKSPACE (Kimi). Whenever you spawn an AGENT SWARM, apply these coordination rules: (1) BOUNDARIES: every task lists what it OWNS (files, topics, sections) and what it must NOT touch - no two workers own the same artifact; (2) CONTRACTS: shared vocabulary goes in the plan line (naming, units, format of each report) so outputs merge without translation; (3) OUTPUT SHAPE: every task sets output_format as a fill-in template (headings + table shapes), so reports are comparable line by line; (4) NO HANDOFF CHAINS: workers never depend on each other - if a dependency exists, you do the dependent part yourself after the reports; (5) MERGE DISCIPLINE: when reports return, reconcile contradictions explicitly ("workers disagree on X: A says..., B says..., I resolve ... because ...") before synthesizing; (6) second-round swarms must restate what is ALREADY known so workers do not redo finished work.' },
+        { id: 'lib_skill_swarm', name: 'Skill Creator Swarm', icon: 'fa-wand-magic-sparkles', color: 'pink',
+          desc: 'Skill factory: parallel agents draft a new skill, write evals, run them, then package the refined result via MAKESKILL.',
+          instructions: 'SKILL CREATOR SWARM (Kimi). When the user wants a NEW reusable skill and quality matters: (1) SPEC: one paragraph - trigger conditions, exact behavior steps, output shape, and 3 example invocations; (2) spawn an AGENT SWARM: one worker drafts the skill instructions from the spec, one writes 3-5 eval cases (input -> expected behavior), one lists failure modes and guardrails (when NOT to trigger, how to avoid over-firing); (3) YOU review the drafts, run the evals mentally against the drafted instructions, and fix every miss; (4) deliver with a MAKESKILL block (name, DESC, the refined instructions) so it installs with a toggle, plus the eval cases in a small table for future testing; (5) keep instructions under ~120 words of directives - long skills dilute. Trivial skills (a persona or a format): skip the swarm, draft directly.' },
+        { id: 'lib_find_skills', name: 'Find Skills', icon: 'fa-bolt-lightning', color: 'amber',
+          desc: "Skill discovery over this app's own catalog - answers \"which skill should I use for X?\" with exact triggers.",
+          instructions: 'FIND SKILLS (Kimi). When the user asks what this app can do, which skill to use for a task, or says "I wish you could X": (1) scan the capability list you were given in your instructions (skills with their directives: SEARCH/READ/FETCH/BROWSE, runpython/runjs, FILE blocks, PREVIEW, CHART/DIAGRAM fences, WEATHER, CONVERT, SPEAK, IMG/IMGSEARCH/GIF, PLACES, STOCK, READ_FILE/PDFEDIT, TRANSLATE, HUMANIZE, AUDIT, CITE, MEMORY, REMIND, SUMMARIZE, SQL, pptd decks, pagedpdf documents, TDD/MENTOR, MAKESKILL, Agent Swarm) plus the custom-skill list; (2) answer with a short table: need -> exact skill -> exact trigger line to type; (3) if TWO skills overlap, name the better one and why; (4) if NOTHING covers it, say so plainly and offer the closest combo - never invent capabilities that are not in your instructions, and never suggest server-side features this browser app cannot do.' }
+    ];
+    V916_LIBS.forEach(function (s) {
+        if (!SAHU_V80_LIB_SKILLS.some(function (x) { return x.id === s.id; })) SAHU_V80_LIB_SKILLS.push(s);
+    });
+} catch (e) { console.warn('v9.16 lib seeding skipped:', e); }
+
+// ---- v9.16 §1b: the 5 new TIER-B core skill entries ----
+try {
+    var V916_CORE = [
+        { id: 'sql_sandbox', name: 'SQL Sandbox (SQLite)', icon: 'fa-database', color: 'emerald',
+          desc: 'SQL: real SQLite running in the browser (sql.js WASM, keyless). SQL[load=attached.csv]: tablename loads any attached CSV/XLSX as a table, then SELECT/JOIN/aggregate/EXPLAIN run for real - results as a table card, database persists all session, downloadable as .db.' },
+        { id: 'deck_studio', name: 'Deck Studio (PPTD)', icon: 'fa-display', color: 'violet',
+          desc: 'High-fidelity presentations: the model emits a pptd fenced JSON deck spec (title/section/bullets/two-col/stats/quote/table slides, 5 themes, speaker notes) - the app renders a styled slide preview and a real .pptx download. The kimi-slides pipeline.' },
+        { id: 'pdf_studio', name: 'Paged PDF Studio', icon: 'fa-file-pdf', color: 'red',
+          desc: 'Print-grade PDF documents: the model writes styled HTML, Paged.js paginates it into real A4 pages with running heads and page numbers, an automatic layout QA check catches overflow, and one click saves it as PDF (Sarvam Paged.js engine).' },
+        { id: 'voice_input', name: 'Live Voice Input', icon: 'fa-microphone-lines', color: 'orange',
+          desc: 'An always-available live microphone button next to the input: speech-to-text with a live transcription preview while you speak, appending into a half-written message instead of replacing it (browser SpeechRecognition - keyless, offline-capable, no Whisper round-trip).' },
+        { id: 'vision_input', name: 'Vision Input', icon: 'fa-eye', color: 'sky',
+          desc: 'Attach any image and vision-capable models actually SEE it: broad model detection (Gemini, Claude, GLM-4.6V/5V, GPT-5.x, o3, Kimi, ERNIE-VL, Llama-4, Pixtral...), a vision badge on every capable model in the picker, attach-time guidance, and a structured image-analysis protocol.' }
+    ];
+    V916_CORE.forEach(function (s) {
+        if (!SAHU_SKILLS.some(function (x) { return x.id === s.id; })) SAHU_SKILLS.push(s);
+    });
+} catch (e) { console.warn('v9.16 core skill push skipped:', e); }
+
+
+// ---- v9.16 §2: SQL SANDBOX - real SQLite in the browser (sql.js WASM) ----
+(function () {
+    var MAXROWS = 20000;
+
+    function dbInit() {
+        if (window.__V916.dbInit) return window.__V916.dbInit;
+        window.__V916.dbInit = (async function () {
+            await sahuLoadLib(SAHU_CDNS.sqljs, 'initSqlJs');
+            var base = String(SAHU_CDNS.sqljs).replace(/[^/]*$/, '');
+            var Ctor = await window.initSqlJs({ locateFile: function (f) { return base + f; } });
+            // initSqlJs resolves to the SQL *class* - create the in-memory DB instance
+            window.__V916.db = new Ctor.Database();
+            return window.__V916.db;
+        })();
+        return window.__V916.dbInit;
+    }
+
+    // tiny but correct CSV parser (RFC-4180-ish: quotes, escaped quotes, CRLF)
+    function parseCsv(text) {
+        var rows = [], row = [], cell = '', inQ = false, i = 0, t = String(text || '');
+        if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1);
+        var n = t.length;
+        while (i < n) {
+            var c = t[i];
+            if (inQ) {
+                if (c === '"') { if (t[i + 1] === '"') { cell += '"'; i += 2; continue; } inQ = false; i++; continue; }
+                cell += c; i++; continue;
+            }
+            if (c === '"') { inQ = true; i++; continue; }
+            if (c === ',') { row.push(cell); cell = ''; i++; continue; }
+            if (c === '\r') { i++; continue; }
+            if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; i++; continue; }
+            cell += c; i++;
+        }
+        if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+        // drop fully-empty trailing rows
+        while (rows.length && rows[rows.length - 1].every(function (x) { return String(x).trim() === ''; })) rows.pop();
+        return rows;
+    }
+
+    function inferType(vals) {
+        var isInt = true, isNum = true, seen = 0;
+        for (var i = 0; i < vals.length; i++) {
+            var v = String(vals[i]).trim();
+            if (v === '') continue;
+            seen++;
+            if (!/^-?\d+$/.test(v)) isInt = false;
+            if (isNaN(Number(v)) || !/^-?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(v)) isNum = false;
+            if (!isNum) break;
+        }
+        if (!seen) return 'TEXT';
+        return isInt ? 'INTEGER' : (isNum ? 'REAL' : 'TEXT');
+    }
+
+    function safeIdent(name, fallback) {
+        var s = String(name || '').trim().toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '').replace(/^([0-9])/, 't$1');
+        return s || fallback || 'data';
+    }
+
+    function dbTables(SQL) {
+        var res = SQL.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
+        if (!res.length) return [];
+        return res[0].values.map(function (r) { return String(r[0]); });
+    }
+    function dbCounts(SQL) {
+        var out = [];
+        dbTables(SQL).forEach(function (t) {
+            try {
+                var r = SQL.exec('SELECT COUNT(*) FROM "' + t.replace(/"/g, '""') + '"');
+                out.push(t + ':' + (r.length ? r[0].values[0][0] : '?'));
+            } catch (e) { out.push(t + ':?'); }
+        });
+        return out.join(', ');
+    }
+
+    async function loadTable(fileRef, tableWanted) {
+        var entry = (typeof _sahuPoolFind === 'function') ? _sahuPoolFind(fileRef) : null;
+        if (!entry) {
+            var names = (window.__sahuDocPool || []).map(function (f) { return f.name; }).join(', ') || '(nothing attached this session)';
+            return { ok: false, msg: '[SQL] attached file not found: "' + fileRef + '". Attached now: ' + names + '. Ask the user to attach the CSV/XLSX first (paperclip), then retry SQL[load=...].' };
+        }
+        var rows = null;
+        if (entry.kind === 'xlsx' && entry.sheets && entry.sheets.length) {
+            rows = entry.sheets[0].rows;
+        } else if (entry.kind === 'csv' || entry.kind === 'text') {
+            rows = parseCsv(entry.text);
+        } else if (entry.kind === 'json') {
+            try { rows = v916JsonToRows(entry.text); } catch (e) { rows = null; }
+        }
+        if (!rows || rows.length < 2) return { ok: false, msg: '[SQL] could not read tabular data from "' + entry.name + '" (kind: ' + entry.kind + ', needs a header row + at least one data row).' };
+
+        var SQL = await dbInit();
+        var table = safeIdent((tableWanted && !/^\s*(select|insert|update|delete|create|with|drop|alter|explain)\b/i.test(tableWanted)) ? tableWanted : entry.name.replace(/\.[a-z0-9]+$/i, ''), 'data');
+        var header = rows[0].map(function (h, i) { return safeIdent(h, 'c' + (i + 1)); });
+        // de-dup headers
+        var seen = {};
+        header = header.map(function (h) { if (seen[h]) { var k = 2; while (seen[h + '_' + k]) k++; h = h + '_' + k; } seen[h] = 1; return h; });
+        var body = rows.slice(1);
+        var capped = body.length > MAXROWS;
+        if (capped) body = body.slice(0, MAXROWS);
+        var types = header.map(function (_, ci) { return inferType(body.map(function (r) { return r[ci]; })); });
+
+        var q = function (s) { return '"' + String(s).replace(/"/g, '""') + '"'; };
+        SQL.exec('DROP TABLE IF EXISTS ' + q(table));
+        SQL.exec('CREATE TABLE ' + q(table) + ' (' + header.map(function (h, i) { return q(h) + ' ' + types[i]; }).join(', ') + ')');
+        var stmt = SQL.prepare('INSERT INTO ' + q(table) + ' VALUES (' + header.map(function () { return '?'; }).join(',') + ')');
+        SQL.run('BEGIN TRANSACTION');
+        try {
+            body.forEach(function (r) {
+                // sql.js Statement.bind() takes the WHOLE positional array
+                var vals = [];
+                for (var i = 0; i < header.length; i++) {
+                    var v = r[i];
+                    if (v === undefined || v === null || String(v).trim() === '') vals.push(null);
+                    else if (types[i] === 'INTEGER' || types[i] === 'REAL') vals.push(Number(v));
+                    else vals.push(String(v));
+                }
+                stmt.bind(vals);
+                stmt.run();
+                stmt.reset();
+            });
+        } finally { SQL.run('COMMIT'); stmt.free(); }
+        return { ok: true, table: table, cols: header, rowCount: body.length, capped: capped, types: types, file: entry.name };
+    }
+
+    function v916JsonToRows(text) {
+        var j = JSON.parse(text);
+        var arr = Array.isArray(j) ? j : (Array.isArray(j.data) ? j.data : null);
+        if (!arr || !arr.length) return null;
+        var keys = [];
+        arr.forEach(function (o) { Object.keys(o || {}).forEach(function (k) { if (keys.indexOf(k) < 0) keys.push(k); }); });
+        return [keys].concat(arr.map(function (o) { return keys.map(function (k) { return (o || {})[k] === undefined ? '' : String(o[k]); }); }));
+    }
+
+    function cardHtml(title, inner, foot) {
+        return '<div class="v80-card v80-sqlcard" style="margin:6px 0;">' +
+            '<div class="v80-card-h"><i class="fas fa-database"></i> ' + escapeHtml(title) + '</div>' +
+            '<div style="padding:8px 10px;">' + inner + (foot || '') + '</div></div>';
+    }
+
+    function resultCard(SQL, stmt, elapsed) {
+        var t0 = Date.now();
+        var res = [];
+        try { res = SQL.exec(stmt); } catch (e) { return { err: String(e && e.message || e) }; }
+        var changed = 0;
+        try { changed = SQL.getRowsModified(); } catch (e) {}
+        var html = '', toModel = '';
+        if (res.length && res[0].columns && res[0].columns.length) {
+            var cols = res[0].columns, vals = res[0].values || [];
+            var showRows = vals.slice(0, 50);
+            var tbl = '<div class="v916-tblwrap"><table><thead><tr>' + cols.map(function (c) { return '<th>' + escapeHtml(String(c)) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+                showRows.map(function (r) { return '<tr>' + r.map(function (v) { return '<td>' + escapeHtml(v === null ? 'NULL' : String(v)) + '</td>'; }).join('') + '</tr>'; }).join('') +
+                '</tbody></table></div>';
+            var meta = '<div class="v916-sql-meta"><span><b>' + vals.length + '</b> row' + (vals.length === 1 ? '' : 's') + '</span><span>' + cols.length + ' cols</span><span>' + (elapsed || (Date.now() - t0)) + ' ms</span>' + (vals.length > 50 ? '<span>showing first 50</span>' : '') + '</div>';
+            html = cardHtml(stmt.replace(/\s+/g, ' ').slice(0, 90), meta + tbl,
+                '<div class="v80-card-btns"><button class="v80-btn" onclick="window.__V916.dlDb()"><i class="fas fa-download"></i> Download .db</button><button class="v80-btn" onclick="window.__V916.clearDb()"><i class="fas fa-trash"></i> Clear database</button></div>');
+            toModel = '[SQL] OK (' + (elapsed || 0) + ' ms). ' + vals.length + ' row(s), columns: ' + cols.join(', ') + '.\n' +
+                _sahuRowsToTable([cols].concat(vals.slice(0, 100).map(function (r) { return r.map(function (v) { return v === null ? 'NULL' : v; }); })), 100) +
+                (vals.length > 100 ? '\n(' + (vals.length - 100) + ' more rows not shown - add LIMIT or WHERE to slice)' : '');
+        } else {
+            html = cardHtml(stmt.replace(/\s+/g, ' ').slice(0, 90),
+                '<div class="v916-sql-meta"><span>executed</span><span><b>' + changed + '</b> rows affected</span><span>' + (elapsed || 0) + ' ms</span></div>' +
+                '<div style="font-size:11.5px;color:var(--text-secondary,#6b7280);">Tables now: ' + escapeHtml(dbTables(SQL).join(', ') || '(empty)') + '</div>',
+                '<div class="v80-card-btns"><button class="v80-btn" onclick="window.__V916.dlDb()"><i class="fas fa-download"></i> Download .db</button><button class="v80-btn" onclick="window.__V916.clearDb()"><i class="fas fa-trash"></i> Clear database</button></div>');
+            toModel = '[SQL] OK (' + (elapsed || 0) + ' ms). ' + changed + ' row(s) affected. Tables now: ' + (dbTables(SQL).join(', ') || '(empty)') + ' (' + dbCounts(SQL) + ').';
+        }
+        return { html: html, toModel: toModel };
+    }
+
+    window.__V916.sqlTool = async function (argstr, ctx, loadRef) {
+        var stmt = String(argstr || '').trim().replace(/;+\s*$/, '');
+        try {
+            if (loadRef) {
+                var r = await loadTable(loadRef, stmt);
+                if (!r.ok) return r.msg;
+                var html = cardHtml('loaded ' + r.file + ' -> ' + r.table,
+                    '<div class="v916-sql-meta"><span>table <b>' + escapeHtml(r.table) + '</b></span><span><b>' + r.rowCount + '</b> rows loaded</span><span>' + r.cols.length + ' columns</span>' + (r.capped ? '<span style="color:#d97706;">capped at ' + MAXROWS + '</span>' : '') + '</div>' +
+                    '<div style="font-size:11px;color:var(--text-secondary,#6b7280);">' + r.cols.map(function (c, i) { return escapeHtml(c) + ':' + r.types[i]; }).join(' · ') + '</div>');
+                if (ctx && ctx.addTrace) ctx.addTrace(html);
+                return '[SQL] loaded "' + r.file + '" into table "' + r.table + '" (' + r.rowCount + ' rows' + (r.capped ? ', capped at ' + MAXROWS : '') + '). Columns: ' + r.cols.map(function (c, i) { return c + ' ' + r.types[i]; }).join(', ') + '. Query it with SQL: SELECT ... FROM ' + r.table + ' ...';
+            }
+            if (!stmt) return '[SQL] no statement. Use SQL: <statement>, or load data first with SQL[load=<attached file>]: <tablename>.';
+            if (!window.__V916.db) {
+                // auto-create empty DB on first bare SQL (CREATE TABLE / SELECT 1 ...)
+                await dbInit();
+            }
+            var SQL = window.__V916.db;
+            var t0 = Date.now();
+            var out = resultCard(SQL, stmt, Date.now() - t0);
+            if (out.err) {
+                return '[SQL] error: ' + out.err + '. Fix the statement and emit the SQL: line again. (SQLite dialect; tables now: ' + (dbTables(SQL).join(', ') || 'none') + '.)';
+            }
+            if (ctx && ctx.addTrace && out.html) ctx.addTrace(out.html);
+            return out.toModel;
+        } catch (e) {
+            return '[SQL] failed: ' + String((e && e.message) || e) + (String(e && e.message || '').indexOf('locateFile') >= 0 || /wasm|network|fetch/i.test(String(e && e.message || e)) ? ' (the sql.js runtime could not load from the CDN - check connectivity, then retry)' : '');
+        }
+    };
+
+    window.__V916.dlDb = function () {
+        try {
+            var SQL = window.__V916.db;
+            if (!SQL) { showToast('Database is empty', 'error'); return; }
+            var data = SQL.export();
+            saveAs(new Blob([data], { type: 'application/x-sqlite3' }), 'manthan-sandbox.db');
+            showToast('SQLite database downloaded');
+        } catch (e) { showToast('Export failed: ' + (e.message || e), 'error'); }
+    };
+    window.__V916.clearDb = function () {
+        try {
+            if (window.__V916.db) {
+                window.__V916.db.close();
+                window.__V916.db = null;
+            }
+            window.__V916.dbInit = null;
+            showToast('In-memory database cleared');
+        } catch (e) {}
+    };
+})();
+
+
+// ---- v9.16 §3: DECK STUDIO - PPTD fenced JSON -> styled preview + real PPTX ----
+(function () {
+    var THEMES = {
+        professional: { bg: 'FFFFFF', ink: '1F2937', accent: '1E3A8A', accent2: '3B82F6', muted: '6B7280', font: 'Arial' },
+        editorial:    { bg: 'FFFDF7', ink: '292524', accent: '9F1239', accent2: 'B45309', muted: '78716C', font: 'Georgia' },
+        dark:         { bg: '111827', ink: 'F9FAFB', accent: 'F59E0B', accent2: 'FBBF24', muted: '9CA3AF', font: 'Arial' },
+        minimal:      { bg: 'FFFFFF', ink: '0A0A0A', accent: '404040', accent2: 'A3A3A3', muted: '737373', font: 'Arial' },
+        vibrant:      { bg: 'FFFFFF', ink: '1E1B4B', accent: '6D28D9', accent2: 'DB2777', muted: '64748B', font: 'Verdana' }
+    };
+    var TYPES = ['title', 'section', 'bullets', 'two-col', 'stats', 'quote', 'table'];
+    var MAXSLIDES = 30;
+
+    function esc(s) { return escapeHtml(String(s === undefined || s === null ? '' : s)); }
+    function clampStr(s, n) { var x = String(s || ''); return x.length > n ? x.slice(0, n - 1) + '…' : x; }
+
+    window.__V916.deckValidate = function (spec) { return validate(spec); };
+
+    function validate(spec) {
+        if (!spec || typeof spec !== 'object') return 'the block must contain a JSON object';
+        if (!Array.isArray(spec.slides) || spec.slides.length < 1) return '"slides" must be a non-empty array';
+        if (spec.slides.length > MAXSLIDES) return 'too many slides (' + spec.slides.length + ') - max ' + MAXSLIDES;
+        if (spec.theme && !THEMES[spec.theme]) return 'unknown theme "' + spec.theme + '" (use: ' + Object.keys(THEMES).join(', ') + ')';
+        for (var i = 0; i < spec.slides.length; i++) {
+            var s = spec.slides[i], n = i + 1;
+            if (!s || typeof s !== 'object') return 'slide ' + n + ' is not an object';
+            if (!s.type || TYPES.indexOf(s.type) < 0) return 'slide ' + n + ': bad type "' + s.type + '" (use: ' + TYPES.join(', ') + ')';
+            if ((s.type === 'bullets' || s.type === 'title' || s.type === 'section') && !s.title) return 'slide ' + n + ' (' + s.type + ') needs a "title"';
+            if (s.type === 'bullets' && (!Array.isArray(s.bullets) || !s.bullets.length)) return 'slide ' + n + ' (bullets) needs a "bullets" array';
+            if (s.type === 'two-col' && (!s.left || !s.right)) return 'slide ' + n + ' (two-col) needs "left" and "right" objects';
+            if (s.type === 'stats' && (!Array.isArray(s.stats) || !s.stats.length)) return 'slide ' + n + ' (stats) needs a "stats" array';
+            if (s.type === 'quote' && !s.quote) return 'slide ' + n + ' (quote) needs a "quote"';
+            if (s.type === 'table' && (!Array.isArray(s.headers) || !Array.isArray(s.rows))) return 'slide ' + n + ' (table) needs "headers" and "rows" arrays';
+        }
+        return null;
+    }
+
+    // ---------- HTML preview (scaled 16:9 minis) ----------
+    function slideHtml(s, t, idx, total, deckTitle) {
+        var band = t.bg === '111827' ? t.accent : t.accent;
+        var h = '';
+        var foot = '<div class="v916-s-foot">' + esc(clampStr(deckTitle, 40)) + '</div><div class="v916-s-num">' + idx + ' / ' + total + '</div>';
+        function bullets(arr, accent) {
+            return arr.slice(0, 8).map(function (b) {
+                return '<div class="v916-s-bullet"><span class="v916-s-dot" style="background:' + accent + '"></span><span>' + esc(clampStr(String(b).replace(/^[-*•]\s*/, ''), 130)) + '</span></div>';
+            }).join('');
+        }
+        if (s.type === 'title') {
+            h = '<div class="v916-slide v916-center" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                '<div class="v916-s-band" style="background:' + band + '"></div>' +
+                '<div style="margin-left:4%"><div class="v916-s-eyebrow" style="color:' + t.accent + '">' + esc(clampStr(s.eyebrow || deckTitle, 46)) + '</div>' +
+                '<div class="v916-s-title" style="font-size:clamp(13px,3.2vw,28px)">' + esc(clampStr(s.title, 90)) + '</div>' +
+                (s.subtitle ? '<div class="v916-s-sub" style="color:' + t.muted + '">' + esc(clampStr(s.subtitle, 120)) + '</div>' : '') + '</div>' + foot + '</div>';
+        } else if (s.type === 'section') {
+            h = '<div class="v916-slide v916-center" style="background:' + t.accent + ';color:#FFFFFF;font-family:' + t.font + ',serif">' +
+                '<div class="v916-s-eyebrow" style="color:rgba(255,255,255,.7)">Section ' + idx + '</div>' +
+                '<div class="v916-s-title" style="font-size:clamp(13px,3vw,26px)">' + esc(clampStr(s.title, 80)) + '</div>' +
+                (s.subtitle ? '<div class="v916-s-sub" style="color:rgba(255,255,255,.75)">' + esc(clampStr(s.subtitle, 110)) + '</div>' : '') + '</div>';
+        } else if (s.type === 'bullets') {
+            h = '<div class="v916-slide" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                '<div class="v916-s-title" style="color:' + t.accent + '">' + esc(clampStr(s.title, 80)) + '</div>' + bullets(s.bullets, t.accent2) + foot + '</div>';
+        } else if (s.type === 'two-col') {
+            function col(c) { return '<div class="v916-s-col"><div class="v916-s-colhead" style="color:' + t.accent + '">' + esc(clampStr(c.heading || '', 60)) + '</div>' + bullets(c.bullets || [], t.accent2) + '</div>'; }
+            h = '<div class="v916-slide" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                '<div class="v916-s-title" style="color:' + t.accent + '">' + esc(clampStr(s.title, 80)) + '</div>' +
+                '<div class="v916-s-cols">' + col(s.left) + col(s.right) + '</div>' + foot + '</div>';
+        } else if (s.type === 'stats') {
+            h = '<div class="v916-slide v916-center" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                (s.title ? '<div class="v916-s-title" style="color:' + t.accent + ';margin-bottom:4%">' + esc(clampStr(s.title, 80)) + '</div>' : '') +
+                '<div class="v916-s-cols" style="margin-top:0">' + s.stats.slice(0, 4).map(function (st) {
+                    return '<div class="v916-s-col v916-center" style="text-align:center"><div class="v916-s-statv" style="color:' + t.accent + '">' + esc(clampStr(st.value, 14)) + '</div><div class="v916-s-statl">' + esc(clampStr(st.label, 60)) + '</div></div>';
+                }).join('') + '</div>' + foot + '</div>';
+        } else if (s.type === 'quote') {
+            h = '<div class="v916-slide v916-center" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                '<div style="font-size:clamp(16px,3.4vw,30px);color:' + t.accent2 + ';line-height:0;font-weight:800">&ldquo;</div>' +
+                '<div class="v916-s-quote">' + esc(clampStr(s.quote, 220)) + '</div>' +
+                (s.author ? '<div class="v916-s-author" style="color:' + t.muted + '">— ' + esc(clampStr(s.author, 60)) + '</div>' : '') + foot + '</div>';
+        } else { // table
+            var rows = (s.rows || []).slice(0, 12).map(function (r) {
+                return '<tr>' + (r || []).map(function (c) { return '<td>' + esc(clampStr(c, 60)) + '</td>'; }).join('') + '</tr>';
+            }).join('');
+            h = '<div class="v916-slide" style="background:' + t.bg + ';color:' + t.ink + ';font-family:' + t.font + ',serif">' +
+                '<div class="v916-s-title" style="color:' + t.accent + '">' + esc(clampStr(s.title || '', 80)) + '</div>' +
+                '<div class="v916-s-tablewrap"><table class="v916-s-table"><thead><tr>' +
+                (s.headers || []).map(function (c) { return '<th style="color:' + t.accent + ';border-bottom:1.5px solid ' + t.accent2 + '">' + esc(clampStr(c, 40)) + '</th>'; }).join('') +
+                '</tr></thead><tbody>' + rows + '</tbody></table></div>' + foot + '</div>';
+        }
+        return h;
+    }
+
+    window.__V916.deckPreview = function (cid, spec) {
+        var t = THEMES[spec.theme] || THEMES.professional;
+        var total = spec.slides.length;
+        var deckTitle = spec.title || 'Deck';
+        var list = spec.slides.map(function (s, i) { return slideHtml(s, t, i + 1, total, deckTitle); }).join('');
+        return '<div class="v916-sql-meta"><span>theme <b>' + (spec.theme || 'professional') + '</b></span><span><b>' + total + '</b> slides</span></div>' +
+            '<div class="v916-decklist">' + list + '</div>' +
+            '<div class="v80-card-btns"><button class="v80-btn" onclick="window.__V916.deckDl(\'' + cid + '\')"><i class="fas fa-download"></i> Download PPTX</button>' +
+            '<button class="v80-btn" onclick="sahuV80CopySpec(\'' + cid + '\')"><i class="fas fa-copy"></i> Copy spec</button></div>';
+    };
+
+    // ---------- PPTX builder (pptxgenjs is preloaded in <head>) ----------
+    window.__V916.deckDl = async function (cid) {
+        var r = (window.__sahuV80ArtReg || {})[cid];
+        if (!r || r.kind !== 'pptd') return;
+        try {
+            var blob = await buildPptx(r.spec);
+            r.blob = blob;
+            saveAs(blob, String(r.spec.title || 'deck').replace(/[^a-z0-9\-_ ]/gi, '').trim().replace(/\s+/g, '-').toLowerCase() + '.pptx');
+            showToast('PPTX downloaded (' + r.spec.slides.length + ' slides)');
+        } catch (e) {
+            showToast('PPTX build failed: ' + ((e && e.message) || e), 'error');
+        }
+    };
+
+    async function buildPptx(spec) {
+        if (!window.PptxGenJS) throw new Error('PptxGenJS not loaded');
+        var t = THEMES[spec.theme] || THEMES.professional;
+        var pres = new window.PptxGenJS();
+        pres.layout = 'LAYOUT_16x9';
+        pres.author = 'Manthan Agent';
+        pres.title = spec.title || 'Deck';
+        var total = spec.slides.length;
+        var deckTitle = spec.title || '';
+        var clean = function (x) { return String(x === undefined || x === null ? '' : x).replace(/\*\*/g, ''); };
+
+        spec.slides.forEach(function (s, idx) {
+            var slide = pres.addSlide();
+            slide.background = { color: t.bg };
+            if (s.notes) { try { slide.addNotes(String(s.notes).slice(0, 900)); } catch (e) {} }
+            if (s.type !== 'section' && idx > 0) {
+                slide.addText(clean(deckTitle).slice(0, 60), { x: 0.6, y: 5.22, w: 6, h: 0.3, fontSize: 8, fontFace: t.font, color: t.muted });
+                slide.addText((idx + 1) + ' / ' + total, { x: 8.9, y: 5.22, w: 0.8, h: 0.3, fontSize: 8, fontFace: t.font, color: t.muted, align: 'right' });
+            }
+            function bullets(arr, x, y, w, h, fs) {
+                var items = (arr || []).slice(0, 8).map(function (b) {
+                    return { text: clean(b).replace(/^[-*•]\s*/, '').slice(0, 160), options: { bullet: { code: '2022', indent: 10 }, breakLine: true, fontSize: fs, fontFace: t.font, color: t.ink, fit: 'shrink' } };
+                });
+                if (items.length) slide.addText(items, { x: x, y: y, w: w, h: h, valign: 'top' });
+            }
+            if (s.type === 'title') {
+                try { slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: 0.18, h: 5.625, fill: { color: t.accent } }); } catch (e) {}
+                slide.addText(clean(s.eyebrow || deckTitle).toUpperCase().slice(0, 60), { x: 0.85, y: 1.35, w: 8.3, h: 0.4, fontSize: 12, fontFace: t.font, color: t.accent, charSpacing: 3, bold: true });
+                slide.addText(clean(s.title).slice(0, 100), { x: 0.85, y: 1.8, w: 8.3, h: 1.6, fontSize: 40, bold: true, fontFace: t.font, color: t.ink, fit: 'shrink' });
+                if (s.subtitle) slide.addText(clean(s.subtitle).slice(0, 160), { x: 0.85, y: 3.5, w: 8.3, h: 0.8, fontSize: 16, fontFace: t.font, color: t.muted, fit: 'shrink' });
+            } else if (s.type === 'section') {
+                slide.background = { color: t.accent };
+                slide.addText('SECTION ' + (idx + 1), { x: 0.85, y: 1.7, w: 8.3, h: 0.4, fontSize: 12, fontFace: t.font, color: 'FFFFFF', charSpacing: 3, bold: true, transparency: 30 });
+                slide.addText(clean(s.title).slice(0, 90), { x: 0.85, y: 2.15, w: 8.3, h: 1.5, fontSize: 34, bold: true, fontFace: t.font, color: 'FFFFFF', fit: 'shrink' });
+                if (s.subtitle) slide.addText(clean(s.subtitle).slice(0, 150), { x: 0.85, y: 3.6, w: 8.3, h: 0.7, fontSize: 15, fontFace: t.font, color: 'FFFFFF', transparency: 25, fit: 'shrink' });
+            } else if (s.type === 'bullets') {
+                slide.addText(clean(s.title).slice(0, 90), { x: 0.6, y: 0.4, w: 8.8, h: 0.8, fontSize: 26, bold: true, fontFace: t.font, color: t.accent, fit: 'shrink' });
+                bullets(s.bullets, 0.85, 1.45, 8.3, 3.6, s.bullets.length > 6 ? 14 : 17);
+            } else if (s.type === 'two-col') {
+                slide.addText(clean(s.title).slice(0, 90), { x: 0.6, y: 0.4, w: 8.8, h: 0.8, fontSize: 26, bold: true, fontFace: t.font, color: t.accent, fit: 'shrink' });
+                [[s.left, 0.6], [s.right, 5.1]].forEach(function (pair) {
+                    var c = pair[0], x = pair[1];
+                    if (!c) return;
+                    slide.addText(clean(c.heading || '').slice(0, 60), { x: x, y: 1.4, w: 4.3, h: 0.45, fontSize: 15, bold: true, fontFace: t.font, color: t.accent2, fit: 'shrink' });
+                    bullets(c.bullets, x, 1.95, 4.3, 3.1, 13);
+                });
+            } else if (s.type === 'stats') {
+                if (s.title) slide.addText(clean(s.title).slice(0, 90), { x: 0.6, y: 0.45, w: 8.8, h: 0.8, fontSize: 26, bold: true, fontFace: t.font, color: t.accent, fit: 'shrink' });
+                var stats = (s.stats || []).slice(0, 4);
+                var w = 8.8 / Math.max(1, stats.length);
+                stats.forEach(function (st, i2) {
+                    slide.addText(clean(st.value).slice(0, 16), { x: 0.6 + i2 * w, y: 2.0, w: w - 0.2, h: 1.1, fontSize: 40, bold: true, fontFace: t.font, color: t.accent, align: 'center', fit: 'shrink' });
+                    slide.addText(clean(st.label).slice(0, 70), { x: 0.6 + i2 * w, y: 3.15, w: w - 0.2, h: 0.9, fontSize: 12, fontFace: t.font, color: t.muted, align: 'center', fit: 'shrink' });
+                });
+            } else if (s.type === 'quote') {
+                slide.addText('\u201C' + clean(s.quote).slice(0, 240) + '\u201D', { x: 1.0, y: 1.7, w: 8.0, h: 2.2, fontSize: 24, italic: true, fontFace: t.font, color: t.ink, align: 'center', valign: 'middle', fit: 'shrink' });
+                if (s.author) slide.addText('- ' + clean(s.author).slice(0, 70), { x: 1.0, y: 4.0, w: 8.0, h: 0.5, fontSize: 13, fontFace: t.font, color: t.muted, align: 'center' });
+            } else if (s.type === 'table') {
+                if (s.title) slide.addText(clean(s.title).slice(0, 90), { x: 0.6, y: 0.4, w: 8.8, h: 0.7, fontSize: 24, bold: true, fontFace: t.font, color: t.accent, fit: 'shrink' });
+                var header = (s.headers || []).slice(0, 8).map(function (h) { return { text: clean(h).slice(0, 60), options: { bold: true, color: 'FFFFFF', fill: { color: t.accent }, fontFace: t.font, fontSize: 12 } }; });
+                var rows = (s.rows || []).slice(0, 14).map(function (r) {
+                    return (r || []).slice(0, 8).map(function (c) { return { text: clean(c).slice(0, 80), options: { fontFace: t.font, fontSize: 11, color: t.ink } }; });
+                });
+                if (header.length) slide.addTable([header].concat(rows), { x: 0.6, y: 1.3, w: 8.8, fontSize: 11, border: { pt: 0.5, color: 'CBD5E1' }, autoPage: false, colW: header.length ? Array(header.length).fill(8.8 / header.length) : undefined });
+            }
+        });
+        return await pres.write({ outputType: 'blob' });
+    }
+})();
+
+
+// ---- v9.16 §4: PAGED PDF STUDIO - Paged.js A4 pagination + QA + print ----
+(function () {
+    var BASE_CSS = [
+        '@page { size: A4; margin: 20mm 16mm 22mm 16mm;',
+        '  @top-center { content: string(doctitle); font-family: Georgia, serif; font-size: 8.5pt; color: #6b7280; }',
+        '  @bottom-center { content: counter(page) " / " counter(pages); font-family: Georgia, serif; font-size: 8.5pt; color: #6b7280; }',
+        '}',
+        'html, body { margin: 0; padding: 0; }',
+        'body { font-family: Georgia, "Times New Roman", serif; font-size: 10.5pt; line-height: 1.55; color: #1f2937; }',
+        'h1 { string-set: doctitle content(text); font-size: 21pt; line-height: 1.2; margin: 0 0 8pt; color: #111827; }',
+        'h2 { font-size: 14pt; margin: 14pt 0 6pt; color: #111827; break-after: avoid; border-bottom: .5pt solid #d1d5db; padding-bottom: 2pt; }',
+        'h3 { font-size: 11.5pt; margin: 10pt 0 4pt; break-after: avoid; }',
+        'p { margin: 0 0 7pt; orphans: 2; widows: 2; }',
+        'ul, ol { margin: 0 0 7pt 0; padding-left: 16pt; }',
+        'li { margin-bottom: 2.5pt; }',
+        'table { width: 100%; border-collapse: collapse; font-size: 9pt; margin: 6pt 0 10pt; }',
+        'th, td { border: .5pt solid #9ca3af; padding: 3pt 5pt; text-align: left; vertical-align: top; }',
+        'th { background: #f3f4f6; font-weight: 700; }',
+        'blockquote { margin: 8pt 12pt; padding: 4pt 10pt; border-left: 2pt solid #9ca3af; color: #4b5563; font-style: italic; }',
+        'pre { background: #f5f5f4; padding: 6pt; font-size: 8.5pt; border: .5pt solid #e5e7eb; white-space: pre-wrap; font-family: "Courier New", monospace; }',
+        'code { font-family: "Courier New", monospace; font-size: 9pt; }',
+        'img { max-width: 100%; }',
+        'a { color: #1d4ed8; }',
+        'figure { break-inside: avoid; margin: 8pt 0; }',
+        'figcaption { font-size: 8.5pt; color: #6b7280; text-align: center; }'
+    ].join('\n');
+
+    function extractTitle(code) {
+        var m = code.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || code.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+        if (!m) return 'Document';
+        var t = String(m[1]).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        return t.slice(0, 80) || 'Document';
+    }
+
+    function buildDoc(code) {
+        // paged.js signals completion through PagedConfig.after(flow) - there is
+        // NO 'paged:rendered' DOM event (the emit("rendered") is an internal
+        // EventEmitter). The after-hook sets the attribute the parent polls.
+        return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+            '<style>' + BASE_CSS + '</style>' +
+            '</head><body class="v916-doc">' + code +
+            '<script>window.PagedConfig = { auto: true, after: function () { try { document.documentElement.setAttribute("data-v916-done", String(document.querySelectorAll(".pagedjs_page").length)); } catch (e) {} } };<\/script>' +
+            '<script src="' + SAHU_CDNS.pagedjs + '"><\/script>' +
+            '</body></html>';
+    }
+
+    window.__V916.pagedRender = async function (cid, el) {
+        var r = (window.__sahuV80ArtReg || {})[cid];
+        if (!r || r.kind !== 'pagedpdf') return;
+        el.innerHTML = '<div class="v80-loading">Paginating into A4 pages (Paged.js)…</div>';
+        try {
+            var code = String(r.code || '').trim();
+            if (!code) throw new Error('empty block');
+            if (/<script(?![^>]*src=)/i.test(code)) throw new Error('the document must not contain scripts - use pure HTML + CSS');
+            var title = extractTitle(code);
+            var doc = buildDoc(code);
+            var ifr = document.createElement('iframe');
+            ifr.setAttribute('data-v916-frame', '1');
+            ifr.style.cssText = 'width:794px;border:0;background:#fff;display:block;';
+            var holder = document.createElement('div');
+            holder.className = 'v916-pagedview';
+            el.innerHTML = '';
+            var head = '<div class="v916-sql-meta"><span><b>' + escapeHtml(title) + '</b></span><span id="' + cid + '-qa">paginating…</span></div>';
+            el.innerHTML = head;
+            el.appendChild(holder);
+            holder.appendChild(ifr);
+            ifr.srcdoc = doc;
+
+            var t0 = Date.now(), docEl = null, lastCount = -1, stableHits = 0;
+            while (Date.now() - t0 < 30000) {
+                await new Promise(function (res) { setTimeout(res, 400); });
+                try {
+                    var d = ifr.contentDocument;
+                    if (d && d.documentElement && d.documentElement.getAttribute('data-v916-done')) { docEl = d; break; }
+                    // stability fallback: page count unchanged across 3 polls -> done
+                    if (d) {
+                        var cnt = d.querySelectorAll('.pagedjs_page').length;
+                        if (cnt > 0 && cnt === lastCount) { stableHits++; if (stableHits >= 3) { docEl = d; break; } }
+                        else { stableHits = 0; lastCount = cnt; }
+                    }
+                } catch (e) {}
+            }
+            if (!docEl) {
+                try { ifr.remove(); } catch (e) {}
+                throw new Error('pagination timed out (the Paged.js CDN may be unreachable)');
+            }
+            var pages = docEl.querySelectorAll('.pagedjs_page');
+            if (!pages.length) throw new Error('no pages were produced');
+            // layout QA: horizontal overflow inside any page content area
+            var bad = [];
+            pages.forEach(function (p, i) {
+                var c = p.querySelector('.pagedjs_page_content') || p;
+                if (c.scrollWidth > c.clientWidth + 3 || c.scrollHeight > c.clientHeight + 3) bad.push(i + 1);
+            });
+            var qa = document.getElementById(cid + '-qa');
+            if (qa) {
+                if (bad.length) { qa.className = 'v916-qa-bad'; qa.innerHTML = '<i class="fas fa-triangle-exclamation"></i> ' + pages.length + ' pages · overflow on page(s) ' + bad.join(', ') + ' (ask the model to fix)'; }
+                else { qa.className = 'v916-qa-ok'; qa.innerHTML = '<i class="fas fa-circle-check"></i> ' + pages.length + ' pages · layout check passed'; }
+            }
+            // size the iframe to its content (scaled by CSS transform)
+            try { ifr.style.height = Math.max(1123, docEl.body.scrollHeight + 4) + 'px'; } catch (e) { ifr.style.height = (pages.length * 1123) + 'px'; }
+            r.printFrame = ifr;
+            r.standalone = doc;
+            var btns = document.createElement('div');
+            btns.className = 'v80-card-btns';
+            btns.innerHTML = '<button class="v80-btn" onclick="window.__V916.pagedPrint(\'' + cid + '\')"><i class="fas fa-print"></i> Save as PDF</button>' +
+                '<button class="v80-btn" onclick="window.__V916.pagedOpen(\'' + cid + '\')"><i class="fas fa-up-right-from-square"></i> Open full size</button>' +
+                '<button class="v80-btn" onclick="window.__V916.pagedDlHtml(\'' + cid + '\')"><i class="fas fa-download"></i> Download HTML</button>';
+            el.appendChild(btns);
+        } catch (e) {
+            el.innerHTML = '<div class="v80-err">pagedpdf error: ' + escapeHtml(String((e && e.message) || e).slice(0, 240)) + '</div>';
+        }
+    };
+
+    window.__V916.pagedPrint = function (cid) {
+        try {
+            var r = (window.__sahuV80ArtReg || {})[cid];
+            if (!r || !r.printFrame) { showToast('Document not ready', 'error'); return; }
+            r.printFrame.contentWindow.focus();
+            r.printFrame.contentWindow.print();
+        } catch (e) { showToast('Print failed: ' + ((e && e.message) || e), 'error'); }
+    };
+    window.__V916.pagedOpen = function (cid) {
+        try {
+            var r = (window.__sahuV80ArtReg || {})[cid];
+            if (!r || !r.standalone) { showToast('Document not ready', 'error'); return; }
+            var url = URL.createObjectURL(new Blob([r.standalone], { type: 'text/html' }));
+            window.open(url, '_blank');
+            setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+        } catch (e) { showToast('Open failed: ' + ((e && e.message) || e), 'error'); }
+    };
+    window.__V916.pagedDlHtml = function (cid) {
+        try {
+            var r = (window.__sahuV80ArtReg || {})[cid];
+            if (!r || !r.standalone) { showToast('Document not ready', 'error'); return; }
+            saveAs(new Blob([r.standalone], { type: 'text/html' }), 'document.html');
+        } catch (e) { showToast('Download failed', 'error'); }
+    };
+})();
+
+
+// ---- v9.16 §5: LIVE VOICE INPUT - always-available mic + live transcription ----
+(function () {
+    var SR = null;
+    try { SR = window.SpeechRecognition || window.webkitSpeechRecognition || null; } catch (e) {}
+
+    function voiceOn() {
+        try { return (state.enabledSkills || []).indexOf('voice_input') >= 0; } catch (e) { return false; }
+    }
+
+    function micBtnHtml() {
+        return '<button type="button" id="v916MicBtn" class="chatbar-btn v916-micbtn" title="Live voice input (dictate into your message)" onclick="window.__V916.micToggle()" style="display:none;">' +
+            '<i class="fas fa-microphone-lines"></i></button>';
+    }
+
+    window.__V916.mountMic = function () {
+        try {
+            var existing = document.getElementById('v916MicBtn');
+            var toolsBtn = document.getElementById('toolsBtn');
+            if (!toolsBtn) return;
+            var show = !!(voiceOn() && SR);
+            if (!existing) {
+                toolsBtn.insertAdjacentHTML('afterend', micBtnHtml());
+                existing = document.getElementById('v916MicBtn');
+            }
+            if (existing) existing.style.display = show ? '' : 'none';
+        } catch (e) {}
+    };
+
+    window.__V916.micUi = function (listening) {
+        var b = document.getElementById('v916MicBtn');
+        if (!b) return;
+        if (listening) b.classList.add('v916-listening');
+        else b.classList.remove('v916-listening');
+    };
+
+    function caretEnd(ta) {
+        try { var n = ta.value.length; ta.setSelectionRange(n, n); } catch (e) {}
+    }
+
+    // shared live-dictation engine (used by the mic button AND the
+    // redefined fallbackBrowserSTT below - the legacy Whisper path falls
+    // back here when the cloud transcription is unavailable)
+    window.__V916.liveDictate = function (opts) {
+        opts = opts || {};
+        if (!SR) {
+            showToast('Live speech recognition is not available in this browser', 'error');
+            return;
+        }
+        if (window.__V916.rec) { try { window.__V916.rec.stop(); } catch (e) {} return; }
+        var input = document.getElementById('userInput');
+        var base = (input && !opts.replace) ? String(input.value || '') : '';
+        if (base && !/\s$/.test(base)) base += ' ';
+        var rec = new SR();
+        rec.lang = (typeof state !== 'undefined' && state.language) ? state.language : 'en-US';
+        rec.interimResults = true;
+        rec.continuous = !!opts.continuous;
+        rec.maxAlternatives = 1;
+        var finalTxt = '';
+        rec.onresult = function (ev) {
+            var interim = '';
+            for (var i = ev.resultIndex; i < ev.results.length; i++) {
+                var t = ev.results[i][0].transcript;
+                if (ev.results[i].isFinal) finalTxt += t + (/\s$/.test(t) ? '' : ' ');
+                else interim += t;
+            }
+            if (input) {
+                input.value = base + finalTxt + interim;
+                try { autoResize(input); } catch (e) {}
+                try { updateDynamicButton(); } catch (e) {}
+            }
+        };
+        rec.onend = function () {
+            window.__V916.rec = null;
+            window.__V916.micUi(false);
+            if (input) {
+                input.value = (base + finalTxt).replace(/\s+$/, '');
+                try { autoResize(input); updateDynamicButton(); input.focus(); caretEnd(input); } catch (e) {}
+            }
+            if (finalTxt.trim()) showToast('Voice captured: ' + finalTxt.trim().slice(0, 60) + (finalTxt.trim().length > 60 ? '…' : ''), 'success');
+            else showToast('No speech heard - try again');
+        };
+        rec.onerror = function (ev) {
+            window.__V916.rec = null;
+            window.__V916.micUi(false);
+            var err = String(ev.error || '');
+            if (err === 'not-allowed' || err === 'service-not-allowed') showToast('Microphone permission denied - allow mic access in the browser', 'error');
+            else if (err === 'no-speech') showToast('No speech heard');
+            else if (err === 'network') showToast('Speech service unreachable (browser STT needs connectivity) - falling back to Whisper flow', 'warning');
+            else if (err !== 'aborted') showToast('Voice input error: ' + err, 'error');
+        };
+        window.__V916.rec = rec;
+        try {
+            rec.start();
+            window.__V916.micUi(true);
+            showToast('Listening - speak now (click again to stop)');
+        } catch (e) {
+            window.__V916.rec = null;
+            window.__V916.micUi(false);
+        }
+    };
+
+    window.__V916.micToggle = function () {
+        if (window.__V916.rec) { try { window.__V916.rec.stop(); } catch (e) {} return; }
+        window.__V916.liveDictate({ continuous: true });
+    };
+
+    // upgrade the LEGACY fallback (Whisper path) to live + append mode too
+    try {
+        fallbackBrowserSTT = function () { window.__V916.liveDictate({ continuous: false }); };
+    } catch (e) {}
+
+    // re-mount the mic button whenever the chatbar re-renders
+    try {
+        var mo = new MutationObserver(function () { window.__V916.mountMic(); });
+        var ib = document.getElementById('inputBox');
+        if (ib) mo.observe(ib, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded', function () {
+            window.__V916.mountMic();
+            var ib2 = document.getElementById('inputBox');
+            if (ib2) { try { mo.disconnect(); } catch (e) {} mo.observe(ib2, { childList: true, subtree: true }); }
+        });
+        setTimeout(function () { window.__V916.mountMic(); }, 2500);
+    } catch (e) {}
+})();
+
+
+// ---- v9.16 §6: VISION INPUT - broad detection + badge + guidance ----
+window._sahuIsVisionModel = function (modelId) {
+    var m = String(modelId || '').toLowerCase();
+    if (!m) return false;
+    var PATTERNS = [
+        'vision', '-vl', 'vl-', '4.6v', 'glm-4v', 'glm-5v', 'gpt-4o', 'gpt-4.1', 'gpt-4v',
+        'gpt-5', 'o3', 'o4-mini', 'claude', 'gemini', 'llama-4', 'llama4', 'llama-3.2-90b',
+        'gemma-3n', 'gemma-4', 'kimi-k', 'kimi-v', 'ernie', 'deepseek-ocr', 'deepseek-vl',
+        'pixtral', 'mistral-small-4', 'qwen-vl', 'qwen2-vl', 'qwen2.5-vl', 'qwen3-vl',
+        'qwen3.5-vl', 'qwen3.5-397b', 'qwen3.5-122b', 'phi-3.5-vision', 'phi-4-multimodal',
+        'llava', 'internvl', 'minicpm-v', 'molmo', 'idefics', 'cogvlm', 'gpt-4-turbo'
+    ];
+    for (var i = 0; i < PATTERNS.length; i++) {
+        if (m.indexOf(PATTERNS[i]) >= 0) return true;
+    }
+    return false;
+};
+
+(function () {
+    function visionOn() {
+        try { return (state.enabledSkills || []).indexOf('vision_input') >= 0; } catch (e) { return false; }
+    }
+
+    // attach-time guidance: tell the user whether the current models can see
+    window.__V916.visionUploadNote = function () {
+        try {
+            if (!state.uploadedImageBase64) return;
+            if (!visionOn()) return;
+            var sel = state.selectedModels || [];
+            if (!sel.length) return;
+            var cap = sel.filter(function (m2) { return window._sahuIsVisionModel(m2.modelId); }).length;
+            if (cap > 0) showToast('Image attached - ' + cap + ' of ' + sel.length + ' selected model' + (cap === 1 ? '' : 's') + ' can see it', 'success');
+            else showToast('No vision-capable model selected - switch to e.g. Gemini, Claude, GLM-4.6V, GPT-5.x or Kimi to analyze the image', 'warning');
+        } catch (e) {}
+    };
+
+    // wrap handleFileUpload: run the note AFTER the original completes
+    try {
+        var _origHFU = handleFileUpload;
+        handleFileUpload = async function (ev) {
+            await _origHFU(ev);
+            try { window.__V916.visionUploadNote(); } catch (e) {}
+        };
+    } catch (e) {}
+
+    // wrap callModelWithFallback: inject the image-analysis protocol when a
+    // vision model receives an image (messages are cloned inside the
+    // original, so mutating the array beforehand is safe)
+    try {
+        var _origCMWF = callModelWithFallback;
+        callModelWithFallback = async function (providerKey, modelId, messages, retryCount, onToken) {
+            try {
+                if (state.uploadedImageBase64 && visionOn() && window._sahuIsVisionModel(modelId) && Array.isArray(messages) && messages.length) {
+                    var GUIDE = '\n\n[VISION INPUT PROTOCOL - v9.16]: The user attached an image; it is delivered to you as an image part in the last user message. Work through it IN ORDER: (1) LAYOUT - describe what kind of image it is and its overall structure in one or two sentences; (2) TEXT - read out every piece of visible text verbatim (labels, titles, axis labels, buttons, error messages, handwriting) unless the user asked you to skip it; (3) DATA - extract any numbers, tables, chart values or relationships into a clean list or table; (4) ANSWER - address the user\'s actual question using what you extracted; (5) HONESTY - if a region is blurry, cut off or unreadable, say exactly what you cannot read - NEVER invent details, values or text you cannot see.';
+                    var sys = messages[0];
+                    if (sys && sys.role === 'system' && typeof sys.content === 'string') sys.content += GUIDE;
+                }
+            } catch (e) {}
+            return _origCMWF(providerKey, modelId, messages, retryCount, onToken);
+        };
+    } catch (e) {}
+
+    // vision badge on every capable model card in the picker
+    window.__V916.badgeModels = function () {
+        try {
+            var host = document.getElementById('modelSelectorContent');
+            if (!host) return;
+            // map display name -> modelId from the provider tables
+            var nameToId = {};
+            function collect(pk, provider) {
+                var models = Object.assign({}, (provider && provider.models) || {}, (state.dynamicModels && state.dynamicModels[pk]) || {});
+                Object.keys(models).forEach(function (k) { nameToId[k] = models[k]; });
+            }
+            Object.keys((typeof PROVIDERS !== 'undefined' ? PROVIDERS : {})).forEach(function (pk) { collect(pk, PROVIDERS[pk]); });
+            (state.customProviders || []).forEach(function (p2) { collect(p2.id, p2); });
+            host.querySelectorAll('.model-card .model-name').forEach(function (nm) {
+                if (nm.querySelector('.v916-vbadge')) return;
+                var key = (nm.textContent || '').trim();
+                var mid = nameToId[key];
+                if (mid && window._sahuIsVisionModel(mid)) {
+                    var b = document.createElement('span');
+                    b.className = 'v916-vbadge';
+                    b.title = 'Vision - this model can see attached images';
+                    b.textContent = '👁';
+                    nm.appendChild(b);
+                }
+            });
+        } catch (e) {}
+    };
+    try {
+        var _origRMS = renderModelSelector;
+        renderModelSelector = function () {
+            _origRMS();
+            window.__V916.badgeModels();
+        };
+    } catch (e) {}
+})();
+
+
+// ---- v9.16 §7: prompt wiring - directive lines into the agent loop ----
+(function () {
+    var _origBSLP = buildSearchLoopPrompt;
+    buildSearchLoopPrompt = function () {
+        var s = _origBSLP();
+        try {
+            var has = function (id) { return (state.enabledSkills || []).indexOf(id) >= 0; };
+            var L = [];
+            if (has('sql_sandbox')) {
+                L.push('SQL: <statement> - REAL SQLite execution in your browser (sql.js, keyless). FIRST load data with SQL[load=<attached file>]: <tablename> - any attached CSV becomes a real table (XLSX loads its first sheet, JSON arrays work too; column types are inferred). Then run any SQLite: SELECT with JOIN/GROUP BY/window functions, CREATE TABLE, INSERT, EXPLAIN QUERY PLAN. The database persists for the whole session; several SQL lines run sequentially (load -> query -> refine chains work). Results return as real rows.');
+            }
+            if (has('deck_studio')) {
+                L.push('HIGH-FIDELITY DECKS - for any presentation/deck/slides request, output ONE fenced block:\n```pptd\n{"title":"Deck title","theme":"professional|editorial|dark|minimal|vibrant","slides":[{"type":"title","title":"...","subtitle":"..."},{"type":"section","title":"..."},{"type":"bullets","title":"...","bullets":["..."],"notes":"speaker notes"},{"type":"two-col","title":"...","left":{"heading":"...","bullets":[...]},"right":{"heading":"...","bullets":[...]}},{"type":"stats","title":"...","stats":[{"value":"87%","label":"..."}]},{"type":"quote","quote":"...","author":"..."},{"type":"table","title":"...","headers":["..."],"rows":[[...]]}]}\n```\nRules: 2-30 slides; the JSON must be valid (no comments, no trailing commas); max 8 short bullets per slide (deck style, not paragraphs); notes become real PPTX speaker notes; every slide gets the theme footer + page number automatically. The user gets a styled slide preview AND a real .pptx download. Use this INSTEAD of FILE[pptx] whenever the deck matters visually; sequence: title slide -> sections with bullets/stats/tables -> closing.');
+            }
+            if (has('pdf_studio')) {
+                L.push('PRINT-GRADE PDF - for documents meant to be printed or shared formally (reports, letters, papers, one-pagers, assignments), output ONE fenced block:\n```pagedpdf\n<h1>Document title</h1>\n<h2>Section</h2>\n<p>...</p>\n```\nRules: ONE self-contained HTML fragment - semantic tags only (h1/h2/h3, p, ul/ol, table, blockquote, pre, figure, img); the first h1 becomes the running header on every page; page numbers are automatic (A4); an optional inline <style> block may restyle fonts/colors (classes + tag selectors only, NO scripts, no external CSS); use pre/code for code, tables for data. The engine paginates it into real A4 pages, runs a layout QA check (overflow detection) and gives the user a page-by-page preview + one-click Save-as-PDF + HTML download. Use this INSTEAD of FILE[pdf] whenever the document must look print-grade.');
+            }
+            if (has('vision_input')) {
+                L.push('VISION - the user can attach images (photos, screenshots, charts, scans, whiteboards). Vision-capable models receive them natively as image parts; follow the [VISION INPUT PROTOCOL] (layout -> read all text verbatim -> extract data -> answer -> honesty about unreadable parts). If you did NOT receive an image part, say so - never pretend to see one, and never guess what a missing image contains.');
+            }
+            if (L.length) {
+                var mk = 'How you work:';
+                var ins = '\n' + L.join('\n') + '\n';
+                s = (s.indexOf(mk) >= 0) ? s.replace(mk, ins + mk) : (s + ins);
+            }
+        } catch (e) {}
+        return s;
+    };
+})();
+
+// ---- v9.16 §8: extractor + dispatcher + enhancer wraps ----
+(function () {
+    // extractor: SQL directives (fence-stripped text, order preserved)
+    var _origExtract = _sahuV80Extract;
+    _sahuV80Extract = function (text, on) {
+        var reqs = _origExtract(text, on);
+        try {
+            if (on('sql_sandbox')) {
+                var bare = String(text || '').replace(/```[\s\S]*?```/g, function (m) { return '\n'.repeat((m.match(/\n/g) || []).length); });
+                var lines = bare.split(/\n/);
+                var seenSql = {};
+                for (var i = 0; i < lines.length; i++) {
+                    var m = lines[i].match(/^[\s\-*_>#`]*SQL\s*(?:\[\s*load\s*=\s*([^\]]+?)\s*\])?\s*:\s*(.+?)\s*$/i);
+                    if (!m) continue;
+                    var loadRef = (m[1] || '').trim() || null;
+                    var stmt = (m[2] || '').trim();
+                    // a pure table name after load=, else a statement
+                    var key = (loadRef || '') + '::' + stmt;
+                    if (seenSql[key]) continue;
+                    seenSql[key] = 1;
+                    reqs.push({ k: 'v916_sql', a: stmt, x: { load: loadRef } });
+                }
+            }
+        } catch (e) {}
+        return reqs;
+    };
+    window._sahuV80Extract = _sahuV80Extract;
+
+    // dispatcher: route the SQL case, delegate everything else
+    var _origRun = _sahuV80Run;
+    _sahuV80Run = async function (req, ctx) {
+        if (req && req.k === 'v916_sql') {
+            return await window.__V916.sqlTool(req.a, ctx, (req.x && req.x.load) || null);
+        }
+        return _origRun(req, ctx);
+    };
+    window._sahuV80Run = _sahuV80Run;
+
+    // enhancer: render pptd + pagedpdf fences, delegate the rest
+    var _origEnh = sahuV80EnhanceArtifacts;
+    sahuV80EnhanceArtifacts = async function () {
+        await _origEnh();
+        try {
+            var pend = Object.keys(window.__sahuV80ArtReg).filter(function (k) {
+                var r = window.__sahuV80ArtReg[k];
+                return (r.kind === 'pptd' || r.kind === 'pagedpdf') && !r.done;
+            });
+            for (var i = 0; i < pend.length; i++) {
+                var cid = pend[i];
+                var r = window.__sahuV80ArtReg[cid];
+                var el = document.getElementById(cid);
+                if (!el) continue;
+                r.done = true;
+                if (r.kind === 'pptd') {
+                    try {
+                        var spec = JSON.parse(r.code);
+                        var err = window.__V916.deckValidate(spec);
+                        if (err) throw new Error(err);
+                        r.spec = spec;
+                        el.innerHTML = window.__V916.deckPreview(cid, spec);
+                    } catch (e) {
+                        el.innerHTML = '<div class="v80-err">pptd error: ' + escapeHtml(String((e && e.message) || e).slice(0, 240)) + ' - ask the model to fix the JSON and re-emit the block. Schema: {"title","theme","slides":[{"type":"title|section|bullets|two-col|stats|quote|table",...}]}</div>';
+                    }
+                } else if (r.kind === 'pagedpdf') {
+                    await window.__V916.pagedRender(cid, el);
+                }
+            }
+        } catch (e) {}
+    };
+    window.sahuV80EnhanceArtifacts = sahuV80EnhanceArtifacts;
+})();
+
+// ---- v9.16 §9: bonus fix - IMG "Download PNG" was a silent no-op ----
+// (the button called sahuV80Dl which requires r.blob, but img cards never
+//  registered one). Fetch the image once and cache it as the blob.
+(function () {
+    var _origDl = sahuV80Dl;
+    sahuV80Dl = async function (id, name) {
+        try {
+            var r = (window.__sahuV80ArtReg || {})[id];
+            if (r && r.kind === 'img' && r.url && !r.blob) {
+                var resp = await fetch(r.url);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                r.blob = await resp.blob();
+            }
+        } catch (e) {
+            showToast('Image download failed - right-click the image and use "Save image as"', 'error');
+            return;
+        }
+        return _origDl(id, name);
+    };
+})();
+
+// ---- v9.16 §10: migration - seed the new skills for existing users ----
+(function () {
+    function migrate() {
+        try {
+            if (state._v916Skills) return;
+            var set = {};
+            (state.enabledSkills || []).forEach(function (id) { set[id] = 1; });
+            // enable the 5 new core skills (they exist in SAHU_SKILLS - pushed in §1b)
+            V916_SKILL_IDS.forEach(function (id) {
+                if (SAHU_SKILLS.some(function (s) { return s.id === id; })) set[id] = 1;
+            });
+            // seed + enable ONLY the 7 NEW library skills (one-time flag;
+            // a library skill the user deliberately deleted stays deleted)
+            var V916_LIB_IDS = ['lib_code_diagram', 'lib_backend_build', 'lib_webapp_build', 'lib_vibe_swarm', 'lib_swarm_workspace', 'lib_skill_swarm', 'lib_find_skills'];
+            if (!Array.isArray(state.customSkills)) state.customSkills = [];
+            var have = {};
+            state.customSkills.forEach(function (s) { if (s && s.id) have[s.id] = 1; });
+            var byId = {};
+            SAHU_V80_LIB_SKILLS.forEach(function (s) { byId[s.id] = s; });
+            V916_LIB_IDS.forEach(function (id) {
+                if (byId[id] && !have[id]) {
+                    state.customSkills.push(Object.assign({}, byId[id]));
+                    have[id] = 1;
+                }
+            });
+            V916_LIB_IDS.forEach(function (id) { if (have[id]) set[id] = 1; });
+            // rebuild in a stable order: base skills -> core extras -> library
+            var ordered = [];
+            SAHU_SKILLS.forEach(function (s) { if (set[s.id]) ordered.push(s.id); });
+            Object.keys(set).forEach(function (id) { if (ordered.indexOf(id) < 0) ordered.push(id); });
+            state.enabledSkills = ordered;
+            state._v916Skills = true;
+            try { saveState(); } catch (e) {}
+            console.log('%c[v9.16] Skill Wave migration: +5 core skills, +7 library skills', 'color:#059669');
+        } catch (e) { console.warn('v9.16 migration failed:', e); }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(migrate, 0); });
+    } else {
+        setTimeout(migrate, 0);
+    }
+})();
+
+// ---- v9.16 §11: boot ----
+(function () {
+    function boot() {
+        try { window.__V916.mountMic(); } catch (e) {}
+        try { console.log('%c[v9.16] Skill Wave mounted: SQL Sandbox - Deck Studio (PPTD) - Paged PDF - Live Voice - Vision Input + 7 engineering library skills (65 skills total)', 'color:#7c3aed;font-weight:600'); } catch (e) {}
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 60); });
+    else setTimeout(boot, 60);
 })();
 
 </script>
