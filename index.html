@@ -16948,4 +16948,662 @@ try { sahuSetRLv(window.__sahuRLv || 'normal'); } catch (e) {}
 })();
 try { window.renderInputModeTags(); } catch (e) {}
 </script>
+<script id="v95-research-tiers">
+// =====================================================================
+// v9.13 RESEARCH TIERS — three real research engines for Research mode.
+//
+//   Normal   → ⚡ MINIMAX-style engine   (quick grounded research:
+//                                       one parallel fan-out wave, minimal
+//                                       roundtrips, concise cited report)
+//   Advanced → 🧠 KIMI-RESEARCHER-style  (agentic: atomic decomposition,
+//                                       parallel browsing, ABANDON back-
+//                                       tracking, REFLECT checkpoints,
+//                                       VERIFY cross-validation, trail)
+//   Ultra    → 💎 GPT-DEEP-RESEARCH-style (plan-first, long autonomous
+//                                       browsing, citation chaining,
+//                                       exhaustive cross-checks, long
+//                                       structured report + confidence)
+//
+// Zero backend: reuses the app's own searchWeb / scrapePageContent /
+// callModelWithFallback / sahuSafeCalc plumbing. Mounted as a late script
+// that overrides window.runDeepResearch (the legacy consensus pipeline
+// stays intact as a fallback).
+// =====================================================================
+(function () {
+    'use strict';
+    if (window.__sahuResearchTiers) return; // idempotent
+    window.__sahuResearchTiers = true;
+
+    // ---------------- CSS ----------------
+    var CSS = '' +
+        '.v95-shell{border:1px solid var(--border,#e5e7eb);border-radius:14px;overflow:hidden;margin:.25rem 0 .5rem;background:var(--bg-secondary,#fff)}' +
+        '.v95-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .8rem;border-bottom:1px solid var(--border,#e5e7eb);background:var(--bg-tertiary,rgba(127,127,127,.08));flex-wrap:wrap}' +
+        '.v95-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;padding:.22rem .6rem;border-radius:999px;color:#fff;white-space:nowrap}' +
+        '.v95-b-normal{background:linear-gradient(135deg,#f59e0b,#f97316)}' +
+        '.v95-b-advanced{background:linear-gradient(135deg,#7c3aed,#4f46e5)}' +
+        '.v95-b-ultra{background:linear-gradient(135deg,#0e7490,#155e75)}' +
+        '.v95-lvl{font-size:.7rem;color:var(--text-secondary,#6b7280);font-weight:600}' +
+        '.v95-timer{margin-left:auto;font-size:.7rem;font-variant-numeric:tabular-nums;color:var(--text-secondary,#6b7280);display:inline-flex;gap:.3rem;align-items:center}' +
+        '.v95-timer.done{color:var(--accent,#4f46e5);font-weight:700}' +
+        '.v95-plan{padding:.5rem .8rem;border-bottom:1px dashed var(--border,#e5e7eb)}' +
+        '.v95-plan-title{font-size:.72rem;font-weight:700;color:var(--text-primary,#111);margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem}' +
+        '.v95-plan-title .v95-pcount{margin-left:auto;font-weight:600;color:var(--accent,#4f46e5);font-variant-numeric:tabular-nums}' +
+        '.v95-plan ol{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.22rem}' +
+        '.v95-plan li{font-size:.75rem;color:var(--text-primary,#111);line-height:1.35;list-style:none;position:relative;padding-left:1.05rem}' +
+        '.v95-plan li::before{content:"\\f0c8";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;left:0;top:0;font-size:.6rem;color:var(--text-secondary,#9ca3af)}' +
+        '.v95-plan li.done{color:var(--text-secondary,#6b7280);text-decoration:line-through;text-decoration-color:rgba(127,127,127,.5)}' +
+        '.v95-plan li.done::before{content:"\\f14a";color:#10b981}' +
+        '.v95-act{border-bottom:1px solid var(--border,#e5e7eb)}' +
+        '.v95-act summary{cursor:pointer;padding:.45rem .8rem;font-size:.72rem;font-weight:600;color:var(--text-secondary,#6b7280);display:flex;align-items:center;gap:.4rem;user-select:none;list-style:none}' +
+        '.v95-act summary::-webkit-details-marker{display:none}' +
+        '.v95-act summary::after{content:"\\f078";font-family:"Font Awesome 6 Free";font-weight:900;font-size:.55rem;margin-left:auto;transition:transform .15s}' +
+        '.v95-act[open] summary::after{transform:rotate(180deg)}' +
+        '.v95-steps{max-height:210px;overflow-y:auto;padding:.1rem .8rem .55rem;display:flex;flex-direction:column;gap:.18rem}' +
+        '.v95-step{font-size:.7rem;line-height:1.35;color:var(--text-secondary,#6b7280);display:flex;gap:.4rem;align-items:flex-start;word-break:break-word}' +
+        '.v95-step i{width:.95rem;text-align:center;flex:none;margin-top:.06rem}' +
+        '.v95-step .v95-sub{display:block;margin-left:1.35rem;opacity:.85}' +
+        '.v95-step .v95-time{margin-left:auto;flex:none;font-size:.6rem;opacity:.7;font-variant-numeric:tabular-nums}' +
+        '.v95-status{padding:.5rem .8rem;font-size:.75rem;color:var(--accent,#4f46e5);display:flex;align-items:center;gap:.45rem;border-bottom:1px dashed var(--border,#e5e7eb)}' +
+        '.v95-status .v95-dot{width:.45rem;height:.45rem;border-radius:999px;background:var(--accent,#4f46e5);animation:v95pulse 1.1s ease-in-out infinite;flex:none}' +
+        '.v95-status.done{color:var(--text-secondary,#6b7280)}.v95-status.done .v95-dot{animation:none;background:#10b981}' +
+        '.v95-status.stop{color:var(--text-secondary,#6b7280)}.v95-status.stop .v95-dot{animation:none;background:#f59e0b}' +
+        '@keyframes v95pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}' +
+        '.v95-report{padding:.7rem .85rem .4rem}' +
+        '.v95-meta{font-size:.68rem;color:var(--text-secondary,#9ca3af);padding:.3rem .85rem .5rem;display:flex;gap:.6rem;flex-wrap:wrap}' +
+        '.v95-kv{display:inline-flex;align-items:center;gap:.25rem}';
+    try { document.head.insertAdjacentHTML('beforeend', '<style id="v95-research-css">' + CSS + '</style>'); } catch (e) {}
+
+    // ---------------- tier configs ----------------
+    var TIERS = {
+        normal: {
+            key: 'normal', label: 'Normal', engine: 'MiniMax Engine', fa: 'bolt', emoji: '\u26a1',
+            style: 'quick grounded research',
+            maxTurns: 5, maxToolRuns: 18, srcChars: 2600, perSearch: 12, maxSrc: 16,
+            plan: false, step: false, reflect: false, abandon: false, verify: false,
+            words: '600-1200'
+        },
+        advanced: {
+            key: 'advanced', label: 'Advanced', engine: 'Kimi Researcher', fa: 'brain', emoji: '\ud83e\udde0',
+            style: 'agentic research: decompose, browse in parallel, backtrack, reflect, cross-verify',
+            maxTurns: 12, maxToolRuns: 45, srcChars: 4200, perSearch: 16, maxSrc: 30,
+            plan: true, step: false, reflect: true, abandon: true, verify: true,
+            words: '1500-2500'
+        },
+        ultra: {
+            key: 'ultra', label: 'Ultra', engine: 'GPT Deep Research', fa: 'gem', emoji: '\ud83d\udc8e',
+            style: 'maximum-depth deep research: plan first, browse long, chain citations, cross-check everything',
+            maxTurns: 20, maxToolRuns: 90, srcChars: 6000, perSearch: 20, maxSrc: 48,
+            plan: true, step: true, reflect: true, abandon: true, verify: true,
+            words: '2500-4000+'
+        }
+    };
+
+    // ---------------- helpers ----------------
+    function esc(s) {
+        return String(s === null || s === undefined ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function mmss(ms) {
+        var s = Math.max(0, Math.floor(ms / 1000));
+        return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    }
+    function engOnSet() {
+        try {
+            var all = Object.keys(SEARCH_ENGINES_CONFIG).concat((state.customSearchEngines || []).map(function (e) { return e.id; }));
+            var none = (state.activeSearchEngines || []).includes('__none__');
+            var raw = (state.activeSearchEngines || []).filter(function (k) { return k !== '__none__'; });
+            return new Set(none ? [] : (raw.length > 0 ? raw : all));
+        } catch (e) { return new Set(); }
+    }
+    function engineMenuText() {
+        try {
+            var _on = engOnSet();
+            var lines = [], cats = [];
+            Object.keys(SEARCH_ENGINE_CATEGORIES).forEach(function (cat) {
+                var ks = SEARCH_ENGINE_CATEGORIES[cat].filter(function (k) { return _on.has(k); });
+                if (!ks.length) return;
+                cats.push(cat);
+                lines.push('- ' + (SEARCH_CATEGORY_NAMES[cat] || cat) + ': ' + ks.join(', '));
+            });
+            (state.customSearchEngines || []).forEach(function (e) { if (e && e.id && _on.has(e.id)) lines.push('- Custom: ' + e.id); });
+            return lines.length
+                ? 'Category keys (a category runs EVERY enabled engine in it): ' + cats.join(', ') + '\nEngine menu (the ONLY enabled keys) - pick ONE key per separate SEARCH line:\n' + lines.join('\n')
+                : 'No search engines are enabled in Settings right now: do NOT output SEARCH lines - answer from the seed context and your knowledge, and say so honestly in the report.';
+        } catch (e) { return 'No search engines are enabled in Settings right now: do NOT output SEARCH lines.'; }
+    }
+    function twoEngines() {
+        var _on = engOnSet(), picks = [];
+        try {
+            Object.keys(SEARCH_ENGINE_CATEGORIES).forEach(function (cat) {
+                var ks = SEARCH_ENGINE_CATEGORIES[cat].filter(function (k) { return _on.has(k); });
+                if (ks.length && picks.indexOf(ks[0]) < 0) picks.push(ks[0]);
+                if (picks.length === 2) return;
+            });
+        } catch (e) {}
+        if (!picks.length) picks = ['wikipedia'];
+        return picks.slice(0, 2);
+    }
+
+    // ---------------- per-tier system prompts ----------------
+    function buildTierPrompt(t) {
+        var L = [];
+        L.push('You are ' + t.engine + ', the ' + t.label + '-level research engine of this app (' + t.style + ').');
+        L.push('');
+        L.push('YOUR TOOLS - output a line in EXACTLY this format to use one (several lines in one turn all run in parallel):');
+        L.push('SEARCH[key]: <query> - run ONE search. key = ONE enabled engine (e.g. SEARCH[wikipedia]:) or ONE whole category (e.g. SEARCH[standard]:). Several SEPARATE SEARCH lines run in parallel - one key per line.');
+        L.push('READ: <url> - read the full text of a promising page (dig deeper).');
+        L.push('FETCH: <url> - raw fetch of a URL (articles, APIs, files).');
+        L.push('BROWSE: <url> - quick summary of a page PLUS the links it contains (use it to follow citation chains).');
+        L.push('CALC: <expression> - exact math (percentages, sums, growth rates) - use it for any arithmetic in your report.');
+        if (t.plan) L.push('PLAN: - a block of numbered lines right after this marker (see workflow below). It is shown to the user as a live checklist.');
+        if (t.step) L.push('STEP: <n> - check off plan item n once it is fully covered (a green tick appears for the user).');
+        if (t.abandon) L.push('ABANDON: <url> - backtracking: you judge this source low-quality, irrelevant or biased, so you drop it and will seek an alternate. Say it the MOMENT you lose trust in a source - mid-read backtracking is expected of you.');
+        if (t.reflect) L.push('REFLECT: <one short honest paragraph> - a mid-course reflection on your own strategy: what is missing, what contradicts, what to change. Emit one whenever your approach stops being optimal - self-correction is a strength, not a weakness.');
+        if (t.verify) L.push('VERIFY: <key claim> - the app independently searches that claim and returns snippets from DIFFERENT domains; you compare them and judge: CONFIRMED (multiple independent sources agree) / PARTIAL (agree with caveats) / DISPUTED (sources disagree - report both sides).');
+        L.push('');
+        if (t.key === 'normal') {
+            L.push('WORKFLOW (MiniMax-style, efficiency-first - interleaved thinking, parallel tool calls, minimal roundtrips):');
+            L.push('1. FIRST ACTION TURN: fan out ALL your searches AT ONCE - 3 to 6 SEARCH lines with different angles and engines (optionally also READ 1-3 promising seed URLs in the same turn).');
+            L.push('2. At most ONE more turn of reading if something essential is still missing (max 2-3 pages).');
+            L.push('3. Then STOP researching and write the final report. Never spend more than ' + t.maxTurns + ' turns total - speed with grounding is the point of this level.');
+            L.push('REPORT: concise but grounded, ' + t.words + ' words: a direct answer up front, then the key findings with inline [n] citations, one small table or one ```echarts / ```mermaid block only if it genuinely helps the reader.');
+        } else if (t.key === 'advanced') {
+            L.push('WORKFLOW (Kimi-Researcher-style, end-to-end agentic):');
+            L.push('1. FIRST TURN: output a PLAN block decomposing the request into 3-6 ATOMIC sub-questions (one answerable fact-cluster per item), then immediately start searching - run sub-questions in PARALLEL batches (multiple SEARCH + READ lines per turn).');
+            L.push('2. Browse widely, read the strongest sources, ABANDON weak ones the moment you lose trust, REFLECT when your strategy needs adjusting, and VERIFY every load-bearing claim across >= 2 independent sources (different domains).');
+            L.push('3. Cover disagreements honestly - when good sources conflict, report both sides and why.');
+            L.push('REPORT: ' + t.words + ' words: findings PER sub-question with [n] citations, a cross-validation summary (claim -> CONFIRMED/PARTIAL/DISPUTED -> source numbers), contradictions and open questions, and a confidence rating (High/Medium/Low + one-line reason) for every major finding.');
+        } else {
+            L.push('WORKFLOW (OpenAI-Deep-Research-style, o3-class - thoroughness over speed):');
+            L.push('1. FIRST TURN: output a PLAN block with 4-8 concrete research steps (each step = an angle, population, source-type or viewpoint to cover), then begin working through them.');
+            L.push('2. Work LONG: fan out searches per step; BROWSE hubs, indexes and aggregators, then READ the pages they link (citation chaining - follow evidence upstream and downstream).');
+            L.push('3. STEP: <n> as each plan item completes. VERIFY load-bearing claims. Cover counterarguments, criticism, edge cases, data and timelines - not just the agreeable sources.');
+            L.push('4. Keep going until the plan is fully covered (or the tool budget forces the report). Depth is the entire point of this level.');
+            L.push('REPORT: ' + t.words + ' words, structured EXACTLY as: ## Executive Summary (5-8 cited bullets) -> ## Background -> ## Methodology (one short paragraph: what you searched, with which engines, how you verified) -> ## Findings (## subsections with [n] citations and data tables where useful) -> ## Counterarguments & Limitations -> ## Confidence Assessment (per major finding) -> ## Conclusion, ending with the full reference list ([n] title - URL). ```echarts / ```mermaid blocks are welcome for data.');
+        }
+        L.push('');
+        L.push(engineMenuText());
+        L.push('');
+        L.push('CITATIONS: your gathered sources are numbered in the order the app saw them; cite inline as [n]. Every non-obvious claim in the report MUST carry a citation. Never invent sources, numbers or quotes.');
+        L.push('FINAL ANSWER: when you are done researching, output the full user-facing report starting with the line:');
+        L.push('ANSWER:');
+        L.push('One decision block per turn. After your tool lines you receive the results and another turn. A "SKILL RESULTS" user message is tool feedback, not a new user request - stay exactly on the ORIGINAL user request.');
+        return L.join('\n');
+    }
+
+    // ---------------- directive parsers ----------------
+    function parseSearches(text) {
+        var out = [];
+        var re = /SEARCH\s*\[([^\]]*)\]\s*:\s*([^\n]+)/gi, m;
+        while ((m = re.exec(text))) {
+            var q = m[2].replace(/[*`]/g, '').trim();
+            var engs = m[1].split(/[,;|]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+            if (q) out.push({ engines: engs, query: q });
+        }
+        // bare SEARCH: lines (no key named) are captured too so the model gets a correction
+        var reBare = /(?:^|\n)[ \t]*[-*_>\`]*SEARCH[ \t]*:[ \t]*([^\n]+)/gi;
+        while ((m = reBare.exec(text))) {
+            var bq = m[1].replace(/[*`]/g, '').trim();
+            if (!bq) continue;
+            var esc24 = bq.slice(0, 24).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var hasKey = new RegExp('SEARCH\\s*\\[[^\\]]*\\]\\s*:\\s*' + esc24, 'i').test(text);
+            if (!hasKey) out.push({ engines: [], query: bq });
+        }
+        return out;
+    }
+    function parseUrls(text, marker) {
+        var out = [], re = new RegExp('(?:^|\\n)[ \\t]*[-*_>\\`]*' + marker + '[ \\t]*:[ \\t]*(https?:\\/\\/\\S+)', 'gi'), m;
+        while ((m = re.exec(text))) out.push(m[1].replace(/[)`\\]\\.,]+$/, ''));
+        return out;
+    }
+    function parseLines(text, marker) {
+        var out = [], re = new RegExp('(?:^|\\n)[ \\t]*[-*_>\\`]*' + marker + '[ \\t]*:[ \\t]*([^\\n]+)', 'gi'), m;
+        while ((m = re.exec(text))) { var v = m[1].trim(); if (v) out.push(v); }
+        return out;
+    }
+    function parsePlan(text) {
+        var m = text.match(/(?:^|\n)[ \t]*PLAN[ \t]*:[ \t]*\r?\n?([\s\S]*?)(?=\r?\n[ \t]*(?:SEARCH\s*\[|READ[ \t]*:|FETCH[ \t]*:|BROWSE[ \t]*:|CALC[ \t]*:|STEP[ \t]*:|REFLECT[ \t]*:|ABANDON[ \t]*:|VERIFY[ \t]*:|ANSWER[ \t]*:)|$)/i);
+        if (!m) return null;
+        return m[1].split(/\r?\n/).map(function (l) {
+            return l.replace(/^\s*(?:\d+[.)]|[-*\u2022])\s*/, '').trim();
+        }).filter(Boolean).slice(0, 10);
+    }
+
+    // ---------------- the shared research loop ----------------
+    async function researchLoop(tier, fullPrompt, container, chatId) {
+        var model = (state.selectedModels && state.selectedModels[0]) || { provider: 'nvidia', modelId: 'z-ai/glm-5.3-flash', modelKey: 'GLM 5.3 Flash' };
+        var divId = 'rsrch-' + Date.now();
+        var t0 = Date.now();
+
+        // the pre-search grounding box (its text context already lives in fullPrompt)
+        try { if (container) [].forEach.call(container.querySelectorAll('div[id^="search-"]'), function (el) { el.remove(); }); } catch (e) {}
+
+        // seed sources from the pre-search - ONLY when this message's pre-search
+        // actually produced them (the MANDATORY marker proves it ran for THIS
+        // request; state.lastSources alone could be stale from an earlier message)
+        var seed = [];
+        try {
+            if (/\[MANDATORY WEB SEARCH CONTEXT\]/.test(String(fullPrompt || ''))) {
+                seed = (state.lastSources || []).filter(function (s) { return s && s.link; }).slice(0, tier.maxSrc);
+            }
+        } catch (e) {}
+
+        if (container) {
+            container.insertAdjacentHTML('beforeend',
+                '<div class="message-container message-assistant" id="' + divId + '">' +
+                '<div class="message-bubble">' +
+                '<div class="text-[10px] font-semibold text-[var(--text-secondary)] mb-1">' + esc(model.modelKey || model.modelId) + ' · Research</div>' +
+                '<div class="v95-shell">' +
+                '<div class="v95-head">' +
+                '<span class="v95-badge v95-b-' + tier.key + '"><i class="fas fa-' + tier.fa + '"></i>' + tier.emoji + ' ' + esc(tier.engine) + '</span>' +
+                '<span class="v95-lvl">' + esc(tier.label) + ' level</span>' +
+                '<span class="v95-timer" id="tm-' + divId + '"><i class="far fa-clock"></i><span id="tmv-' + divId + '">0:00</span></span>' +
+                '</div>' +
+                '<div class="v95-plan hidden" id="plan-' + divId + '"><div class="v95-plan-title"><i class="fas fa-list-check"></i><span id="plantitle-' + divId + '">Research plan</span><span class="v95-pcount" id="plancnt-' + divId + '">0/0</span></div><ol id="planlist-' + divId + '"></ol></div>' +
+                '<details class="v95-act" id="act-' + divId + '" open><summary><i class="fas fa-route"></i> Activity <span class="v95-kv" id="actsum-' + divId + '">\u00b7 0 steps \u00b7 0 sources</span></summary><div class="v95-steps" id="steps-' + divId + '"></div></details>' +
+                '<div class="v95-status" id="busy-' + divId + '"><span class="v95-dot"></span><span id="busyv-' + divId + '">Starting ' + esc(tier.engine) + '\u2026</span></div>' +
+                '<div class="v95-report"><div class="text-sm" id="content-' + divId + '"></div></div>' +
+                '<div id="sources-' + divId + '"></div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="export-buttons" id="exp-' + divId + '" style="display:none"></div>' +
+                '</div>');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        var stepCount = 0, srcCount = seed.length, searchCount = 0, readCount = 0, verifyCount = 0;
+        var collected = seed.slice();
+        var seenLinks = new Set(seed.map(function (s) { return s.link; }));
+        var visited = new Set(), searched = new Set(), rejected = new Set();
+        var planItems = [];
+        var timerInt = setInterval(function () {
+            var el = document.getElementById('tmv-' + divId);
+            if (el) el.textContent = mmss(Date.now() - t0);
+        }, 1000);
+
+        function setBusy(txt, cls) {
+            var b = document.getElementById('busy-' + divId);
+            if (b) {
+                b.className = 'v95-status' + (cls ? ' ' + cls : '');
+                document.getElementById('busyv-' + divId).innerHTML = esc(txt);
+            }
+            if (container) container.scrollTop = container.scrollHeight;
+        }
+        function addStep(icon, color, main, sub) {
+            stepCount++;
+            var el = document.getElementById('steps-' + divId);
+            if (el) el.insertAdjacentHTML('beforeend',
+                '<div class="v95-step"><i class="' + icon + '" style="color:' + color + '"></i><span>' + main + (sub ? '<span class="v95-sub">' + sub + '</span>' : '') + '</span><span class="v95-time">' + mmss(Date.now() - t0) + '</span></div>');
+            var s = document.getElementById('actsum-' + divId);
+            if (s) s.textContent = '\u00b7 ' + stepCount + ' steps \u00b7 ' + srcCount + ' sources';
+            if (container) container.scrollTop = container.scrollHeight;
+        }
+        function bumpSrc(n) { srcCount = n || srcCount; var s = document.getElementById('actsum-' + divId); if (s) s.textContent = '\u00b7 ' + stepCount + ' steps \u00b7 ' + srcCount + ' sources'; }
+        function renderPlan(kind) {
+            var box = document.getElementById('plan-' + divId);
+            if (!box || !planItems.length) return;
+            box.classList.remove('hidden');
+            var tt = document.getElementById('plantitle-' + divId);
+            if (tt) tt.textContent = kind === 'sub' ? 'Sub-questions' : 'Research plan';
+            var ol = document.getElementById('planlist-' + divId);
+            if (ol) ol.innerHTML = planItems.map(function (it) { return '<li class="' + (it.done ? 'done' : '') + '">' + esc(it.text) + '</li>'; }).join('');
+            var done = planItems.filter(function (i) { return i.done; }).length;
+            var c = document.getElementById('plancnt-' + divId);
+            if (c) c.textContent = done + '/' + planItems.length;
+        }
+
+        var stopErr = function () { var e = new Error('Generation stopped'); e.name = 'AbortError'; return e; };
+        var answer = '';
+        var convo = [{ role: 'system', content: buildTierPrompt(tier) }];
+        try { convo = convo.concat(_sahuHistoryForModel()); } catch (e) {}
+        var userMsg = String(fullPrompt || '') + (seed.length ? '\n\n[SEED] ' + seed.length + ' grounding sources from the initial search are already in the context - they are the first sources in your final Sources panel; do NOT re-search them.' : '');
+        try { if (state.uploadedFileContent) userMsg += '\n\n[ATTACHED FILE CONTENT]:\n' + state.uploadedFileContent + '\n[END FILE CONTENT]'; } catch (e) {}
+        convo.push({ role: 'user', content: userMsg });
+
+        try {
+            var turn = 0, toolRuns = 0;
+            var PRESSURE = '\n[BUDGET] Your budget is almost exhausted. On your NEXT turn you MUST write the final report starting with ANSWER: - no more tool lines.';
+
+            while (turn < tier.maxTurns && toolRuns < tier.maxToolRuns) {
+                if (!state.isProcessing) throw stopErr();
+                turn++;
+                var pressured = (turn >= tier.maxTurns - 1) || (toolRuns >= tier.maxToolRuns - 5);
+                setBusy(turn === 1 ? 'Thinking about the research task\u2026' : 'Rethinking (' + turn + '/' + tier.maxTurns + ')\u2026');
+
+                var res;
+                try {
+                    res = await callModelWithFallback(model.provider, model.modelId, convo, 0, null);
+                } catch (eLoop) {
+                    if (turn < tier.maxTurns - 1) {
+                        addStep('fas fa-triangle-exclamation', '#ef4444', 'Model error (' + esc(eLoop.message || 'unknown') + ') - retrying');
+                        convo.push({ role: 'user', content: '[system] The previous model call failed. Continue the research: use a tool again or write your final report starting with ANSWER:.' });
+                        continue;
+                    }
+                    throw eLoop;
+                }
+                if (state.currentChatId !== chatId) return;
+                var text = String(res.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                if (res.thinking && String(res.thinking).trim()) {
+                    addStep('fas fa-brain', '#f59e0b', '<details class="search-round-think" style="border:none;padding:0"><summary class="cursor-pointer" style="font-size:inherit;color:inherit">Round ' + turn + ' thinking</summary><span class="v95-sub" style="white-space:pre-wrap">' + esc(String(res.thinking).trim().slice(-1600)) + '</span></details>');
+                }
+
+                // ---- extract directives ----
+                var searches = parseSearches(text);
+                var reads = parseUrls(text, 'READ');
+                var fetches = parseUrls(text, 'FETCH');
+                var browses = parseUrls(text, 'BROWSE');
+                var calcs = parseLines(text, 'CALC');
+                var plan = tier.plan ? parsePlan(text) : null;
+                var steps = tier.step ? parseLines(text, 'STEP') : [];
+                var reflects = tier.reflect ? parseLines(text, 'REFLECT') : [];
+                var abandons = tier.abandon ? parseUrls(text, 'ABANDON') : [];
+                var verifies = tier.verify ? parseLines(text, 'VERIFY') : [];
+                var ansMatch = text.match(/ANSWER\s*:\s*([\s\S]+)$/i);
+                var nTools = searches.length + reads.length + fetches.length + browses.length + calcs.length + verifies.length;
+
+                // ---- plan registration ----
+                if (plan && plan.length) {
+                    planItems = plan.map(function (p) { return { text: p, done: false }; });
+                    renderPlan(tier.key === 'advanced' ? 'sub' : 'plan');
+                    addStep('fas fa-list-check', '#4f46e5', 'Plan: ' + planItems.length + (tier.key === 'advanced' ? ' sub-questions' : ' steps'));
+                }
+                steps.forEach(function (sn) {
+                    var n = parseInt(sn, 10);
+                    if (n >= 1 && n <= planItems.length) { planItems[n - 1].done = true; renderPlan(tier.key === 'advanced' ? 'sub' : 'plan'); }
+                });
+                reflects.forEach(function (r) { addStep('fas fa-thought', '#8b5cf6', 'Reflection: ' + esc(r.slice(0, 220))); });
+                abandons.forEach(function (u) {
+                    rejected.add(u);
+                    var host = u; try { host = new URL(u).hostname; } catch (e) {}
+                    addStep('fas fa-rotate-left', '#ef4444', 'Backtrack: abandoned ' + esc(host));
+                });
+
+                if (!nTools) {
+                    answer = (ansMatch ? ansMatch[1] : text).trim();
+                    break;
+                }
+
+                convo.push({ role: 'assistant', content: text });
+                var parts = [];
+
+                // ---- searches (parallel, deduped) ----
+                var runnable = [];
+                for (var qi = 0; qi < searches.length; qi++) {
+                    var q = searches[qi];
+                    if (toolRuns >= tier.maxToolRuns) break;
+                    if (!q.engines.length) {
+                        parts.push('[SEARCH] "' + q.query + '" -> NOT RUN: no key named. One key per line: SEARCH[engine-or-category]: <query>.');
+                        continue;
+                    }
+                    var qKey = '[' + q.engines.join(',').toLowerCase() + '] ' + q.query.toLowerCase().replace(/\s+/g, ' ').trim();
+                    if (searched.has(qKey)) {
+                        parts.push('[SEARCH] "' + q.query + '" -> SKIPPED: you already ran this exact query+key. Use different wording, a different angle, or a different key.');
+                        continue;
+                    }
+                    searched.add(qKey);
+                    runnable.push(q);
+                }
+                toolRuns += runnable.length;
+                if (runnable.length) {
+                    searchCount += runnable.length;
+                    var sOuts = await Promise.all(runnable.map(async function (q) {
+                        if (!state.isProcessing) throw stopErr();
+                        var engTag = '[' + q.engines.join(', ') + ']';
+                        setBusy('Searching ' + engTag + ': ' + q.query.slice(0, 60));
+                        addStep('fas fa-magnifying-glass', '#3b82f6', '<b>Search</b>' + esc(engTag) + ': ' + esc(q.query.slice(0, 110)));
+                        var found = [];
+                        try { found = JSON.parse(await searchWeb(q.query, q.engines)) || []; } catch (e) { found = []; }
+                        if (state.currentChatId !== chatId) throw stopErr();
+                        found.forEach(function (r) {
+                            if (r && r.link && !seenLinks.has(r.link) && !rejected.has(r.link) && collected.length < 10000) { seenLinks.add(r.link); collected.push(r); }
+                        });
+                        bumpSrc(collected.length);
+                        var byEng = {};
+                        found.forEach(function (r) { var k = (r && r.source) || 'web'; byEng[k] = (byEng[k] || 0) + 1; });
+                        var engSum = Object.keys(byEng).map(function (k) { return k + ' ' + byEng[k]; }).join(', ');
+                        addStep('far fa-circle-check', '#10b981', found.length + ' result' + (found.length === 1 ? '' : 's') + (engSum ? ' \u00b7 ' + esc(engSum) : ''));
+                        var list = found.slice(0, tier.perSearch).map(function (s, i) {
+                            return (i + 1) + '. ' + (s.title || s.link) + ' (' + s.link + ')' + (s.snippet ? '\n   ' + String(s.snippet).slice(0, 260) : '');
+                        }).join('\n');
+                        return '[SEARCH' + engTag + '] "' + q.query + '" -> ' + found.length + ' results' + (engSum ? ' (' + engSum + ')' : '') + '\n' + (list || 'No results. NEXT: a DIFFERENT key on its own SEARCH line, reworded query, or READ a known good URL.');
+                    }));
+                    parts.push.apply(parts, sOuts);
+                }
+
+                // ---- reads / fetches / browses (parallel) ----
+                var pageTasks = [];
+                var mkPage = function (u, marker, mode, icon, color) {
+                    return async function () {
+                        if (!state.isProcessing) throw stopErr();
+                        var host = u; try { host = new URL(u).hostname; } catch (e) {}
+                        setBusy(marker + ' ' + host);
+                        addStep(icon, color, '<b>' + marker + '</b>: ' + esc(host));
+                        var page;
+                        try { page = await scrapePageContent(u, mode); } catch (e) { page = { ok: false, text: '' }; }
+                        if (state.currentChatId !== chatId) throw stopErr();
+                        var txt = page && page.ok ? String(page.text || '') : '';
+                        var body = txt ? (txt.length > tier.srcChars ? txt.slice(0, tier.srcChars) + '\n\u2026[truncated]' : txt) : 'Could not open this page. Try another source.';
+                        if (marker === 'Read' && txt) readCount++;
+                        addStep('far fa-circle-check', '#10b981', (page && page.ok) ? (txt.length.toLocaleString() + ' chars read') : 'could not open');
+                        if (rejected.has(u)) body += '\n[note] You ABANDONED this URL earlier but read it again - only keep it if it redeemed itself.';
+                        return '[' + marker.toUpperCase() + '] ' + u + (page && page.title ? ' (title: ' + page.title + ')' : '') + '\n' + body;
+                    };
+                };
+                [['READ', 'read', reads, 'fas fa-book-open', '#a855f7'],
+                 ['FETCH', 'fetch', fetches, 'fas fa-download', '#22c55e'],
+                 ['BROWSE', 'browse', browses, 'fas fa-compass', '#0ea5e9']].forEach(function (cfg) {
+                    cfg[2].forEach(function (u) {
+                        if (toolRuns >= tier.maxToolRuns) return;
+                        if (visited.has(u)) { parts.push('[' + cfg[0] + '] ' + u + '\nAlready visited this URL earlier.'); return; }
+                        visited.add(u);
+                        toolRuns++;
+                        pageTasks.push(mkPage(u, cfg[0] === 'READ' ? 'Read' : (cfg[0] === 'FETCH' ? 'Fetch' : 'Browse'), cfg[1], cfg[3], cfg[4]));
+                    });
+                });
+                if (pageTasks.length) {
+                    var pOuts = await Promise.all(pageTasks.map(function (f) { return f(); }));
+                    parts.push.apply(parts, pOuts);
+                }
+
+                // ---- VERIFY: independent cross-check (tier: advanced/ultra) ----
+                for (var vi = 0; vi < verifies.length; vi++) {
+                    if (toolRuns >= tier.maxToolRuns) break;
+                    toolRuns++; verifyCount++;
+                    var claim = verifies[vi].slice(0, 160);
+                    setBusy('Verifying claim: ' + claim.slice(0, 60));
+                    addStep('fas fa-shield-halved', '#f59e0b', '<b>Verify</b>: ' + esc(claim));
+                    var vOut = await (async function (c) {
+                        var engs = twoEngines();
+                        var all = [];
+                        for (var ei = 0; ei < engs.length; ei++) {
+                            var r2 = [];
+                            try { r2 = JSON.parse(await searchWeb(c, [engs[ei]])) || []; } catch (e) {}
+                            r2.forEach(function (x) { if (x && x.link) all.push(x); });
+                        }
+                        var domains = {}, uniq = [];
+                        for (var i2 = 0; i2 < all.length; i2++) {
+                            var h = ''; try { h = new URL(all[i2].link).hostname; } catch (e) { h = all[i2].link; }
+                            if (!domains[h]) { domains[h] = true; uniq.push(all[i2]); }
+                            if (uniq.length >= 4) break;
+                        }
+                        bumpSrc(collected.length);
+                        addStep(uniq.length >= 2 ? 'far fa-circle-check' : 'far fa-circle-xmark', uniq.length >= 2 ? '#10b981' : '#ef4444', uniq.length + ' independent domain' + (uniq.length === 1 ? '' : 's') + ' responded');
+                        if (!uniq.length) return '[VERIFY] "' + c + '" -> no independent sources responded. Treat the claim as UNVERIFIED and say so.';
+                        return '[VERIFY] "' + c + '" -> ' + uniq.length + ' snippets from DIFFERENT domains (' + Object.keys(domains).slice(0, 4).join(', ') + '). COMPARE them and judge CONFIRMED / PARTIAL / DISPUTED, then use that verdict in your report:\n' +
+                            uniq.map(function (s, i3) { return (i3 + 1) + '. ' + (s.title || '') + ' (' + s.link + ')\n   ' + String(s.snippet || '').slice(0, 300); }).join('\n');
+                    })(claim);
+                    parts.push(vOut);
+                }
+
+                // ---- CALC (keyless exact math) ----
+                calcs.forEach(function (expr) {
+                    var out = '';
+                    try { out = String(sahuSafeCalc(expr)); } catch (e) { out = 'error: ' + (e.message || e); }
+                    addStep('fas fa-calculator', '#64748b', '<b>Calc</b>: ' + esc(expr.slice(0, 80)) + ' = ' + esc(String(out).slice(0, 60)));
+                    parts.push('[CALC] ' + expr + ' = ' + out);
+                });
+
+                // ---- acks for the meta directives ----
+                var acks = [];
+                if (plan && plan.length) acks.push('[PLAN] registered (' + plan.length + ' items) - it is shown to the user as a live checklist.');
+                steps.forEach(function (sn) { acks.push('[STEP] ' + sn + ' marked done.'); });
+                reflects.forEach(function (r) { acks.push('[REFLECT] noted: "' + r.slice(0, 140) + '". Adjust course accordingly.'); });
+                abandons.forEach(function (u) { acks.push('[ABANDON] ' + u + ' rejected - its future results will be skipped; seek an alternate source for what it claimed.');
+                });
+                parts.push.apply(parts, acks);
+
+                var rethink;
+                if (tier.key === 'normal') {
+                    rethink = 'RETHINK (efficiency-first): if these results answer the question, write the final report NOW starting with ANSWER: . Only if something essential is missing, do ONE more small round (max 2-3 READs), then report.';
+                } else if (tier.key === 'advanced') {
+                    rethink = 'RETHINK (agentic): advance the remaining sub-questions in parallel. ABANDON sources you cannot trust, REFLECT if the approach needs adjusting, VERIFY every load-bearing claim (>= 2 independent sources). ANSWER: when every sub-question is answered AND cross-validated.';
+                } else {
+                    rethink = 'RETHINK (deep research): continue the plan - next uncompleted step, citation chains (BROWSE -> READ), counterarguments, data and timelines. STEP: n as items complete. VERIFY load-bearing claims. ANSWER: only when the plan is fully covered or the budget says finish.';
+                }
+
+                convo.push({
+                    role: 'user',
+                    content: 'RESEARCH RESULTS (turn ' + turn + '/' + tier.maxTurns + '):\n' + parts.join('\n\n') +
+                        '\n\n[BUDGET] ' + toolRuns + '/' + tier.maxToolRuns + ' tool runs \u00b7 ' + turn + '/' + tier.maxTurns + ' turns.' +
+                        (pressured ? PRESSURE : '') +
+                        '\n\n' + rethink
+                });
+            }
+
+            if (state.currentChatId !== chatId) return;
+
+            if (!answer) {
+                setBusy('Writing the final report\u2026');
+                var res2 = await callModelWithFallback(model.provider, model.modelId,
+                    convo.concat([{ role: 'user', content: 'You have reached your research budget. Write the final report for the user now, starting with ANSWER: - follow the REPORT structure of your level, cite [n] where you can.' }]), 0, null);
+                var t2 = String(res2.content || '').replace(/<think>[\s\S]*?<\/think>/g, '');
+                var m2 = t2.match(/ANSWER\s*:\s*([\s\S]+)$/i);
+                answer = (m2 ? m2[1] : t2).trim();
+            }
+            if (state.currentChatId !== chatId) return;
+
+            // ---- finalize: files, preview, report, sources, history ----
+            setBusy('Formatting report\u2026');
+            try { _sahuExtractMadeSkills(answer); } catch (e) {}
+            var fileRes = { text: answer, html: '', files: [] };
+            try { if (/FILE\s*\[\s*[a-z0-9]{1,8}\s*\]\s*:/i.test(answer)) fileRes = await generateFilesFromText(answer, function () {}); } catch (e) {}
+            answer = fileRes.text || answer;
+            try { window.sahuMaybeAutoPreview(answer); } catch (e) {}
+
+            var elapsed = mmss(Date.now() - t0);
+            setBusy('\u2713 ' + tier.engine + ' finished in ' + elapsed, 'done');
+            var act = document.getElementById('act-' + divId);
+            if (act) act.removeAttribute('open'); // ChatGPT-style: fold the activity once the report lands
+            var tm = document.getElementById('tm-' + divId);
+            if (tm) tm.classList.add('done');
+            clearInterval(timerInt);
+            if (planItems.length) { planItems.forEach(function (i) { i.done = true; }); renderPlan(tier.key === 'advanced' ? 'sub' : 'plan'); }
+
+            var metaHtml = '<div class="v95-meta"><span class="v95-kv"><i class="fas fa-route"></i>' + stepCount + ' steps</span><span class="v95-kv"><i class="fas fa-magnifying-glass"></i>' + searchCount + ' searches</span><span class="v95-kv"><i class="fas fa-book-open"></i>' + readCount + ' reads</span>' +
+                (tier.verify ? '<span class="v95-kv"><i class="fas fa-shield-halved"></i>' + verifyCount + ' verifications</span>' : '') +
+                '<span class="v95-kv"><i class="far fa-clock"></i>' + elapsed + '</span><span class="v95-kv"><i class="fas fa-' + tier.fa + '"></i>' + tier.label + ' \u00b7 ' + esc(tier.engine) + '</span></div>';
+            var srcPanel = _sahuSourcesPanelHtml(collected, false, 'Sources gathered');
+            var contentEl = document.getElementById('content-' + divId);
+            if (contentEl) {
+                contentEl.innerHTML = '<div class="prose max-w-none text-sm">' + formatMarkdown(answer || 'No report was produced - please try again.') + '</div>' + (fileRes.html ? '<div class="sahu-files-row">' + fileRes.html + '</div>' : '');
+            }
+            var srcEl = document.getElementById('sources-' + divId);
+            if (srcEl) srcEl.innerHTML = metaHtml + srcPanel;
+            var rep = document.getElementById('exp-' + divId);
+            if (rep) rep.style.display = '';
+            if (rep) rep.innerHTML =
+                '<button class="export-btn" onclick="copyToClipboard()"><i class="fas fa-copy"></i><span>Copy</span></button>' +
+                '<button class="export-btn" onclick="downloadTxt()"><i class="fas fa-file-alt"></i><span>TXT</span></button>' +
+                '<button class="export-btn" onclick="downloadPdf()"><i class="fas fa-file-pdf"></i><span>PDF</span></button>' +
+                '<button class="export-btn" onclick="downloadDocx()"><i class="fas fa-file-word"></i><span>DOCX</span></button>' +
+                '<button class="export-btn" onclick="downloadMarkdown()"><i class="fab fa-markdown"></i><span>MD</span></button>' +
+                '<button class="export-btn" onclick="openPreview()"><i class="fas fa-eye"></i><span>Preview</span></button>';
+            if (container) container.scrollTop = container.scrollHeight;
+
+            var savedContent = answer || 'No report was produced.';
+            window.lastAnswer = savedContent;
+            var traceEl = document.getElementById('steps-' + divId);
+            var planHtml = document.getElementById('plan-' + divId);
+            var msgObj = {
+                role: 'assistant', content: savedContent, thinking: '',
+                sources: _sahuSrcsForStore(collected), files: (fileRes.files || []),
+                agentTrace: (planHtml && !planHtml.classList.contains('hidden') ? planHtml.outerHTML : '') + (traceEl ? traceEl.innerHTML : ''),
+                timestamp: Date.now()
+            };
+            state.messages.push(msgObj);
+            var cur = state.chatHistory.find(function (c) { return c.id === state.currentChatId; });
+            if (cur && cur.messages !== state.messages) cur.messages.push(msgObj);
+            persistChatHistory();
+        } catch (e) {
+            clearInterval(timerInt);
+            var aborted = e && (e.name === 'AbortError' || /abort|stopped/i.test(e.message || ''));
+            setBusy(aborted ? '\u23f9 Research stopped' : '\u26a0 Research engine error: ' + (e.message || e), aborted ? 'stop' : 'stop');
+            var act2 = document.getElementById('act-' + divId);
+            if (act2) act2.setAttribute('open', 'open');
+            var cEl = document.getElementById('content-' + divId);
+            if (cEl && collected.length) {
+                cEl.innerHTML = '<div class="text-xs text-[var(--text-secondary)] mb-2">Showing the ' + collected.length + ' source' + (collected.length === 1 ? '' : 's') + ' gathered before ' + (aborted ? 'stopping' : 'the error') + ':</div>' + _sahuSourcesPanelHtml(collected, true);
+                var rescue = collected.map(function (s, i) { return (i + 1) + '. [' + (s.title || s.link) + '](' + s.link + ')'; }).join('\n');
+                window.lastAnswer = rescue;
+                var tEl2 = document.getElementById('steps-' + divId);
+                var rMsg = { role: 'assistant', content: rescue, thinking: '', sources: _sahuSrcsForStore(collected), agentTrace: tEl2 ? tEl2.innerHTML : '', timestamp: Date.now() };
+                state.messages.push(rMsg);
+                var rc = state.chatHistory.find(function (c) { return c.id === state.currentChatId; });
+                if (rc && rc.messages !== state.messages) rc.messages.push(rMsg);
+                persistChatHistory();
+            }
+            if (!aborted && cEl && !collected.length) {
+                cEl.innerHTML = '<div class="text-sm text-red-500">Research failed: ' + esc(e.message || String(e)) + '</div>';
+            }
+            if (!aborted) throw e; // real errors propagate to the app's handler
+        }
+    }
+
+    // ---------------- public engines ----------------
+    window.runMiniMaxResearch = function (f, c, id) { return researchLoop(TIERS.normal, f, c, id); };
+    window.runKimiResearch = function (f, c, id) { return researchLoop(TIERS.advanced, f, c, id); };
+    window.runGPTResearch = function (f, c, id) { return researchLoop(TIERS.ultra, f, c, id); };
+    window.sahuResearchTiers = TIERS;
+
+    // ---------------- dispatcher: hijack runDeepResearch ----------------
+    var _legacy = window.runDeepResearch;
+    window.runDeepResearch = async function (fullPrompt, container, chatId) {
+        var lvl = 'normal';
+        try { lvl = window.__sahuRLv || localStorage.getItem('sahu_research_level') || 'normal'; } catch (e) {}
+        var tier = TIERS[lvl] || TIERS.normal;
+        try {
+            return await researchLoop(tier, fullPrompt, container, chatId);
+        } catch (e) {
+            if (e && e.name === 'AbortError') return; // user-stopped: already rendered
+            if (typeof _legacy === 'function') {
+                try { showToast('Research engine issue (' + (e.message || 'error') + ') - falling back to the classic pipeline', 'warning'); } catch (e2) {}
+                return await _legacy(fullPrompt, container, chatId);
+            }
+            throw e;
+        }
+    };
+
+    // ---------------- relabel the level pill + gate with the engine names ----------------
+    try {
+        var RELABEL = {
+            normal: ['fas fa-bolt', 'Normal \u00b7 \u26a1 MiniMax \u2014 quick grounded research'],
+            advanced: ['fas fa-layer-group', 'Advanced \u00b7 \ud83e\udde0 Kimi \u2014 agentic, cross-verified'],
+            ultra: ['fas fa-gem', 'Ultra \u00b7 \ud83d\udc8e GPT \u2014 maximum-depth deep research']
+        };
+        var menu = document.getElementById('sahuRlvMenu');
+        if (menu) {
+            [].forEach.call(menu.querySelectorAll('button'), function (b) {
+                var oc = b.getAttribute('onclick') || '';
+                var mk = oc.match(/'([a-z]+)'/);
+                if (mk && RELABEL[mk[1]]) {
+                    var ic = b.querySelector('i');
+                    b.innerHTML = '<i class="' + RELABEL[mk[1]][0] + '"></i> ' + RELABEL[mk[1]][1];
+                }
+            });
+        }
+    } catch (e) {}
+})();
+
+</script>
 </body></body></html>
