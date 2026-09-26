@@ -3,9 +3,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, the No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -3254,7 +3254,7 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 8.0.0 · Skill Pack</p>
+                    <p class="sidebar-version">Version 9.14 · Research Tiers</p>
                 </div>
             </div>
             
@@ -15754,7 +15754,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v8.0.0 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v9.14 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
@@ -16950,7 +16950,15 @@ try { window.renderInputModeTags(); } catch (e) {}
 </script>
 <script id="v95-research-tiers">
 // =====================================================================
-// v9.13 RESEARCH TIERS — three real research engines for Research mode.
+// v9.14 RESEARCH TIERS — three real research engines for Research mode.
+// v9.14 upgrades (spec: TIER-DECISIONS.md, user-approved 2026-09-26):
+//   - Normal/MiniMax: the rigid 5-STEP PIPELINE from the MiniMax Skill
+//     Atlas (background -> understand/judge -> analyze/plan -> search/
+//     verify -> write) as a live fixed checklist + interleaved THINK.
+//   - Advanced/Kimi: report standards from Kimi's own skill docs
+//     (TL;DR opener + table-first comparisons).
+//   - Ultra/GPT: interrupt & refine (mid-research [REFINE] injections —
+//     the Feb-2026 ChatGPT deep-research feature) + Reasoning Summary.
 //
 //   Normal   → ⚡ MINIMAX-style engine   (quick grounded research:
 //                                       one parallel fan-out wave, minimal
@@ -17010,16 +17018,23 @@ try { window.renderInputModeTags(); } catch (e) {}
         '@keyframes v95pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}' +
         '.v95-report{padding:.7rem .85rem .4rem}' +
         '.v95-meta{font-size:.68rem;color:var(--text-secondary,#9ca3af);padding:.3rem .85rem .5rem;display:flex;gap:.6rem;flex-wrap:wrap}' +
-        '.v95-kv{display:inline-flex;align-items:center;gap:.25rem}';
+        '.v95-kv{display:inline-flex;align-items:center;gap:.25rem}' +
+        '.v95-refine{font-size:.68rem;font-weight:700;color:var(--accent,#4f46e5);background:transparent;border:1px solid var(--accent,#4f46e5);border-radius:999px;padding:.15rem .6rem;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}' +
+        '.v95-refine:hover{background:rgba(79,70,229,.12)}' +
+        '.v95-refbar{display:flex;gap:.4rem;padding:.4rem .8rem;border-bottom:1px dashed var(--border,#e5e7eb)}' +
+        '.v95-refbar input{flex:1;font-size:.74rem;border:1px solid var(--border,#e5e7eb);border-radius:8px;padding:.3rem .55rem;background:var(--bg-primary,#fff);color:var(--text-primary,#111);outline:none;min-width:0}' +
+        '.v95-refbar input:focus{border-color:var(--accent,#4f46e5)}' +
+        '.v95-refbar button{font-size:.72rem;font-weight:700;border:none;border-radius:8px;padding:.3rem .8rem;cursor:pointer;background:var(--accent,#4f46e5);color:#fff}';
     try { document.head.insertAdjacentHTML('beforeend', '<style id="v95-research-css">' + CSS + '</style>'); } catch (e) {}
 
     // ---------------- tier configs ----------------
     var TIERS = {
         normal: {
             key: 'normal', label: 'Normal', engine: 'MiniMax Engine', fa: 'bolt', emoji: '\u26a1',
-            style: 'quick grounded research',
+            style: 'quick grounded research - rigid 5-step MiniMax pipeline',
             maxTurns: 5, maxToolRuns: 18, srcChars: 2600, perSearch: 12, maxSrc: 16,
-            plan: false, step: false, reflect: false, abandon: false, verify: false,
+            plan: false, step: true, reflect: false, abandon: false, verify: false,
+            fixed5: true, think: true, refine: false,
             words: '600-1200'
         },
         advanced: {
@@ -17027,13 +17042,15 @@ try { window.renderInputModeTags(); } catch (e) {}
             style: 'agentic research: decompose, browse in parallel, backtrack, reflect, cross-verify',
             maxTurns: 12, maxToolRuns: 45, srcChars: 4200, perSearch: 16, maxSrc: 30,
             plan: true, step: false, reflect: true, abandon: true, verify: true,
+            fixed5: false, think: true, refine: false,
             words: '1500-2500'
         },
         ultra: {
             key: 'ultra', label: 'Ultra', engine: 'GPT Deep Research', fa: 'gem', emoji: '\ud83d\udc8e',
-            style: 'maximum-depth deep research: plan first, browse long, chain citations, cross-check everything',
+            style: 'maximum-depth deep research: plan first, browse long, chain citations, cross-check everything, interrupt & refine',
             maxTurns: 20, maxToolRuns: 90, srcChars: 6000, perSearch: 20, maxSrc: 48,
             plan: true, step: true, reflect: true, abandon: true, verify: true,
+            fixed5: false, think: true, refine: true,
             words: '2500-4000+'
         }
     };
@@ -17096,6 +17113,7 @@ try { window.renderInputModeTags(); } catch (e) {}
         L.push('FETCH: <url> - raw fetch of a URL (articles, APIs, files).');
         L.push('BROWSE: <url> - quick summary of a page PLUS the links it contains (use it to follow citation chains).');
         L.push('CALC: <expression> - exact math (percentages, sums, growth rates) - use it for any arithmetic in your report.');
+        if (t.think) L.push('THINK: <2-4 short sentences> - interleaved thinking, shown live to the user: what you now know, what is missing, what you will do next. Emit it at the start of turn 1 and whenever your strategy shifts.');
         if (t.plan) L.push('PLAN: - a block of numbered lines right after this marker (see workflow below). It is shown to the user as a live checklist.');
         if (t.step) L.push('STEP: <n> - check off plan item n once it is fully covered (a green tick appears for the user).');
         if (t.abandon) L.push('ABANDON: <url> - backtracking: you judge this source low-quality, irrelevant or biased, so you drop it and will seek an alternate. Say it the MOMENT you lose trust in a source - mid-read backtracking is expected of you.');
@@ -17103,24 +17121,28 @@ try { window.renderInputModeTags(); } catch (e) {}
         if (t.verify) L.push('VERIFY: <key claim> - the app independently searches that claim and returns snippets from DIFFERENT domains; you compare them and judge: CONFIRMED (multiple independent sources agree) / PARTIAL (agree with caveats) / DISPUTED (sources disagree - report both sides).');
         L.push('');
         if (t.key === 'normal') {
-            L.push('WORKFLOW (MiniMax-style, efficiency-first - interleaved thinking, parallel tool calls, minimal roundtrips):');
-            L.push('1. FIRST ACTION TURN: fan out ALL your searches AT ONCE - 3 to 6 SEARCH lines with different angles and engines (optionally also READ 1-3 promising seed URLs in the same turn).');
-            L.push('2. At most ONE more turn of reading if something essential is still missing (max 2-3 pages).');
-            L.push('3. Then STOP researching and write the final report. Never spend more than ' + t.maxTurns + ' turns total - speed with grounding is the point of this level.');
+            L.push('WORKFLOW (MiniMax deep-research: a RIGID 5-STEP PIPELINE - efficiency-first, interleaved thinking, parallel tool calls, minimal roundtrips). The 5 steps below are shown to the user as a live checklist and MUST be completed IN ORDER - skipping or reordering a step is an invalid trace. Tick each with STEP: n the moment it is done:');
+            L.push('STEP 1 - Confirm factual background: pin down the key facts, entities, dates and terms the question rests on.');
+            L.push('STEP 2 - Understand the question & judge direction: restate the question in one line and choose the 2-4 angles that actually matter.');
+            L.push('STEP 3 - Analyze & plan the research: decide which angle needs which source type and engine, and what will count as verified.');
+            L.push('TURN 1: start with THINK: <your background check, your read of the question and your mini-plan - steps 1-3>, then the three lines STEP: 1 , STEP: 2 , STEP: 3 , then immediately fan out ALL your searches AT ONCE - 3 to 6 SEARCH lines with different angles and engines (optionally also READ 1-3 promising seed URLs in the same turn).');
+            L.push('STEP 4 - Search & verify: read the strongest results; at most ONE more turn of reading (max 2-3 pages) if something essential is still missing, then emit STEP: 4 .');
+            L.push('STEP 5 - Write the final answer: emit STEP: 5 and immediately the final report starting with ANSWER: . Never spend more than ' + t.maxTurns + ' turns total - speed with grounding is the point of this level.');
             L.push('REPORT: concise but grounded, ' + t.words + ' words: a direct answer up front, then the key findings with inline [n] citations, one small table or one ```echarts / ```mermaid block only if it genuinely helps the reader.');
         } else if (t.key === 'advanced') {
             L.push('WORKFLOW (Kimi-Researcher-style, end-to-end agentic):');
             L.push('1. FIRST TURN: output a PLAN block decomposing the request into 3-6 ATOMIC sub-questions (one answerable fact-cluster per item), then immediately start searching - run sub-questions in PARALLEL batches (multiple SEARCH + READ lines per turn).');
             L.push('2. Browse widely, read the strongest sources, ABANDON weak ones the moment you lose trust, REFLECT when your strategy needs adjusting, and VERIFY every load-bearing claim across >= 2 independent sources (different domains).');
             L.push('3. Cover disagreements honestly - when good sources conflict, report both sides and why.');
-            L.push('REPORT: ' + t.words + ' words: findings PER sub-question with [n] citations, a cross-validation summary (claim -> CONFIRMED/PARTIAL/DISPUTED -> source numbers), contradictions and open questions, and a confidence rating (High/Medium/Low + one-line reason) for every major finding.');
+            L.push('REPORT: ' + t.words + ' words. Open with a one-line TL;DR direct answer (skip it only if the question cannot be answered briefly). Then findings PER sub-question with [n] citations, comparison TABLES as the primary way to present multi-entity or multi-metric findings (put the [n] citations inside the table cells), a cross-validation summary (claim -> CONFIRMED/PARTIAL/DISPUTED -> source numbers), contradictions and open questions, and a confidence rating (High/Medium/Low + one-line reason) for every major finding.');
         } else {
             L.push('WORKFLOW (OpenAI-Deep-Research-style, o3-class - thoroughness over speed):');
             L.push('1. FIRST TURN: output a PLAN block with 4-8 concrete research steps (each step = an angle, population, source-type or viewpoint to cover), then begin working through them.');
             L.push('2. Work LONG: fan out searches per step; BROWSE hubs, indexes and aggregators, then READ the pages they link (citation chaining - follow evidence upstream and downstream).');
             L.push('3. STEP: <n> as each plan item completes. VERIFY load-bearing claims. Cover counterarguments, criticism, edge cases, data and timelines - not just the agreeable sources.');
             L.push('4. Keep going until the plan is fully covered (or the tool budget forces the report). Depth is the entire point of this level.');
-            L.push('REPORT: ' + t.words + ' words, structured EXACTLY as: ## Executive Summary (5-8 cited bullets) -> ## Background -> ## Methodology (one short paragraph: what you searched, with which engines, how you verified) -> ## Findings (## subsections with [n] citations and data tables where useful) -> ## Counterarguments & Limitations -> ## Confidence Assessment (per major finding) -> ## Conclusion, ending with the full reference list ([n] title - URL). ```echarts / ```mermaid blocks are welcome for data.');
+            L.push('MID-RESEARCH REFINEMENTS: while you work the user may inject [REFINE] instructions - incorporate them immediately, adjust the plan if needed, and keep going.');
+            L.push('REPORT: ' + t.words + ' words, structured EXACTLY as: ## Executive Summary (5-8 cited bullets) -> ## Background -> ## Methodology (one short paragraph: what you searched, with which engines, how you verified) -> ## Findings (## subsections with [n] citations and data tables where useful) -> ## Counterarguments & Limitations -> ## Confidence Assessment (per major finding) -> ## Reasoning Summary (one short honest paragraph: how you approached the question, what you trusted, what you doubted and why) -> ## Conclusion, ending with the full reference list ([n] title - URL). ```echarts / ```mermaid blocks are welcome for data.');
         }
         L.push('');
         L.push(engineMenuText());
@@ -17198,6 +17220,7 @@ try { window.renderInputModeTags(); } catch (e) {}
                 '<div class="v95-head">' +
                 '<span class="v95-badge v95-b-' + tier.key + '"><i class="fas fa-' + tier.fa + '"></i>' + tier.emoji + ' ' + esc(tier.engine) + '</span>' +
                 '<span class="v95-lvl">' + esc(tier.label) + ' level</span>' +
+                (tier.refine ? '<button type="button" class="v95-refine" id="rfbtn-' + divId + '" title="Interrupt & refine - send a mid-research instruction (GPT deep research)"><i class="fas fa-circle-plus"></i> Refine</button>' : '') +
                 '<span class="v95-timer" id="tm-' + divId + '"><i class="far fa-clock"></i><span id="tmv-' + divId + '">0:00</span></span>' +
                 '</div>' +
                 '<div class="v95-plan hidden" id="plan-' + divId + '"><div class="v95-plan-title"><i class="fas fa-list-check"></i><span id="plantitle-' + divId + '">Research plan</span><span class="v95-pcount" id="plancnt-' + divId + '">0/0</span></div><ol id="planlist-' + divId + '"></ol></div>' +
@@ -17253,6 +17276,52 @@ try { window.renderInputModeTags(); } catch (e) {}
             if (c) c.textContent = done + '/' + planItems.length;
         }
 
+        // ---- v9.14 MiniMax rigid 5-step pipeline: pre-seed the fixed checklist ----
+        if (tier.fixed5) {
+            planItems = [
+                'Confirm factual background',
+                'Understand the question & judge direction',
+                'Analyze & plan the research',
+                'Search & verify sources',
+                'Write the final answer'
+            ].map(function (t5) { return { text: t5, done: false }; });
+            renderPlan('plan');
+        }
+
+        // ---- v9.14 GPT interrupt & refine: queue + live UI (ultra) ----
+        var refineQ = [];
+        if (tier.refine) {
+            var _rfBtn = document.getElementById('rfbtn-' + divId);
+            if (_rfBtn) _rfBtn.addEventListener('click', function () {
+                var bar = document.getElementById('refbar-' + divId);
+                if (bar) { var _ip = bar.querySelector('input'); if (_ip) _ip.focus(); return; }
+                var st = document.getElementById('busy-' + divId);
+                if (!st) return;
+                st.insertAdjacentHTML('afterend',
+                    '<div class="v95-refbar" id="refbar-' + divId + '">' +
+                    '<input type="text" id="refin-' + divId + '" placeholder="Refine the research mid-flight - e.g. focus on India, add pricing data, skip X..." />' +
+                    '<button type="button" id="refgo-' + divId + '"><i class="fas fa-paper-plane"></i> Send</button></div>');
+                var inp = document.getElementById('refin-' + divId);
+                var go = function () {
+                    var v = String(inp.value || '').trim();
+                    if (!v) return;
+                    refineQ.push(v);
+                    addStep('fas fa-comment-dots', '#0ea5e9', '<b>User refinement</b>: ' + esc(v.slice(0, 200)));
+                    var b2 = document.getElementById('refbar-' + divId);
+                    if (b2) b2.remove();
+                };
+                document.getElementById('refgo-' + divId).addEventListener('click', go);
+                inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); go(); } });
+                inp.focus();
+            });
+        }
+        function killRefine() {
+            try {
+                var a = document.getElementById('rfbtn-' + divId); if (a) a.remove();
+                var b = document.getElementById('refbar-' + divId); if (b) b.remove();
+            } catch (e) {}
+        }
+
         var stopErr = function () { var e = new Error('Generation stopped'); e.name = 'AbortError'; return e; };
         var answer = '';
         var convo = [{ role: 'system', content: buildTierPrompt(tier) }];
@@ -17269,6 +17338,9 @@ try { window.renderInputModeTags(); } catch (e) {}
                 if (!state.isProcessing) throw stopErr();
                 turn++;
                 var pressured = (turn >= tier.maxTurns - 1) || (toolRuns >= tier.maxToolRuns - 5);
+                while (refineQ.length) {
+                    convo.push({ role: 'user', content: '[REFINE - mid-research instruction from the user]: ' + refineQ.shift() + '\nIncorporate this immediately: adjust the plan if needed, then continue the workflow (tool lines or ANSWER:).' });
+                }
                 setBusy(turn === 1 ? 'Thinking about the research task\u2026' : 'Rethinking (' + turn + '/' + tier.maxTurns + ')\u2026');
 
                 var res;
@@ -17297,10 +17369,13 @@ try { window.renderInputModeTags(); } catch (e) {}
                 var plan = tier.plan ? parsePlan(text) : null;
                 var steps = tier.step ? parseLines(text, 'STEP') : [];
                 var reflects = tier.reflect ? parseLines(text, 'REFLECT') : [];
+                var thinks = tier.think ? parseLines(text, 'THINK') : [];
                 var abandons = tier.abandon ? parseUrls(text, 'ABANDON') : [];
                 var verifies = tier.verify ? parseLines(text, 'VERIFY') : [];
                 var ansMatch = text.match(/ANSWER\s*:\s*([\s\S]+)$/i);
                 var nTools = searches.length + reads.length + fetches.length + browses.length + calcs.length + verifies.length;
+
+                thinks.forEach(function (th) { addStep('fas fa-brain', '#f59e0b', '<b>Thinking</b>: ' + esc(th.slice(0, 240))); });
 
                 // ---- plan registration ----
                 if (plan && plan.length) {
@@ -17320,6 +17395,17 @@ try { window.renderInputModeTags(); } catch (e) {}
                 });
 
                 if (!nTools) {
+                    // v9.14 GPT interrupt & refine: if the user sent a refinement that
+                    // has not been delivered yet, deliver it BEFORE accepting the answer
+                    // (covers refinements sent while the final answer was generating)
+                    if (refineQ.length) {
+                        convo.push({ role: 'assistant', content: text });
+                        while (refineQ.length) {
+                            convo.push({ role: 'user', content: '[REFINE - mid-research instruction from the user]: ' + refineQ.shift() + '\nIncorporate this immediately: adjust the plan if needed, then continue the workflow (tool lines or ANSWER:).' });
+                        }
+                        addStep('fas fa-comment-dots', '#0ea5e9', 'Delivering pending refinement to the engine');
+                        continue;
+                    }
                     answer = (ansMatch ? ansMatch[1] : text).trim();
                     break;
                 }
@@ -17493,6 +17579,7 @@ try { window.renderInputModeTags(); } catch (e) {}
 
             var elapsed = mmss(Date.now() - t0);
             setBusy('\u2713 ' + tier.engine + ' finished in ' + elapsed, 'done');
+            killRefine();
             var act = document.getElementById('act-' + divId);
             if (act) act.removeAttribute('open'); // ChatGPT-style: fold the activity once the report lands
             var tm = document.getElementById('tm-' + divId);
@@ -17539,6 +17626,7 @@ try { window.renderInputModeTags(); } catch (e) {}
             clearInterval(timerInt);
             var aborted = e && (e.name === 'AbortError' || /abort|stopped/i.test(e.message || ''));
             setBusy(aborted ? '\u23f9 Research stopped' : '\u26a0 Research engine error: ' + (e.message || e), aborted ? 'stop' : 'stop');
+            killRefine();
             var act2 = document.getElementById('act-' + divId);
             if (act2) act2.setAttribute('open', 'open');
             var cEl = document.getElementById('content-' + divId);
@@ -17587,9 +17675,9 @@ try { window.renderInputModeTags(); } catch (e) {}
     // ---------------- relabel the level pill + gate with the engine names ----------------
     try {
         var RELABEL = {
-            normal: ['fas fa-bolt', 'Normal \u00b7 \u26a1 MiniMax \u2014 quick grounded research'],
+            normal: ['fas fa-bolt', 'Normal \u00b7 \u26a1 MiniMax \u2014 5-step grounded research'],
             advanced: ['fas fa-layer-group', 'Advanced \u00b7 \ud83e\udde0 Kimi \u2014 agentic, cross-verified'],
-            ultra: ['fas fa-gem', 'Ultra \u00b7 \ud83d\udc8e GPT \u2014 maximum-depth deep research']
+            ultra: ['fas fa-gem', 'Ultra \u00b7 \ud83d\udc8e GPT \u2014 deep research, interrupt & refine']
         };
         var menu = document.getElementById('sahuRlvMenu');
         if (menu) {
@@ -17606,4 +17694,4 @@ try { window.renderInputModeTags(); } catch (e) {}
 })();
 
 </script>
-</body></body></html>
+</body></html>
