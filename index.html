@@ -3,9 +3,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <meta name="description" content="Manthan Agent v9.19 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, 65 always-on skills: No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, transparent PNGs, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), SQL Sandbox (real SQLite), PPTD deck studio, Paged.js print-grade PDF, live voice input, vision input (image analysis), transparent image generation, MiniMax-style Plan Mode, 3-tier Deep Research, MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
+    <meta name="description" content="Manthan Agent v10.0 - Official Saksham Intelligence AI Models Chat - 57+ models, 18+ providers, 65 always-on skills: No-Backend Skill Pack (weather, convert, stocks, places, image gen/search, transparent PNGs, GIFs, charts, diagrams, infographics, file reader, PDF editing, translate, TTS, memory, reminders, heartbeat), SQL Sandbox (real SQLite), PPTD deck studio, Paged.js print-grade PDF, live voice input, vision input (image analysis), transparent image generation, MiniMax-style Plan Mode, 3-tier Deep Research, MCP tools, agent swarm, MP Board examiner, consensus-powered AI, live app previews">
     <meta name="author" content="Saksham Intelligence">
-    <title>Manthan Agent v9.19 - Official Saksham Intelligence AI Models Chat</title>
+    <title>Manthan Agent v10.0 - Official Saksham Intelligence AI Models Chat</title>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="./manifest.json">
@@ -3200,6 +3200,23 @@
         .skdetail-sec { font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
         .skdetail-note { font-weight:500; color:var(--text-muted); font-size:10.5px; }
         .skdetail-code { background:var(--bg-tertiary); border:1px solid var(--border); border-radius:10px; padding:12px 14px; font:11.5px/1.6 var(--font-mono, ui-monospace, Consolas, monospace); white-space:pre-wrap; word-break:break-word; color:var(--text-primary); max-height:44vh; overflow:auto; margin-bottom:14px; }
+        /* v9.28: Agent Swarm team grid - 10 specialists + 15 general agents */
+        .agcard-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; margin:8px 0 14px; }
+        .agcard { background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-lg); padding:12px 13px; cursor:pointer; transition:border-color var(--transition-fast), box-shadow var(--transition-fast); display:flex; flex-direction:column; gap:7px; }
+        .agcard:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+        .agcard.open { border-color:var(--accent); }
+        .agcard-head { display:flex; align-items:center; gap:9px; }
+        .agcard-ico { width:32px; height:32px; border-radius:10px; background:var(--accent-light, rgba(124,58,237,.12)); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+        .agcard-name { font-size:12.5px; font-weight:650; color:var(--text-primary); line-height:1.25; }
+        .agcard-tag { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin-top:1px; }
+        .agcard-skills { display:flex; flex-wrap:wrap; gap:4px; }
+        .agchip { font-size:9.5px; font-weight:600; padding:2px 7px; border-radius:999px; background:rgba(16,185,129,.10); border:1px solid rgba(16,185,129,.30); color:#059669; white-space:nowrap; }
+        .agcard-more { font-size:11px; font-weight:650; background:none; border:none; color:var(--accent); cursor:pointer; padding:0; display:inline-flex; gap:5px; align-items:center; align-self:flex-start; }
+        .agcard-more i { transition:transform .15s; font-size:9px; }
+        .agcard.open .agcard-more i { transform:rotate(180deg); }
+        .agcard-body { display:none; font-size:11px; line-height:1.55; color:var(--text-secondary); white-space:pre-wrap; border-top:1px solid var(--border); padding-top:7px; }
+        .agcard.open .agcard-body { display:block; }
+        .agcard-desc { font-size:11px; line-height:1.5; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .skdetail-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
         .sknew-form { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
         .sknew-l { display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:600; color:var(--text-primary); }
@@ -4859,7 +4876,7 @@
         // Safety Models
         function checkSafety(content) {}
         
-        console.log('✅ Manthan Agent v9.19 HTML/CSS Loaded');
+        console.log('✅ Manthan Agent v10.0 HTML/CSS Loaded');
     </script>
     
     <!-- Link to JavaScript File -->
@@ -9639,9 +9656,11 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
         sysPrompt += "\nMODE: MANTHAN SEARCH (Perplexity Style). Answer concisely but comprehensively based on the provided search results. You MUST cite sources using [1], [2] notation inline with the text where the information is used. Do NOT create a separate reference list at the end, just use inline citations.";
     } else {
         sysPrompt += "\nMODE: STANDARD. Use available search results to answer accurately. Cite sources if used.";
-        // v7.1: AGENT SWARM - the model may spawn 2-10 parallel workers (never 1)
+        // v7.1→v9.26: AGENT SWARM - the model may spawn 2-25 parallel workers
+        // (never 1; mode-capped: fast 5 / standard 10 / research+task 25)
         if (!window._sahuSwarmActive) {
-            sysPrompt += "\nAGENT SWARM (v7.1, optional parallel workers): for GENUINELY complex, multi-part, parallelizable requests (multi-topic research, large comparisons, 'do X and Y and Z', exhaustive surveys) you may spawn worker agents: reply with 'ANSWER:' followed by EXACTLY one fenced block and NOTHING else:\n```sahu_agents\n{\"plan\":\"one line\",\"tasks\":[{\"id\":\"w1\",\"objective\":\"self-contained sub-task\",\"output_format\":\"how each worker should report\",\"boundaries\":\"what NOT to touch (sibling overlap)\"},{\"id\":\"w2\",\"objective\":\"...\"}]}\n```\nRules: 2-10 tasks, NEVER exactly 1 (one agent adds nothing - a single sub-task means you do it yourself); simple tasks spawn NOTHING; each task independent, self-contained, non-overlapping; prefer 2-5, use up to 10 only for very large jobs. Workers answer from knowledge and may request ONE web search each. The app runs them in parallel and returns every report; you then receive all reports to synthesize into the final answer.";
+            const _sc2 = (typeof _sahuSwarmCap === 'function') ? _sahuSwarmCap() : 10;
+            sysPrompt += "\nAGENT SWARM (v7.1, optional parallel workers): for GENUINELY complex, multi-part, parallelizable requests (multi-topic research, large comparisons, 'do X and Y and Z', exhaustive surveys) you may spawn worker agents: reply with 'ANSWER:' followed by EXACTLY one fenced block and NOTHING else:\n```sahu_agents\n{\"plan\":\"one line\",\"tasks\":[{\"id\":\"w1\",\"objective\":\"self-contained sub-task\",\"output_format\":\"how each worker should report\",\"boundaries\":\"what NOT to touch (sibling overlap)\"},{\"id\":\"w2\",\"objective\":\"...\"}]}\n```\nRules: 2-" + _sc2 + " tasks, NEVER exactly 1 (one agent adds nothing - a single sub-task means you do it yourself); simple tasks spawn NOTHING; each task independent, self-contained, non-overlapping; prefer " + (_sc2 >= 25 ? "5-15" : "2-5") + ", use up to " + _sc2 + " only for very large jobs. Your team: 10 specialist agents + 15 general agents that do exactly what you instruct = 25 total. Give each task a \"role\" for a specialist worker: search (multi-CATEGORY web searches in parallel) | engines (multi-ENGINE searches in parallel) | scraper (mass parallel FULL-TEXT scraping, no length limit) | browser (parallel browsing) | fetcher (parallel raw fetches) | coder (code interpreter js/py/sql + file creation + html/react live preview + TDD mentor + design polish + self-improvement) | office (file reader + file creation + PDF editing + paged PDF studio + deck studio) | media (chart studio + image generation + GIF maker + image search) | skillcreator (create skills + clone-and-edit into new skills) | writer (humanizer + citation styles + auditor + summarizer); a task WITHOUT a role is a general worker that follows EXACTLY what you instruct. Web-role workers fire their tool lines in parallel, up to 3 tool rounds each. The app runs the workers in parallel and returns every report; you then receive all reports to synthesize into the final answer.";
         }
     }
     
@@ -11669,6 +11688,16 @@ function toggleSourcesPanel(id) {
 // =====================================================================
 
 const SAHU_SKILLS = [
+    // v9.29: GROUP SKILLS - bundles that move existing skills inside them.
+    // The children keep their own ids and directives (the engine still emits
+    // them); the Settings page renders them INSIDE these group cards.
+    { id: 'general', name: 'General', icon: 'fa-layer-group', color: 'violet',
+      desc: 'Everyday essentials, bundled into one skill: the REAL current date and time, an exact calculator, live voice input (dictation), persistent memory, translation, and text-to-speech.',
+      children: ['mcp_date', 'mcp_calc', 'voice_input', 'memory', 'translate', 'speak'] },
+    { id: 'infodata', name: 'Information and Data', icon: 'fa-circle-info', color: 'sky',
+      desc: 'Live world information, bundled into one skill: current weather, nearby places, stock market snapshots, and unit conversion.',
+      children: ['weather', 'places', 'stock_snapshot', 'convert'] },
+
     { id: 'web_search', name: 'Web Search',   icon: 'fa-search',   color: 'blue',   desc: 'Searches the web with your enabled search engines and collects the results.' },
     { id: 'web_scrape', name: 'Web Scraping', icon: 'fa-spider',   color: 'purple', desc: 'Opens any web page and extracts its full readable text for deep reading.' },
     { id: 'web_fetch',  name: 'Web Fetching', icon: 'fa-download', color: 'green',  desc: 'Fetches the raw content of any URL (page text, markdown or JSON).' },
@@ -11676,27 +11705,27 @@ const SAHU_SKILLS = [
     { id: 'make_files', name: 'File Creation', icon: 'fa-file-export', color: 'rose', desc: 'The model can create downloadable files: pdf, pptx, xlsx, docx, md, txt, csv and json - with fonts, tables and emojis.' },
     { id: 'live_preview', name: 'Live Preview', icon: 'fa-bolt', color: 'emerald', desc: 'HTML and React apps the model writes open in a real live preview window - sandboxed, with console output, phone/desktop width, refresh and open-in-tab.' },
     { id: 'skill_creator', name: 'Skill Creator', icon: 'fa-wand-magic-sparkles', color: 'violet', desc: 'Ask the model to create a new skill (MAKESKILL block) - it is saved with its own on/off toggle in Settings > Skills and taught to every model.' },
-    { id: 'mcp_date', name: 'MCP: Current Date & Time', icon: 'fa-calendar-day', color: 'sky', desc: 'MCP tool - gives the model the REAL current date & time on demand (local + UTC, weekday, timezone, Unix stamp). Time-sensitive answers are always correct - no more guessed dates.' },
-    { id: 'mcp_calc', name: 'MCP: Calculator', icon: 'fa-calculator', color: 'orange', desc: 'MCP tool - an exact math engine the model can call: arithmetic, powers, roots, trig, logs, factorials, constants (pi, e). It computes instead of guessing.' },
-    { id: 'agent_swarm', name: 'Agent Swarm', icon: 'fa-users', color: 'violet', desc: 'MCP tool - the model can spawn 2-10 parallel worker agents (NEVER exactly 1) AS MANY TIMES as it wants during a task: each spawn is one fenced sahu_agents block, workers run at the same time (each may request one web search), and every report comes back merged. Built for big research, multi-part jobs and large comparisons.' },
+    { id: 'mcp_date', group: 'general', name: 'MCP: Current Date & Time', icon: 'fa-calendar-day', color: 'sky', desc: 'MCP tool - gives the model the REAL current date & time on demand (local + UTC, weekday, timezone, Unix stamp). Time-sensitive answers are always correct - no more guessed dates.' },
+    { id: 'mcp_calc', group: 'general', name: 'MCP: Calculator', icon: 'fa-calculator', color: 'orange', desc: 'MCP tool - an exact math engine the model can call: arithmetic, powers, roots, trig, logs, factorials, constants (pi, e). It computes instead of guessing.' },
+    { id: 'agent_swarm', name: 'Agent Swarm', icon: 'fa-users', color: 'violet', desc: 'MCP tool - the model can spawn 2-25 parallel worker agents (NEVER exactly 1; mode-capped: Fast 5 max, Standard/Plan/Study 10 max, Research/Task the full 25) AS MANY TIMES as it wants during a task. v9.27 SPECIALIST ROLES: each task gets a role - search (multi-category searches in parallel), engines (multi-engine searches in parallel), scraper (mass parallel full-text scraping, no length limit), browser, fetcher, coder (code interpreter + file creation + live preview + TDD + design polish), office (file reader + PDF + decks), media (charts, images, GIFs), skillcreator (create and clone-and-edit skills), writer (humanizer, citations, audit, summarize) - and role-less general workers do exactly what the orchestrating model instructs.' },
     { id: 'web_browse', name: 'Web Browsing', icon: 'fa-compass',  color: 'cyan',   desc: 'Browses a page like a person: skims the content and picks up links to follow next.' },
     // ---- v8.0.0 NO-BACKEND SKILL PACK (23 core skills; deep-research already ships as the Deep Research mode) ----
     { id: 'chart_studio', name: 'Chart Studio', icon: 'fa-chart-simple', color: 'indigo', desc: 'CHART / DIAGRAM / INFOGRAPHIC: the model emits a fenced echarts (JSON option), mermaid or infographic block and it renders as a real interactive card - charts, flowcharts, mind maps, sequence, ER, gantt, KPI infographics - with PNG export.' },
-    { id: 'speak', name: 'Speak (TTS)', icon: 'fa-volume-high', color: 'teal', desc: 'SPEAK: [rate=] [lang=] <text> reads any text aloud with the browser built-in speech engine - free, offline, no key. Adds a Speak button to every answer.' },
-    { id: 'convert', name: 'Converter', icon: 'fa-right-left', color: 'emerald', desc: 'CONVERT: exact unit conversion (length, mass, volume, area, speed, data, time, temperature), live currency via frankfurter.app (ECB rates, 1h cache) and timezone conversion (IANA-aware). Deterministic - never guessed.' },
-    { id: 'weather', name: 'Live Weather', icon: 'fa-cloud-sun', color: 'sky', desc: 'WEATHER: <place> gives real current conditions plus a 3-day forecast for any place on Earth (Open-Meteo, keyless, CORS-open) as a weather card.' },
+    { id: 'speak', group: 'general', name: 'Speak (TTS)', icon: 'fa-volume-high', color: 'teal', desc: 'SPEAK: [rate=] [lang=] <text> reads any text aloud with the browser built-in speech engine - free, offline, no key. Adds a Speak button to every answer.' },
+    { id: 'convert', group: 'infodata', name: 'Converter', icon: 'fa-right-left', color: 'emerald', desc: 'CONVERT: exact unit conversion (length, mass, volume, area, speed, data, time, temperature), live currency via frankfurter.app (ECB rates, 1h cache) and timezone conversion (IANA-aware). Deterministic - never guessed.' },
+    { id: 'weather', group: 'infodata', name: 'Live Weather', icon: 'fa-cloud-sun', color: 'sky', desc: 'WEATHER: <place> gives real current conditions plus a 3-day forecast for any place on Earth (Open-Meteo, keyless, CORS-open) as a weather card.' },
     { id: 'image_gen', name: 'Image Generation', icon: 'fa-image', color: 'violet', desc: 'IMG: [transparent] [w=] [h=] [model=] <prompt> generates images on the keyless Pollinations provider - inline card, PNG download, deterministic seeds, regenerate button.' },
     { id: 'gif_maker', name: 'GIF Maker', icon: 'fa-film', color: 'pink', desc: 'The model plans 2-10 frames and the app assembles a real animated GIF client-side with gif.js (frames from the keyless image provider). GIFPLAN fenced JSON block.' },
     { id: 'image_search', name: 'Image Search', icon: 'fa-images', color: 'cyan', desc: 'IMGSEARCH: <query> finds openly-licensed images (Openverse API - CC/BY metadata included) shown as a carousel with source links and license labels.' },
-    { id: 'places', name: 'Nearby Places', icon: 'fa-location-dot', color: 'rose', desc: 'PLACES: <what> near <where> - restaurants, ATMs, chemists, cafes, parks and more from OpenStreetMap (Nominatim + Overpass, keyless) with distances, hours and a map card.' },
-    { id: 'stock_snapshot', name: 'Stock Snapshot', icon: 'fa-chart-line', color: 'green', desc: 'STOCK: <symbols> - delayed quotes for stocks, indices and FX (Stooq, keyless, 5-min cache) as a market card. Informational only.' },
+    { id: 'places', group: 'infodata', name: 'Nearby Places', icon: 'fa-location-dot', color: 'rose', desc: 'PLACES: <what> near <where> - restaurants, ATMs, chemists, cafes, parks and more from OpenStreetMap (Nominatim + Overpass, keyless) with distances, hours and a map card.' },
+    { id: 'stock_snapshot', group: 'infodata', name: 'Stock Snapshot', icon: 'fa-chart-line', color: 'green', desc: 'STOCK: <symbols> - delayed quotes for stocks, indices and FX (Stooq, keyless, 5-min cache) as a market card. Informational only.' },
     { id: 'file_reader', name: 'File Reader', icon: 'fa-folder-open', color: 'blue', desc: 'Attach PDF, XLSX, DOCX, CSV, JSON or ZIP and the model actually reads them: pdf.js text extraction, SheetJS sheets, mammoth.js Word, JSZip listings. READ_FILE: / FIND_IN_FILES: over every attached document.' },
     { id: 'pdf_edit', name: 'PDF Editing', icon: 'fa-file-pdf', color: 'red', desc: 'PDFEDIT: real in-browser PDF surgery on attached PDFs - merge, extract/remove pages, rotate, watermark, edit metadata (pdf-lib). Results arrive as download cards.' },
-    { id: 'translate', name: 'Translate', icon: 'fa-language', color: 'amber', desc: 'TRANSLATE[from>to]: <text> - strict translation shim over the active model: output ONLY the translation, formatting preserved, shown as a two-pane copy card.' },
+    { id: 'translate', group: 'general', name: 'Translate', icon: 'fa-language', color: 'amber', desc: 'TRANSLATE[from>to]: <text> - strict translation shim over the active model: output ONLY the translation, formatting preserved, shown as a two-pane copy card.' },
     { id: 'humanizer', name: 'Humanizer', icon: 'fa-pen-nib', color: 'orange', desc: 'HUMANIZE: <text> - two-pass rewrite: first a diagnosis of AI-writing patterns (em-dash pileups, delve, rule-of-three, hedging), then a human-voiced rewrite that keeps every fact.' },
     { id: 'audit', name: 'Auditor', icon: 'fa-clipboard-check', color: 'purple', desc: 'AUDIT[type=dataset|schema|code|tos]: structured report cards. The dataset variant runs REAL deterministic checks (missing values, duplicates, outliers, type drift) in the Pyodide sandbox first.' },
     { id: 'cite_style', name: 'Citation Styles', icon: 'fa-quote-right', color: 'blue', desc: 'CITE[apa|mla|chicago|ieee|harvard]: formats references exactly, batch-converts bibliographies and validates required fields (DOI, pages, access dates).' },
-    { id: 'memory', name: 'Persistent Memory', icon: 'fa-brain', color: 'violet', desc: 'MEMORY:+ / MEMORY:- - a bounded profile of stable facts about you (name, stack, projects, preferences) carried across sessions, editable in Settings, skipped in Incognito, exportable as JSON.' },
+    { id: 'memory', group: 'general', name: 'Persistent Memory', icon: 'fa-brain', color: 'violet', desc: 'MEMORY:+ / MEMORY:- - a bounded profile of stable facts about you (name, stack, projects, preferences) carried across sessions, editable in Settings, skipped in Incognito, exportable as JSON.' },
     { id: 'reminders', name: 'Reminders', icon: 'fa-bell', color: 'yellow', desc: 'REMIND: in 45m | at 18:30 | every 30m <text> - browser notifications + in-chat banners while the app is open (honest limit: nothing fires when the tab is closed - no server).' },
     { id: 'summarize', name: 'Summarizer', icon: 'fa-align-left', color: 'sky', desc: 'SUMMARIZE: <url | YouTube link | attached file | text> - fetches the source (page, YouTube transcript via Piped, attached doc) and writes a fixed digest: TL;DR, key points, notable quotes.' },
     { id: 'tdd_mentor', name: 'TDD Mentor', icon: 'fa-vial', color: 'green', desc: 'TDD: / MENTOR: - test-driven development coach: writes the failing test FIRST in the sandbox, shows red, implements, shows green, refactors. MENTOR is the Socratic teaching variant.' },
@@ -11718,7 +11747,7 @@ function buildSearchLoopPrompt() {
     if (has('live_preview')) lines.push('LIVE PREVIEW - when the user asks for an app, website, page, UI, game or anything visual/interactive, write it as ONE complete single-file app in a fenced code block with language html (plain HTML/CSS/JS, CDN links allowed) or react (React 18 + JSX, CDN libraries and Tailwind are available; ALWAYS end with ReactDOM.createRoot(document.getElementById("root")).render(<App />)), and put the line PREVIEW: <short title> on the line immediately BEFORE the fence. The user gets the app opened in a live preview window automatically (they can also click Preview on any html/react block). Everything must live in that single file - no local files or imports.');
     if (has('mcp_date')) lines.push('MCP DATE TOOL - get the REAL current date/time: output a line DATE: (bare, for the user\'s local time) or DATE: <IANA timezone> (e.g. DATE: UTC, DATE: Asia/Kolkata, DATE: America/New_York). You receive the local date-time, UTC date-time, weekday and a Unix timestamp. Use it EVERY time an answer depends on today\'s date, the weekday, clocks, ages, deadlines or "days until/between" questions (then compute differences with CALC). NEVER guess or hardcode the current date.');
     if (has('mcp_calc')) lines.push('MCP CALCULATOR - exact math: output a line CALC: <expression> (one expression per line; several CALC lines run in parallel). Supports + - * / % (modulo) ^ (power), ! (factorial), parentheses, sqrt cbrt abs round floor ceil sign, min max pow root(x,n) atan2, sin cos tan asin acos atan sinh cosh tanh (radians), log ln log2 log10 exp, constants pi e tau phi, scientific notation (1.2e9) and implicit multiplication (2pi, 3(4+1)). Use it for ANY arithmetic beyond trivial single-digit sums and ALWAYS when precision matters.');
-    if (has('agent_swarm')) lines.push('AGENT SWARM - spawn parallel worker agents ANY time, AS MANY ROUNDS as you want (NO limit on how many times you may spawn): output ONE fenced block:\n```sahu_agents\n{"plan":"one line","tasks":[{"id":"w1","objective":"self-contained sub-task","output_format":"shape of the report","boundaries":"what NOT to overlap with siblings"},{"id":"w2","objective":"..."}]}\n```\nRules: 2-10 tasks per spawn, NEVER exactly 1 (a single sub-task means YOU do it yourself); each task independent, self-contained, non-overlapping; prefer 2-5, up to 10 for very large jobs. Workers answer from their own knowledge and may each request ONE web search (NEED_SEARCH). Their full reports come back next turn as [AGENTS] feedback. Spawn ANOTHER swarm in a later turn whenever it helps: split remaining work deeper, verify conflicting claims, cover new angles. Simple requests: spawn nothing.');
+    if (has('agent_swarm')) { const _sc = (typeof _sahuSwarmCap === 'function') ? _sahuSwarmCap() : 10; lines.push('AGENT SWARM - spawn parallel worker agents ANY time, AS MANY ROUNDS as you want (NO limit on how many times you may spawn): output ONE fenced block:\n```sahu_agents\n{"plan":"one line","tasks":[{"id":"w1","role":"search","objective":"self-contained sub-task","output_format":"shape of the report","boundaries":"what NOT to overlap with siblings"},{"id":"w2","role":"scraper","objective":"..."}]}\n```\nRules: 2-' + _sc + ' tasks per spawn (this mode allows up to ' + _sc + ' workers), NEVER exactly 1 (a single sub-task means YOU do it yourself); each task independent, self-contained, non-overlapping; prefer ' + (_sc >= 25 ? '5-15' : '2-5') + ', up to ' + _sc + ' for very large jobs. YOUR TEAM: 10 specialist agents (the roles below) + 15 general agents that do exactly what you instruct = 25 total. TASK ROLES - give each task a "role" for a specialist worker: search (web search across MANY CATEGORIES in parallel, one SEARCH[category] line each) | engines (MULTI-ENGINE searches in parallel) | scraper (mass parallel FULL-TEXT scraping, no length limit) | browser (parallel browsing) | fetcher (parallel raw fetches) | coder (code interpreter js/py/sql + file creation + html/react live preview + TDD mentor + design polish + self-improvement) | office (file reader + file creation + PDF editing + paged PDF studio + deck studio) | media (chart studio + image generation + GIF maker + image search) | skillcreator (create skills + clone-and-edit into new skills) | writer (humanizer + citation styles + auditor + summarizer). A task WITHOUT a role is a general worker that follows EXACTLY what you instruct (its objective, output_format and boundaries are yours to write). Web-role workers fire their SEARCH/READ/FETCH/BROWSE tool lines in parallel, up to 3 tool rounds each. Their full reports come back next turn as [AGENTS] feedback. Spawn ANOTHER swarm in a later turn whenever it helps: split remaining work deeper, verify conflicting claims, cover new angles. Simple requests: spawn nothing.'); }
     if (has('skill_creator')) lines.push('CREATE A SKILL - when the user asks you to create/define/save a new skill (a reusable behavior, persona or workflow), output a block:\nMAKESKILL: <skill name>\nDESC: <one line describing what it does>\n<the skill instructions - exact directives you should follow whenever this skill applies>\n/MAKESKILL\nIt is saved instantly and appears in Settings > Skills with its own on/off toggle.');
     lines.push('STYLE: In answers and files you may freely use emojis, markdown tables (| A | B |) to compare or contrast things, **bold**, headings (#, ##), and <font face=\"Georgia\" color=\"#c026d3\" size=\"4\">font spans</font> for different fonts and colors. Do NOT wrap markdown tables or FILE blocks inside code fences - output them as plain text.');
     if (has('web_browse')) lines.push('BROWSE: <url> - browse a page: quick content summary plus the links it contains for further browsing.');
@@ -13300,19 +13329,30 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
             for (const _swBlk of swarmBlocks) {
                 if (toolRuns >= MAX_TOOL_RUNS) { parts.push('[AGENTS] Tool budget reached - spawn no more swarms; write your final ANSWER now.'); break; }
                 const _swParsed = _sahuParseAgentSwarm(_swBlk);
-                const _swN = _swParsed && Array.isArray(_swParsed.tasks) ? Math.min(_swParsed.tasks.length, 10) : 0;
+                const _swCap = (typeof _sahuSwarmCap === 'function') ? _sahuSwarmCap() : 10; // v9.26: mode cap (fast 5 / standard 10 / research+task 25)
+                const _swN = _swParsed && Array.isArray(_swParsed.tasks) ? Math.min(_swParsed.tasks.length, _swCap) : 0;
                 if (_swN < 2) {
-                    parts.push('[AGENTS] Spawn rejected: ' + (_swN === 1 ? 'ONE agent is pointless - a single sub-task means YOU do it yourself. Either spawn 2-10 INDEPENDENT tasks or do the work directly.' : 'no valid tasks found. Follow the sahu_agents JSON shape exactly.'));
+                    parts.push('[AGENTS] Spawn rejected: ' + (_swN === 1 ? 'ONE agent is pointless - a single sub-task means YOU do it yourself. Either spawn 2-' + _swCap + ' INDEPENDENT tasks or do the work directly.' : 'no valid tasks found. Follow the sahu_agents JSON shape exactly.'));
                     continue;
                 }
                 toolRuns += _swN;
                 setBusy('Agent Swarm: spawning ' + _swN + ' workers...');
                 let _swRes = { handled: false };
+                const _swCtx = { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy, workerSources: [] };
                 try {
-                    _swRes = await _sahuRunAgentSwarm(_swBlk, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy, workerSources: [] });
+                    _swRes = await _sahuRunAgentSwarm(_swBlk, _swCtx);
                 } catch (e) { _swRes = { handled: false }; }
+                // v9.30: FIX - swarm worker sources must reach the Sources
+                // panel. They were merged into state.lastSources only, while
+                // the panel renders from this loop's `collected` pool - so a
+                // swarm-only search showed NO sources. Merge them here too.
+                try {
+                    (_swCtx.workerSources || []).forEach(function (r) {
+                        if (r && r.link && !seenLinks.has(r.link)) { seenLinks.add(r.link); collected.push(r); }
+                    });
+                } catch (e) {}
                 if (_swRes && _swRes.handled && _swRes.answer) {
-                    parts.push('[AGENTS] Swarm round complete (' + _swN + ' workers ran in parallel, findings merged). Their synthesized findings:\n' + _swRes.answer + '\nYou may spawn ANOTHER swarm with a different/deeper split, keep using other skills, or - if this is enough - write your final answer starting with ANSWER:');
+                    parts.push('[AGENTS] Swarm round complete (' + _swN + ' workers ran in parallel, findings merged). Their synthesized findings:\n' + _swRes.answer + '\nYou may spawn ANOTHER swarm with a different/deeper split, keep using other skills, or - if this is enough - write your final answer starting with ANSWER:. IMPORTANT: if the findings contain fenced artifact blocks (html/react/js/py/sql/pptd/pagedpdf/echarts/mermaid/infographic fences), FILE[ext]: lines, IMG:/IMGSEARCH:/GIFPLAN: or MAKESKILL directives, RE-EMIT them VERBATIM in your final answer - they render as real apps, files, decks, PDFs, charts, images and skills for the user.');
                 } else {
                     parts.push('[AGENTS] The swarm could not run this time (worker or synthesis failure). Continue with other skills or write your final answer.');
                 }
@@ -13356,7 +13396,14 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
         // run them now and replace the directive with the synthesized answer.
         if (/sahu[_-]agents/i.test(finalAnswer)) {
             try {
-                const _sw = await _sahuRunAgentSwarm(finalAnswer, { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy });
+                const _swCtx2 = { chatId: chatId, model: model, fullPrompt: fullPrompt, addTrace: addTrace, setBusy: setBusy, workerSources: [] };
+                const _sw = await _sahuRunAgentSwarm(finalAnswer, _swCtx2);
+                // v9.30: FIX - same merge for the final-answer swarm path
+                try {
+                    (_swCtx2.workerSources || []).forEach(function (r) {
+                        if (r && r.link && !seenLinks.has(r.link)) { seenLinks.add(r.link); collected.push(r); }
+                    });
+                } catch (e) {}
                 if (_sw && _sw.handled) finalAnswer = _sw.answer || finalAnswer;
                 else if (_sw && _sw.cleaned) finalAnswer = _sw.cleaned;
             } catch (e) {}
@@ -13705,11 +13752,56 @@ function _sahuExtractMadeSkills(text) {
 }
 window._sahuExtractMadeSkills = _sahuExtractMadeSkills;
 
-// ---- v7.1: AGENT SWARM - model-spawned parallel workers (2-10, never 1) ----
+// ---- v7.1: AGENT SWARM - model-spawned parallel workers (2-25, never 1) ----
+// v9.26: MODE-CAPPED SWARM SIZES (user rule):
+//   fast: 5 max | standard/plan/study/search: 10 max | research/task: full 25
+function _sahuSwarmCap() {
+    const m = String(state.mode || '');
+    if (m === 'research' || m === 'task' || m === 'artifacts' || m === 'appdev') return 25;
+    if (m === 'fast') return 5;
+    return 10;
+}
+window._sahuSwarmCap = _sahuSwarmCap;
+// ---- v9.27: SPECIALIZED SWARM WORKERS - the role table ----
+// Each swarm task may carry "role":<key>. Web roles get PARALLEL tool
+// permissions in the worker mini-loop; craft roles carry specialist
+// artifact directives. Any task WITHOUT a role is a general worker that
+// simply follows whatever the orchestrating model instructs it to do.
+function _sahuSwarmRoleDef(role) {
+    var R = {
+        search: { label: 'Web Search Specialist (categories)', tools: ['search'],
+            directive: 'Split your sub-task into as many DISTINCT SEARCH CATEGORIES as useful (news, academic, technical, market, regional, opinion...) and emit ONE SEARCH[category]: <query> line PER category - ALL of them run in parallel. Cover every angle, then synthesize.' },
+        engines: { label: 'Web Search Specialist (engines)', tools: ['search'],
+            directive: 'Cross-check across ENGINES: emit ONE SEARCH[engine]: <query> line PER ENGINE (google, bing, duckduckgo, wikipedia... any enabled key) - multiple engines run IN PARALLEL. Compare agreement and conflicts between engines.' },
+        scraper: { label: 'Web Scraper', tools: ['read'],
+            directive: 'Mass scraping: emit as many READ: <url> lines as your sub-task needs - every page is scraped FULL TEXT, in parallel, with NO character limit. Do not summarize prematurely; extract the complete content you were asked for.' },
+        browser: { label: 'Web Browser', tools: ['browse'],
+            directive: 'Navigate like a person: emit as many BROWSE: <url> lines as you need (all in parallel). Each returns the page summary plus its links; follow the promising links in the next round to map the territory.' },
+        fetcher: { label: 'Web Fetcher', tools: ['fetch'],
+            directive: 'Raw retrieval: emit as many FETCH: <url> lines as you need (all in parallel) and work with the raw text that comes back.' },
+        coder: { label: 'Coder', tools: [],
+            directive: 'Full coding stack - deliver COMPLETE, runnable artifacts: single-file html/react apps (put "PREVIEW: <title>" on the line right before the fence - the user gets a live preview window), js/py/sql code with real logic (the app renders Run buttons), FILE[ext]: blocks for real downloadable files, TDD discipline (show the failing test first), design-polish standards (deliberate type scale, 4/8px spacing rhythm, intentional palette), and note corrections as NOTED: <wrong> -> <right>. No placeholders, no "rest of code here".' },
+        office: { label: 'Office Specialist', tools: [],
+            directive: 'Document stack: READ_FILE: <name> over attached documents (PDF/DOCX/XLSX/CSV/ZIP are all parsed), FILE[ext]: blocks to create real downloadable files, PDFEDIT: for attached PDFs, ONE fenced pagedpdf block for print-grade A4 documents, ONE fenced pptd JSON block for presentation decks. Produce the actual artifacts, not descriptions.' },
+        media: { label: 'Media Specialist', tools: [],
+            directive: 'Visual stack: ONE fenced echarts / mermaid / infographic block for charts-diagrams-infographics (they render as interactive cards), IMG: <prompt> for image generation, IMGSEARCH: <query> for image search, GIFPLAN: for animated GIFs. Produce the actual artifact blocks.' },
+        skillcreator: { label: 'Skill Creator', tools: [],
+            directive: 'Skill engineering: create new skills with a MAKESKILL: <name> ... /MAKESKILL block (DESC: line + the directives). To build on an existing skill, CLONE it: restate its directives with your edits under a NEW name in a MAKESKILL block. Saved skills get their own card in Settings > Skills.' },
+        writer: { label: 'Writer / Editor', tools: [],
+            directive: 'Language stack: HUMANIZE the prose (natural voice, varied rhythm, no AI tells), CITE: for citation styling, AUDIT: for a fact and quality audit, SUMMARY: for condensation. Deliver the finished text.' }
+    };
+    var k = String(role || '').toLowerCase().trim();
+    var ALIAS = { websearch: 'search', category: 'search', categories: 'search', engine: 'engines', multiengine: 'engines', scrape: 'scraper', spider: 'scraper', browse: 'browser', navigator: 'browser', fetch: 'fetcher', code: 'coder', programming: 'coder', developer: 'coder', documents: 'office', document: 'office', visual: 'media', graphics: 'media', art: 'media', skill: 'skillcreator', skills: 'skillcreator', editor: 'writer', text: 'writer', language: 'writer' };
+    if (ALIAS[k]) k = ALIAS[k];
+    return R[k] || { label: 'General Worker', tools: ['search'], directive: 'General worker: do EXACTLY the work the orchestrator instructed - your sub-task, output format and boundaries come from the orchestrating model. If you need live web data, emit SEARCH[category-or-engine]: <query> lines (they run in parallel).' };
+}
+window._sahuSwarmRoleDef = _sahuSwarmRoleDef;
 // The orchestrator model ends its reply with a fenced ```sahu_agents JSON
-// block; this engine parses it, runs N workers in parallel (each worker is a
-// full model call that may request ONE web search), then synthesizes the
-// final answer from all reports. User rules: max 10 workers, NEVER 1.
+// block; this engine parses it, runs N workers in parallel (v9.27: each
+// worker has a ROLE - web roles fire SEARCH/READ/FETCH/BROWSE tool lines in
+// parallel for up to 3 rounds; craft roles deliver specialist artifacts),
+// then synthesizes the final answer from all reports. User rules: NEVER 1
+// worker; mode cap above.
 function _sahuParseAgentSwarm(text) {
     if (!text || !/```(?:sahu_agents|sahu-agents)/i.test(text)) return null;
     const m = text.match(/```(?:sahu_agents|sahu-agents)[ \t]*\r?\n([\s\S]*?)```/i);
@@ -13732,6 +13824,7 @@ function _sahuParseAgentSwarm(text) {
         .filter((t) => t && String(t.objective || '').trim())
         .map((t, i) => ({
             id: (String(t.id || '').replace(/[^a-zA-Z0-9_-]/g, '').substring(0, 12)) || ('w' + (i + 1)),
+            role: String(t.role || t.type || '').toLowerCase().replace(/[^a-z0-9_-]/g, '').substring(0, 24),
             objective: String(t.objective || '').trim().substring(0, 2500),
             output_format: String(t.output_format || 'Dense factual findings with key numbers and a short conclusion').substring(0, 400),
             boundaries: String(t.boundaries || '').substring(0, 300)
@@ -13764,7 +13857,8 @@ async function _sahuRunAgentSwarm(text, ctx) {
             return { handled: true, answer: parsed.cleaned || 'I could not complete this request - please try again.' };
         } finally { setBusy(''); }
     }
-    if (tasks.length > 10) tasks.length = 10;
+    const _swarmCap = (typeof _sahuSwarmCap === 'function') ? _sahuSwarmCap() : 10; // v9.26: mode cap
+    if (tasks.length > _swarmCap) tasks.length = _swarmCap;
     const chatId = ctx.chatId;
     ctx.addTrace('<i class="fas fa-users text-violet-500 mr-1"></i><span class="font-medium">Agent Swarm:</span> ' + tasks.length + ' workers spawned' + (parsed.plan ? ' - ' + escapeHtml(parsed.plan) : ''));
     setBusy('Agent Swarm: 0/' + tasks.length + ' workers done...');
@@ -13779,32 +13873,76 @@ async function _sahuRunAgentSwarm(text, ctx) {
             ctx.addTrace(_tag('started: ' + escapeHtml(t.objective.substring(0, 90)) + (t.objective.length > 90 ? '...' : '')));
             try {
                 if (state.currentChatId !== chatId || !state.isProcessing) throw new Error('stopped');
-                const msgs = [{ role: 'user', content: 'You are Worker ' + t.id + ', one of ' + tasks.length + ' parallel specialists spawned by the Manthan orchestrator.\nOVERALL USER REQUEST (pinned): ' + ctx.fullPrompt + (parsed.plan ? '\nORCHESTRATOR PLAN: ' + parsed.plan : '') + '\n\nYOUR SUB-TASK (do ONLY this; do not overlap siblings):\n' + t.objective + (t.boundaries ? '\nSIBLING BOUNDARIES (do not duplicate): ' + t.boundaries : '') + '\nOUTPUT FORMAT: ' + t.output_format + '\n\nRULES: Today is ' + new Date().toDateString() + '. Answer from your own knowledge. If - and only if - the sub-task critically needs CURRENT web data, reply with EXACTLY one line "NEED_SEARCH: <query>" and nothing else. Never emit SEARCH/READ/ANSWER directives, code blocks or sahu_agents blocks. Be dense, factual, no preamble, no apologies. End with a line "SOURCES: <urls you actually used>" or "SOURCES: none".' }];
-                let res = await Promise.race([
-                    callModelWithFallback(ctx.model.provider, ctx.model.modelId, msgs, 0, null),
-                    new Promise((_, rej) => setTimeout(() => rej(new Error('worker timeout')), 150000))
-                ]);
-                let txt = (res.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-                const needM = txt.match(/^NEED_SEARCH\s*:\s*(.+)$/im);
-                if (needM && txt.length < 400) {
-                    ctx.addTrace(_tag('requested web search: ' + escapeHtml(needM[1].substring(0, 80))));
-                    let hits = [];
-                    try {
-                        if (state.currentChatId !== chatId || !state.isProcessing) throw new Error('stopped');
-                        const sr = await Promise.race([searchWeb(needM[1].substring(0, 300)), new Promise((_, rej) => setTimeout(() => rej(new Error('search timeout')), 45000))]);
-                        const arr = (typeof sr === 'string') ? JSON.parse(sr) : sr;
-                        if (Array.isArray(arr)) hits = arr.slice(0, 8);
-                    } catch (e2) {}
-                    if (hits.length) {
-                        (ctx.workerSources = ctx.workerSources || []).push(...hits);
-                        ctx.addTrace(_tag('+' + hits.length + ' web results'));
-                    }
-                    if (state.currentChatId !== chatId || !state.isProcessing) throw new Error('stopped');
-                    res = await Promise.race([
-                        callModelWithFallback(ctx.model.provider, ctx.model.modelId, msgs.concat([{ role: 'user', content: (hits.length ? ('WEB RESULTS (fresh; cite as [n] only if you use them):\n' + hits.map((h, hi) => '[' + (hi + 1) + '] ' + (h.title || '') + ' - ' + (h.snippet || '').substring(0, 260) + ' (' + (h.link || '') + ')').join('\n')) : 'The web search returned nothing usable.') + '\n\nNEED_SEARCH is no longer available - deliver your final findings now, in the required format.' }]), 0, null),
+                // v9.27: SPECIALIZED WORKERS - each task may carry a "role"
+                // (search / engines / scraper / browser / fetcher / coder /
+                // office / media / skillcreator / writer). The role decides
+                // which PARALLEL tools the worker may fire (multi-category /
+                // multi-engine searches, mass scraping, browsing, fetching)
+                // and what specialist artifacts it should deliver.
+                const roleDef = (typeof _sahuSwarmRoleDef === 'function') ? _sahuSwarmRoleDef(t.role) : { label: 'Generalist', tools: ['search'], directive: '' };
+                ctx.addTrace(_tag('role: <span class="text-violet-500">' + escapeHtml(roleDef.label) + '</span>'));
+                const _toolHelp = {
+                    search: 'SEARCH[category-or-engine]: <query> - ONE LINE PER CATEGORY or ENGINE; every line runs in parallel (as many as you need)',
+                    read: 'READ: <url> - full-text page scrape, NO length limit; as many URLs as you need, all in parallel',
+                    fetch: 'FETCH: <url> - raw text fetch; as many URLs as you need, all in parallel',
+                    browse: 'BROWSE: <url> - page summary + its links; as many URLs as you need, all in parallel'
+                };
+                let msgs = [{ role: 'user', content: 'You are Worker ' + t.id + ', one of ' + tasks.length + ' parallel specialists spawned by the Manthan orchestrator.\nOVERALL USER REQUEST (pinned): ' + ctx.fullPrompt + (parsed.plan ? '\nORCHESTRATOR PLAN: ' + parsed.plan : '') + '\n\nYOUR ROLE: ' + roleDef.label + '\n' + roleDef.directive + '\n\nYOUR SUB-TASK (do ONLY this; do not overlap siblings):\n' + t.objective + (t.boundaries ? '\nSIBLING BOUNDARIES (do not duplicate): ' + t.boundaries : '') + '\nOUTPUT FORMAT: ' + t.output_format + '\n\nRULES: Today is ' + new Date().toDateString() + '. ' + (roleDef.tools.length ? ('IF YOU NEED LIVE DATA, put your TOOL LINES at the END of your reply (they all run in parallel, then the results come back to you): ' + roleDef.tools.map(function (x) { return _toolHelp[x]; }).join(' | ') + '. ') : '') + 'Never emit ANSWER: or sahu_agents blocks. Be dense, factual, no preamble, no apologies. Deliver complete artifacts when your role calls for them. End with a line "SOURCES: <urls you actually used>" or "SOURCES: none".' }];
+                let txt = '';
+                const _wThink = new RegExp('<' + 'think>[\\s\\S]*?</' + 'think>', 'g');
+                const _doneQ = new Set(), _doneU = new Set();
+                for (let _wr = 0; _wr < 3; _wr++) {
+                    const res = await Promise.race([
+                        callModelWithFallback(ctx.model.provider, ctx.model.modelId, msgs, 0, null),
                         new Promise((_, rej) => setTimeout(() => rej(new Error('worker timeout')), 150000))
                     ]);
-                    txt = (res.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+                    txt = String(res.content || '').replace(_wThink, '').trim();
+                    const _q = [], _rd = [], _ft = [], _bw = [];
+                    if (roleDef.tools.indexOf('search') >= 0) {
+                        [...txt.matchAll(/SEARCH(?:\s*\[([^\]]*)\]|\s*\(([^)]*)\))?:\s*([^\n]+)/gi)].forEach(function (m) {
+                            const q = String(m[3] || '').replace(/[*`]/g, '').trim(); if (!q) return;
+                            const engs = String(m[1] || m[2] || '').split(/[,;|]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+                            const key = engs.join(',').toLowerCase() + '|' + q.toLowerCase().replace(/\s+/g, ' ');
+                            if (_doneQ.has(key)) return; _doneQ.add(key);
+                            _q.push({ engines: engs, query: q });
+                        });
+                    }
+                    if (roleDef.tools.indexOf('read') >= 0) [...txt.matchAll(/READ:\s*(https?:\/\/\S+)/gi)].forEach(function (m) { const u = String(m[1] || '').replace(/[)`\]]+$/, ''); if (u && !_doneU.has('R' + u)) { _doneU.add('R' + u); _rd.push(u); } });
+                    if (roleDef.tools.indexOf('fetch') >= 0) [...txt.matchAll(/FETCH:\s*(https?:\/\/\S+)/gi)].forEach(function (m) { const u = String(m[1] || '').replace(/[)`\]]+$/, ''); if (u && !_doneU.has('F' + u)) { _doneU.add('F' + u); _ft.push(u); } });
+                    if (roleDef.tools.indexOf('browse') >= 0) [...txt.matchAll(/BROWSE:\s*(https?:\/\/\S+)/gi)].forEach(function (m) { const u = String(m[1] || '').replace(/[)`\]]+$/, ''); if (u && !_doneU.has('B' + u)) { _doneU.add('B' + u); _bw.push(u); } });
+                    if (!_q.length && !_rd.length && !_ft.length && !_bw.length) break; // no tools -> this was the final report
+                    const jobs = [];
+                    _q.slice(0, 12).forEach(function (q) { jobs.push((async function () {
+                        ctx.addTrace(_tag('search ' + (q.engines.length ? '[' + escapeHtml(q.engines.join(',')) + '] ' : '') + escapeHtml(q.query.substring(0, 70))));
+                        let found = [];
+                        try { found = JSON.parse(await searchWeb(q.query, q.engines.length ? q.engines : null)) || []; } catch (e) { found = []; }
+                        try { (ctx.workerSources = ctx.workerSources || []).push(...found.slice(0, 20)); } catch (e) {}
+                        const list = found.slice(0, 20).map(function (s, i) { return (i + 1) + '. [' + (s.source || 'web') + '] ' + s.title + ' (' + s.link + ')' + (s.snippet ? '\n   ' + s.snippet : ''); }).join('\n');
+                        return '[SEARCH' + (q.engines.length ? '[' + q.engines.join(', ') + ']' : '') + '] "' + q.query + '" -> ' + found.length + ' results\n' + (list || 'No results - try a different query or key.');
+                    })()); });
+                    _rd.slice(0, 12).forEach(function (u) { jobs.push((async function () {
+                        ctx.addTrace(_tag('scrape ' + escapeHtml(u.substring(0, 60))));
+                        let page = { ok: false };
+                        try { page = await scrapePageContent(u, 'read'); } catch (e) {}
+                        return '[READ] ' + u + '\n' + (page.ok ? page.text : 'Could not open this page.');
+                    })()); });
+                    _ft.slice(0, 12).forEach(function (u) { jobs.push((async function () {
+                        ctx.addTrace(_tag('fetch ' + escapeHtml(u.substring(0, 60))));
+                        let page = { ok: false };
+                        try { page = await scrapePageContent(u, 'fetch'); } catch (e) {}
+                        return '[FETCH] ' + u + '\n' + (page.ok ? page.text : 'Could not fetch this URL.');
+                    })()); });
+                    _bw.slice(0, 12).forEach(function (u) { jobs.push((async function () {
+                        ctx.addTrace(_tag('browse ' + escapeHtml(u.substring(0, 60))));
+                        let page = { ok: false, links: [] };
+                        try { page = await scrapePageContent(u, 'browse'); } catch (e) { page = { ok: false, links: [] }; }
+                        const linkList = (page.links || []).slice(0, 10).map(function (l) { return '- ' + l.text + ' -> ' + l.url; }).join('\n');
+                        return '[BROWSE] ' + u + (page.title ? ' (title: ' + page.title + ')' : '') + '\n' + (page.ok ? page.text + (linkList ? '\nLinks on this page:\n' + linkList : '') : 'Could not open this page.');
+                    })()); });
+                    const outs = (await Promise.allSettled(jobs)).map(function (r) { return r.status === 'fulfilled' ? r.value : '(tool failed)'; });
+                    if (state.currentChatId !== chatId || !state.isProcessing) throw new Error('stopped');
+                    msgs.push({ role: 'assistant', content: txt });
+                    msgs.push({ role: 'user', content: 'TOOL RESULTS (all ran in parallel):\n\n' + outs.join('\n\n') + '\n\nUse these results now. If you still need more tools, reply with ONLY the tool lines; otherwise write your FINAL report in the required output format (no tool lines).' });
                 }
                 doneCount++;
                 setBusy('Agent Swarm: ' + doneCount + '/' + tasks.length + ' workers done...');
@@ -13829,7 +13967,7 @@ async function _sahuRunAgentSwarm(text, ctx) {
         setBusy('Synthesizing ' + tasks.length + ' worker reports...');
         if (state.currentChatId === chatId && state.isProcessing) {
             try {
-                const synth = await callModelWithFallback(ctx.model.provider, ctx.model.modelId, [{ role: 'user', content: 'ORIGINAL USER REQUEST (pinned): ' + ctx.fullPrompt + '\n\nYou spawned ' + tasks.length + ' parallel worker agents. Their reports:\n\n' + reports + '\n\nTASK: Synthesize the FINAL user-facing answer to the ORIGINAL REQUEST: merge all worker reports, remove duplication, resolve contradictions explicitly (say which source is more reliable and why), cover every sub-task, and clearly note any gaps left by failed or missing workers. Keep formatting clean (headings, tables, bullets where useful). Preserve [n] citations where workers used them (they map to the merged sources pool). Write the full answer now - do NOT emit sahu_agents, SEARCH or NEED_SEARCH directives.' }], 0, null);
+                const synth = await callModelWithFallback(ctx.model.provider, ctx.model.modelId, [{ role: 'user', content: 'ORIGINAL USER REQUEST (pinned): ' + ctx.fullPrompt + '\n\nYou spawned ' + tasks.length + ' parallel worker agents. Their reports:\n\n' + reports + '\n\nTASK: Synthesize the FINAL user-facing answer to the ORIGINAL REQUEST: merge all worker reports, remove duplication, resolve contradictions explicitly (say which source is more reliable and why), cover every sub-task, and clearly note any gaps left by failed or missing workers. Keep formatting clean (headings, tables, bullets where useful). Preserve [n] citations where workers used them (they map to the merged sources pool). PRESERVE VERBATIM every fenced artifact block (html, react, js, py, sql, pptd, pagedpdf, echarts, mermaid, infographic fences), FILE[ext]: line and IMG:/IMGSEARCH:/GIFPLAN:/MAKESKILL directive from worker reports - they render as real apps, files, decks, PDFs, charts, images and skills for the user; never summarize code away, re-emit blocks unchanged. Write the full answer now - do NOT emit sahu_agents, SEARCH or NEED_SEARCH directives.' }], 0, null);
                 answer = (synth.content || '').replace(/<think>[\s\S]*?<\/think>/g, '').replace(/```(?:sahu_agents|sahu-agents)[\s\S]*?```/gi, '').trim();
             } catch (e) {}
         }
@@ -13881,6 +14019,15 @@ function renderSkillsSettings() {
         const icon = s.icon || 'fa-wand-magic-sparkles';
         const color = s.color || 'violet';
         const menuId = 'skm_' + String(s.id).replace(/[^a-z0-9_]/gi, '');
+        // v9.29: GROUP cards carry their children as chips inside the card
+        const isGroup = Array.isArray(s.children) && s.children.length > 0;
+        let childChips = '';
+        if (isGroup) {
+            childChips = '<div class="agcard-skills">' + s.children.map(cid => {
+                const c = SAHU_SKILLS.find(x => x.id === cid) || (state.customSkills || []).find(x => x.id === cid);
+                return '<span class="agchip"><i class="fas ' + ((c && c.icon) || 'fa-puzzle-piece') + '" style="margin-right:4px;"></i>' + escapeHtml((c && c.name) || cid) + '</span>';
+            }).join('') + '</div>';
+        }
         return `
         <div class="skcard" onclick="sahuSkillDetails('${s.id}')">
             <div class="skcard-head">
@@ -13888,9 +14035,10 @@ function renderSkillsSettings() {
                 <button class="skcard-kebab" onclick="event.stopPropagation();sahuSkillMenu(event,'${menuId}')" title="Skill options"><i class="fas fa-ellipsis-vertical"></i></button>
             </div>
             <div class="skcard-desc">${escapeHtml(s.desc || '')}</div>
+            ${childChips}
             <div class="skcard-foot">
                 <span class="skill-always-on" title="Always enabled - skills cannot be disabled in Manthan"><i class="fas fa-lock"></i> Always on</span>
-                <span class="skcard-kind">${kind === 'own' ? 'Custom' : (kind === 'lib' ? 'Library' : 'Core')}</span>
+                <span class="skcard-kind">${kind === 'own' ? 'Custom' : (kind === 'lib' ? 'Library' : (isGroup ? 'Group · ' + s.children.length + ' skills' : 'Core'))}</span>
             </div>
             <div class="skcard-menu" id="${menuId}">
                 <button onclick="event.stopPropagation();sahuSkillDetails('${s.id}')"><i class="fas fa-eye"></i> What's inside</button>
@@ -13904,9 +14052,10 @@ function renderSkillsSettings() {
     let html = '';
     try { if (typeof sahuMemPanelHtml === 'function') html += sahuMemPanelHtml(); } catch (e) {}
     html += '<div class="skcard-top">' +
-        '<span class="skcard-count">' + SAHU_SKILLS.length + ' core skills</span>' +
+        '<span class="skcard-count">' + SAHU_SKILLS.filter(s => !s.group).length + ' skills · ' + SAHU_SKILLS.filter(s => Array.isArray(s.children) && s.children.length).length + ' groups</span>' +
         '<button class="skcard-newbtn" onclick="sahuNewSkillModal()"><i class="fas fa-plus"></i> New Skill</button></div>';
-    html += '<div class="skcard-grid">' + SAHU_SKILLS.map(s => _card(s, false)).join('') + '</div>';
+    // v9.29: children of group skills render INSIDE their group card, never standalone
+    html += '<div class="skcard-grid">' + SAHU_SKILLS.filter(s => !s.group).map(s => _card(s, false)).join('') + '</div>';
     const cs = state.customSkills || [];
     // v8.0: split the seeded Skill Library from user-created custom skills
     const libSkills = cs.filter(s => s && String(s.id).indexOf('lib_') === 0);
@@ -13983,6 +14132,76 @@ function sahuCloseSkillModal() {
     if (m) m.style.display = 'none';
 }
 window.sahuCloseSkillModal = sahuCloseSkillModal;
+// v9.28: the Agent Swarm team view - 25 agent cards (10 specialists +
+// 15 general, model-instructed). Rendered inside the skill details modal.
+function _sahuSwarmTeamHTML() {
+    const cap = (typeof _sahuSwarmCap === 'function') ? _sahuSwarmCap() : 10;
+    const ROLES = ['search', 'engines', 'scraper', 'browser', 'fetcher', 'coder', 'office', 'media', 'skillcreator', 'writer'];
+    const ICONS = { search: 'fa-magnifying-glass-chart', engines: 'fa-layer-group', scraper: 'fa-spider', browser: 'fa-compass', fetcher: 'fa-download', coder: 'fa-code', office: 'fa-briefcase', media: 'fa-palette', skillcreator: 'fa-wand-magic-sparkles', writer: 'fa-pen-nib' };
+    const SKILLS = {
+        search: ['Web Search'],
+        engines: ['Web Search'],
+        scraper: ['Web Scraping'],
+        browser: ['Web Browsing'],
+        fetcher: ['Web Fetching'],
+        coder: ['Code Interpreter', 'File Creation', 'Live Preview', 'TDD Mentor', 'Design Polish', 'Self-Improvement'],
+        office: ['File Reader', 'File Creation', 'PDF Editing', 'Paged PDF Studio', 'Deck Studio'],
+        media: ['Chart Studio', 'Image Generation', 'GIF Maker', 'Image Search'],
+        skillcreator: ['Skill Creator'],
+        writer: ['Humanizer', 'Citation Styles', 'Auditor', 'Summarizer']
+    };
+    let cards = '';
+    ROLES.forEach(function (k) {
+        const rd = (typeof _sahuSwarmRoleDef === 'function') ? _sahuSwarmRoleDef(k) : { label: k, directive: '' };
+        cards += '<div class="agcard" onclick="sahuAgToggle(this)">'
+            + '<div class="agcard-head"><span class="agcard-ico"><i class="fas ' + (ICONS[k] || 'fa-robot') + '"></i></span>'
+            + '<div><div class="agcard-name">' + escapeHtml(rd.label) + '</div><div class="agcard-tag">Specialist agent</div></div></div>'
+            + '<div class="agcard-skills">' + (SKILLS[k] || []).map(function (x) { return '<span class="agchip">' + escapeHtml(x) + '</span>'; }).join('') + '</div>'
+            + '<button class="agcard-more" type="button">Instructions <i class="fas fa-chevron-down"></i></button>'
+            + '<div class="agcard-body">' + escapeHtml(rd.directive || '') + '</div>'
+            + '</div>';
+    });
+    for (let i = 1; i <= 15; i++) {
+        cards += '<div class="agcard" onclick="sahuAgToggle(this)">'
+            + '<div class="agcard-head"><span class="agcard-ico"><i class="fas fa-user-gear"></i></span>'
+            + '<div><div class="agcard-name">General Agent ' + i + '</div><div class="agcard-tag">Instructed by the model</div></div></div>'
+            + '<div class="agcard-skills"><span class="agchip">Web Search</span><span class="agchip">Any skill the model assigns</span></div>'
+            + '<button class="agcard-more" type="button">Instructions <i class="fas fa-chevron-down"></i></button>'
+            + '<div class="agcard-body">Spawned by the orchestrating model with a bespoke objective, output format and boundaries written by the model itself at spawn time. Does exactly the work it is told - research, drafting, checking, assembling, whatever the model decides. Can fire parallel SEARCH tool lines when the job needs live web data (up to 3 tool rounds).</div>'
+            + '</div>';
+    }
+    return '<div class="skdetail-sec">Agent team <span class="skdetail-note">— 10 specialists + 15 general agents = 25 agents. Per-spawn limit in this mode: ' + cap + ' (Research/Task allows the full 25). Tap a card for its instructions.</span></div>'
+        + '<div class="agcard-grid">' + cards + '</div>';
+}
+window._sahuSwarmTeamHTML = _sahuSwarmTeamHTML;
+function sahuAgToggle(el) { try { if (el && el.classList) el.classList.toggle('open'); } catch (e) {} }
+window.sahuAgToggle = sahuAgToggle;
+
+// v9.29: GROUP SKILL view - the contained skills as cards with instructions.
+// Rendered inside the skill details modal for group entries (General,
+// Information and Data).
+function _sahuSkillGroupHTML(s) {
+    const kids = (s.children || []).map(function (cid) {
+        return SAHU_SKILLS.find(function (x) { return x.id === cid; }) ||
+            (state.customSkills || []).find(function (x) { return x.id === cid; }) ||
+            { id: cid, name: cid, desc: '' };
+    });
+    let cards = '';
+    kids.forEach(function (c) {
+        const dir = _sahuSkillDirectives(c.id);
+        cards += '<div class="agcard" onclick="sahuAgToggle(this)">'
+            + '<div class="agcard-head"><span class="agcard-ico"><i class="fas ' + (c.icon || 'fa-puzzle-piece') + '"></i></span>'
+            + '<div><div class="agcard-name">' + escapeHtml(c.name || c.id) + '</div><div class="agcard-tag">Included in ' + escapeHtml(s.name || s.id) + '</div></div></div>'
+            + '<div class="agcard-desc">' + escapeHtml(c.desc || '') + '</div>'
+            + '<button class="agcard-more" type="button">Instructions <i class="fas fa-chevron-down"></i></button>'
+            + '<div class="agcard-body">' + escapeHtml(dir || '(This skill works silently in the background - it sends no directives to the model.)') + '</div>'
+            + '</div>';
+    });
+    return '<div class="skdetail-sec">Contains ' + kids.length + ' skills <span class="skdetail-note">— these skills run inside ' + escapeHtml(s.name || s.id) + '; tap a card for its instructions</span></div>'
+        + '<div class="agcard-grid">' + cards + '</div>';
+}
+window._sahuSkillGroupHTML = _sahuSkillGroupHTML;
+
 function sahuSkillDetails(id) {
     const found = _sahuSkillById(id);
     if (!found) { showToast('Skill not found', 'error'); return; }
@@ -13997,8 +14216,12 @@ function sahuSkillDetails(id) {
             '<div class="skdetail-kind">' + kindLabel + ' · <span class="skill-always-on"><i class="fas fa-lock"></i> Always on</span></div></div>' +
         '</div>' +
         '<p class="skdetail-desc">' + escapeHtml(s.desc || '') + '</p>' +
-        '<div class="skdetail-sec">What the skill contains <span class="skdetail-note">— the directives the agent receives while this skill is active</span></div>' +
-        '<pre class="skdetail-code">' + escapeHtml(directives || '(This skill works silently in the background - it sends no directives to the model.)') + '</pre>' +
+        (id === 'agent_swarm'
+            ? _sahuSwarmTeamHTML()
+            : (Array.isArray(s.children) && s.children.length
+                ? _sahuSkillGroupHTML(s)
+                : '<div class="skdetail-sec">What the skill contains <span class="skdetail-note">— the directives the agent receives while this skill is active</span></div>' +
+                  '<pre class="skdetail-code">' + escapeHtml(directives || '(This skill works silently in the background - it sends no directives to the model.)') + '</pre>')) +
         '<div class="skdetail-actions">' +
             '<button class="btn btn-secondary" onclick="sahuCloneSkill(\'' + s.id + '\')"><i class="fas fa-copy"></i> Clone</button>' +
             '<button class="btn btn-secondary" onclick="sahuDownloadSkill(\'' + s.id + '\')"><i class="fas fa-download"></i> Download</button>' +
@@ -16088,7 +16311,7 @@ const APP_VERSION = '9.19'; // v9.19: Reasoning Auto-Detect Engine - every model
 const APP_TITLE = APP_NAME + ' v' + APP_VERSION + ' - Official Saksham Intelligence AI Models Chat';
 
 async function init() {
-    console.log('🚀 Manthan Agent v9.19 Initializing...');
+    console.log('🚀 Manthan Agent v10.0 Initializing...');
     document.title = APP_TITLE;
     
     // Load state from localStorage
@@ -16138,8 +16361,8 @@ async function init() {
     // Update language
     updateLanguage(state.language);
     
-    console.log('✅ Manthan Agent v9.19 Ready');
-    showToast('Manthan Agent v9.19 Loaded');
+    console.log('✅ Manthan Agent v10.0 Ready');
+    showToast('Manthan Agent v10.0 Loaded');
 }
 
 // ============================================
@@ -16258,7 +16481,7 @@ function toggleIncognito() {
         }
         if (_incWelcome) _incWelcome.classList.remove('hidden');
     } else {
-        document.title = 'Manthan Agent v9.19 - Official Saksham Intelligence AI Models Chat';
+        document.title = 'Manthan Agent v10.0 - Official Saksham Intelligence AI Models Chat';
         showToast('Incognito Mode OFF', 'info');
         // BUG FIX 4: start a fresh normal session. This discards the private
         // chat id so the next message is saved as a brand-new chat instead of
@@ -18450,7 +18673,7 @@ try {
           desc: 'High-fidelity presentations: the model emits a pptd fenced JSON deck spec (title/section/bullets/two-col/stats/quote/table slides, 5 themes, speaker notes) - the app renders a styled slide preview and a real .pptx download. The kimi-slides pipeline.' },
         { id: 'pdf_studio', name: 'Paged PDF Studio', icon: 'fa-file-pdf', color: 'red',
           desc: 'Print-grade PDF documents: the model writes styled HTML, Paged.js paginates it into real A4 pages with running heads and page numbers, an automatic layout QA check catches overflow, and one click saves it as PDF (Sarvam Paged.js engine).' },
-        { id: 'voice_input', name: 'Live Voice Input', icon: 'fa-microphone-lines', color: 'orange',
+        { id: 'voice_input', group: 'general', name: 'Live Voice Input', icon: 'fa-microphone-lines', color: 'orange',
           desc: 'The chatbar mic button is a live dictation mic: speech-to-text with a live transcription preview while you speak, appending into a half-written message instead of replacing it; tap the mic to start, tap again to stop (browser SpeechRecognition - keyless, no Whisper round-trip).' }
         // v9.25: vision_input skill REMOVED - no vision gating or vision model list anymore; any model gets attached images as image parts
     ];
