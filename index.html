@@ -3169,6 +3169,58 @@
         .sahu-modal h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.7rem; }
         .sahu-modal-item { display: flex; justify-content: space-between; gap: 0.5rem; align-items: center; padding: 0.5rem 0.6rem; border-radius: var(--radius-md, 8px); font-size: 0.85rem; }
         .sahu-modal-item:hover { background: rgba(127,127,127,.1); }
+        /* v9.22: skill CARDS GRID (Agent-Creator style) + detail modal */
+        .skcard-top { display:flex; align-items:center; justify-content:space-between; margin:0 0 10px; }
+        .skcard-count { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-secondary); }
+        .skcard-newbtn { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--accent); color:var(--accent); background:transparent; border-radius:999px; padding:6px 14px; font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; transition:all var(--transition-fast); }
+        .skcard-newbtn:hover { background:var(--accent); color:var(--accent-contrast); }
+        .skcard-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; margin-bottom:14px; }
+        .skcard { position:relative; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-lg); padding:12px 14px; cursor:pointer; transition:border-color var(--transition-fast), box-shadow var(--transition-fast); display:flex; flex-direction:column; gap:8px; }
+        .skcard:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+        .skcard-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+        .skcard-title { display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:650; color:var(--text-primary); min-width:0; }
+        .skcard-title i { flex-shrink:0; }
+        .skcard-kebab { background:none; border:none; color:var(--text-muted); width:26px; height:26px; border-radius:7px; cursor:pointer; flex-shrink:0; }
+        .skcard-kebab:hover { background:var(--bg-tertiary); color:var(--text-primary); }
+        .skcard-desc { font-size:11.5px; line-height:1.5; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; min-height:48px; }
+        .skcard-foot { display:flex; align-items:center; justify-content:space-between; margin-top:auto; }
+        .skcard-kind { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; font-weight:600; }
+        .skcard-menu { position:absolute; top:34px; right:10px; min-width:180px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); z-index:60; display:none; overflow:hidden; padding:4px; }
+        .skcard-menu.open { display:block; }
+        .skcard-menu button { display:flex; align-items:center; gap:9px; width:100%; padding:8px 10px; background:none; border:none; color:var(--text-primary); font-size:12.5px; font-family:inherit; cursor:pointer; text-align:left; border-radius:7px; }
+        .skcard-menu button:hover { background:var(--bg-tertiary); }
+        .skcard-menu .skcard-danger { color:#dc2626; }
+        .skcard-section { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-secondary); margin:14px 0 8px; }
+        .skdetail-modal { max-width:44rem; }
+        .skdetail-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        .skdetail-ico { width:42px; height:42px; border-radius:12px; background:var(--accent-light); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+        .skdetail-name { font-size:16px; font-weight:700; color:var(--text-primary); }
+        .skdetail-kind { font-size:11px; color:var(--text-secondary); margin-top:2px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .skdetail-desc { font-size:12.5px; color:var(--text-secondary); line-height:1.55; margin-bottom:12px; }
+        .skdetail-sec { font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:6px; }
+        .skdetail-note { font-weight:500; color:var(--text-muted); font-size:10.5px; }
+        .skdetail-code { background:var(--bg-tertiary); border:1px solid var(--border); border-radius:10px; padding:12px 14px; font:11.5px/1.6 var(--font-mono, ui-monospace, Consolas, monospace); white-space:pre-wrap; word-break:break-word; color:var(--text-primary); max-height:44vh; overflow:auto; margin-bottom:14px; }
+        .skdetail-actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+        .sknew-form { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+        .sknew-l { display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:600; color:var(--text-primary); }
+        .sknew-l textarea { min-height:110px; }
+        /* v9.23: compact FILE CARD for big code builds (Claude style) */
+        .sahufile-card { display:flex; align-items:center; gap:0.75rem; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.7rem 0.9rem; cursor:pointer; transition:border-color var(--transition-fast), box-shadow var(--transition-fast); }
+        .sahufile-card:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+        .sahufile-ico { width:2.35rem; height:2.35rem; border-radius:10px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0; }
+        .sahufile-meta { min-width:0; flex:1; display:flex; flex-direction:column; gap:2px; }
+        .sahufile-name { font-size:0.85rem; font-weight:650; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .sahufile-sub { font-size:0.68rem; color:var(--text-muted); }
+        .sahufile-btns { display:flex; align-items:center; gap:0.4rem; flex-shrink:0; }
+        .sahufile-btns button { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--bg-tertiary); color:var(--text-secondary); border-radius:8px; padding:0.42rem 0.7rem; font-size:0.72rem; font-weight:600; font-family:inherit; cursor:pointer; transition:all var(--transition-fast); }
+        .sahufile-btns button:hover { border-color:var(--accent); color:var(--accent); }
+        .sahufile-reveal { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-muted); font-size:0.7rem; font-weight:600; font-family:inherit; cursor:pointer; padding:6px 4px; }
+        .sahufile-reveal:hover { color:var(--accent); }
+        /* canvas tabs + code view */
+        .sahupv-tabs { display:flex; gap:4px; background:rgba(127,127,127,0.12); border-radius:9px; padding:3px; flex-shrink:0; }
+        .sahupv-tab { border:none; background:transparent; color:var(--text-secondary,#9ca3af); font-size:11px; font-weight:600; font-family:inherit; padding:4px 10px; border-radius:7px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+        .sahupv-tab.active { background:var(--accent,#6366f1); color:#fff; }
+        .sahupv-codeview { flex:1; width:100%; margin:0; padding:14px 16px; overflow:auto; background:#0b1020; color:#d1fae5; font:12px/1.6 var(--font-mono, ui-monospace, Consolas, monospace); white-space:pre; }
         /* v9: clearance so the floating chatbar never covers the last response + footer buttons */
         .chat-container { padding-bottom: 10.5rem !important; }
         /* v9.5: ChatGPT-style pill - action icon + three dots in one button */
@@ -3254,7 +3306,6 @@
                 <div class="sidebar-logo">🦅</div>
                 <div>
                     <h1 class="sidebar-title" id="header-title">Manthan Agent</h1>
-                    <p class="sidebar-version">Version 9.19 · Reasoning Auto-Detect (every model) · One Mic · Task Mode · Hardened Image Gen · Always-On Skills</p>
                 </div>
             </div>
             
@@ -3398,7 +3449,9 @@
             <!-- Input Area -->
             <div class="input-area-container">
                 <div class="input-wrapper">
-                    <div id="sahuTimerChip" class="hidden"><i class="fas fa-stopwatch"></i><span id="sahuTimerText">0.0s</span></div>
+                    <!-- v9.20: the timer clock chip was removed (user request).
+                         sahuTimerStart/sahuTimerStop stay as no-op-safe stubs
+                         because many code paths still call them. -->
                     <!-- File Upload Preview -->
                     <div id="fileUploadPreview" class="file-preview">
                         <!-- Dynamically populated -->
@@ -3445,15 +3498,9 @@
                                         <label for="toolDeepThinkNew" class="toggle-label"></label>
                                     </div>
                                 </label>
-                                <!-- Thinking Budget Pills -->
-                                <div id="deepthinkBudgetRow" class="deepthink-budget">
-                                    <button class="budget-pill" data-budget="low" onclick="setThinkingBudget('low')">Low</button>
-                                    <button class="budget-pill active" data-budget="medium" onclick="setThinkingBudget('medium')">Medium</button>
-                                    <button class="budget-pill" data-budget="high" onclick="setThinkingBudget('high')">High</button>
-                                    <button class="budget-pill" data-budget="xhigh" onclick="setThinkingBudget('xhigh')">X-High</button>
-                                    <button class="budget-pill" data-budget="max" onclick="setThinkingBudget('max')">Max</button>
-                                </div>
-                                <div id="rdeStatusLine" class="rde-status" style="display:none"></div>
+                                <!-- v9.25: BUDGET/effort pills REMOVED. The single
+                                     Thinking toggle is the only control - when ON,
+                                     EVERY model thinks; when OFF, none do. -->
                             </div>
                             <label class="tools-popover-item">
                                 <span class="tools-popover-item-label">
@@ -3630,8 +3677,6 @@
                             </div>
                             <!-- Bottom area: buttons row -->
                             <div class="input-box-buttons-area">
-                                <!-- Active Mode Tag (@mention chip, v7.9) -->
-                                <span id="chatbarModeTag" class="chatbar-mode-tag" style="display:none" title="Tap to turn off"></span>
                                 <!-- Tools Button -->
                                 <button onclick="toggleToolsMenu()" id="toolsBtn" class="chatbar-btn" title="Tools">
                                     <i class="fas fa-plus"></i>
@@ -3641,6 +3686,10 @@
                                 <button onclick="openModelSelector()" id="modelSelectBtn" class="chatbar-btn" title="Select Model">
                                     <span id="modelSelectLabel" style="font-size:0.85rem;font-weight:600;">Model</span>
                                 </button>
+                                <!-- v9.20: the active-mode chip moved here - it now shows
+                                     BESIDE THE MODEL BUTTON (same place as the research
+                                     pill), instead of beside the plus icon -->
+                                <span id="chatbarModeTag" class="chatbar-mode-tag" style="display:none" title="Tap to turn off"></span>
 <!-- v9.11: compact research pill - microscope icon (tap = turn off) + level selector -->
                                 <div class="sahu-rlv-wrap hidden" id="sahuRlvWrap">
                                     <div class="sahu-rlv-pill">
@@ -5662,7 +5711,8 @@ function loadState() {
             // Advanced Features UI was removed (user request) - force all off
             Object.keys(state.features || {}).forEach(k => state.features[k] = false);
             // Migrate old thinking budget values to the new scale
-            const VALID_BUDGETS = ['off', 'low', 'medium', 'high', 'xhigh', 'max'];
+            // v9.20: the five-level ladder is gone - only Off/Low/Medium/High
+            const VALID_BUDGETS = ['off', 'low', 'medium', 'high'];
             if (!VALID_BUDGETS.includes(state.thinkingBudget)) state.thinkingBudget = 'high';
         }
         // v5.6: skills must ALWAYS default to all-on. Older saved states lack
@@ -5918,13 +5968,13 @@ function updateMode(mode) {
     // mode switches and reloads must NOT silently override the user's effort
     if (state.thinkingBudget !== 'off' && state.budgetUserSet !== true) {
     if (mode === 'research') {
-        state.thinkingBudget = 'max';
+        state.thinkingBudget = 'high';
         state.deepThinkEnabled = true; // Force ON
     } else if (mode === 'task' || mode === 'artifacts' || mode === 'appdev') {
         if (state.taskType === 'file_creation') {
             state.thinkingBudget = 'medium';
         } else {
-            state.thinkingBudget = 'max'; // vibe or agentic
+            state.thinkingBudget = 'high'; // vibe or agentic
         }
         state.deepThinkEnabled = true;
     } else if (mode === 'fast') {
@@ -6363,35 +6413,13 @@ function triggerVideoUpload() {
 }
 
 /**
- * Handle video upload
+ * Handle video upload - v9.24: keyframes are extracted client-side and
+ * delivered to models as real image parts (v9.25: no vision gating)
  */
-function handleVideoUpload(event) {
+async function handleVideoUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    // v5.2: attach the video to the chat as file context
-    state.uploadedFile = file;
-    state.uploadedFileContent = `[VIDEO FILE ATTACHED: ${file.name} (${formatBytes(file.size)})]`;
-    state.uploadedImageBase64 = null;
-    state.uploadedImageMimeType = null;
-
-    const preview = document.getElementById('fileUploadPreview');
-    if (preview) {
-        preview.innerHTML = `
-            <div class="file-preview-card">
-                <div class="file-preview-icon">
-                    <i class="fas fa-film"></i>
-                </div>
-                <div class="file-preview-info">
-                    <div class="file-preview-name">${escapeHtml(file.name)}</div>
-                    <div class="file-preview-size">${formatBytes(file.size)} (Video)</div>
-                </div>
-                <div class="file-preview-remove" onclick="removeFile()">
-                    <i class="fas fa-times text-[var(--text-secondary)]"></i>
-                </div>
-            </div>
-        `;
-        preview.classList.add('show');
-    }
+    await _sahuAttachVideo(file);
     updateDynamicButton();
     event.target.value = '';
 }
@@ -7230,7 +7258,7 @@ function renderModelSelector() {
                             ${selected ? 'checked' : ''}
                             onchange="toggleModelSelection('${providerKey}', '${_v66q(modelKey)}', '${_v66q(modelId)}', this.checked)">
                         <div class="model-info">
-                            <div class="model-name">${escapeHtml(String(modelKey))}${(typeof _sahuIsVisionModel === 'function' && _sahuIsVisionModel(modelId)) ? '<span class="v916-vbadge" title="Vision - this model can see attached images">👁</span>' : ''}</div>
+                            <div class="model-name">${escapeHtml(String(modelKey))}</div>
                         </div>
                     </div>
                     `;
@@ -7350,6 +7378,10 @@ async function handleFileUpload(event) {
     try {
         const isImage = file.type.startsWith('image/');
         const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        // v9.24: audio/video routing - these must NEVER fall into the text
+        // branch (binary garbage was being sent to the model as "content")
+        const isVideo = file.type.startsWith('video/');
+        const isAudio = file.type.startsWith('audio/');
         
         if (isImage) {
             // Convert image to base64 for vision models
@@ -7363,6 +7395,9 @@ async function handleFileUpload(event) {
             state.uploadedFileContent = `[IMAGE: ${file.name}]`;
             state.uploadedImageBase64 = base64;
             state.uploadedImageMimeType = file.type;
+            state.uploadedVideoFrames = null;
+            // v9.24: images join the Session files pool too
+            _sahuPoolRegister({ name: file.name, size: file.size, kind: 'image', meta: 'image (vision models only)' });
         } else if (isPDF) {
             // Keep the base64 leg for vision models that accept PDF input...
             const base64 = await new Promise((resolve, reject) => {
@@ -7387,6 +7422,20 @@ async function handleFileUpload(event) {
             } catch (e) {
                 state.uploadedFileContent = `[PDF DOCUMENT: ${file.name} - text extraction unavailable: ${String((e && e.message) || e)}]`;
             }
+        } else if (isVideo) {
+            // v9.24: video via the Files picker gets the SAME treatment as the
+            // Videos picker - keyframes extracted and delivered to vision models
+            await _sahuAttachVideo(file);
+        } else if (isAudio) {
+            // v9.24: honest audio handling - no keyless transcription exists,
+            // so the model is told clearly what it got instead of binary garbage
+            state.uploadedFile = file;
+            state.uploadedImageBase64 = null;
+            state.uploadedImageMimeType = null;
+            state.uploadedVideoFrames = null;
+            state.uploadedFileContent = `[AUDIO FILE ATTACHED: ${file.name} (${formatBytes(file.size)})] - no keyless transcription is available in this app, so the audio itself CANNOT be heard by the model. Tell the user this honestly and ask them to paste a transcript or describe the audio.`;
+            _sahuPoolRegister({ name: file.name, size: file.size, kind: 'audio', meta: 'audio (no transcription)' });
+            showToast('Audio attached - models cannot hear audio; attach a transcript or description too', 'warning');
         } else {
             // v8.0 file-reader: route documents to the right parser
             // (SheetJS xlsx / mammoth docx / JSZip archives / native text)
@@ -7396,6 +7445,7 @@ async function handleFileUpload(event) {
             state.uploadedFile = file;
             state.uploadedImageBase64 = null;
             state.uploadedImageMimeType = null;
+            state.uploadedVideoFrames = null;
             let text = '';
             try {
                 const entry = await _sahuIngestFile(file);
@@ -7407,8 +7457,8 @@ async function handleFileUpload(event) {
         }
         
         const preview = document.getElementById('fileUploadPreview');
-        if (preview) {
-            const icon = isImage ? 'fa-image' : isPDF ? 'fa-file-pdf' : 'fa-file';
+        if (preview && !isVideo) {
+            const icon = isImage ? 'fa-image' : isPDF ? 'fa-file-pdf' : isAudio ? 'fa-file-audio' : 'fa-file';
             const thumbHtml = isImage ? `<img src="${state.uploadedImageBase64}" class="w-10 h-10 object-cover rounded">` : `<i class="fas ${icon}"></i>`;
             preview.innerHTML = `
                 <div class="file-preview-card">
@@ -7417,7 +7467,7 @@ async function handleFileUpload(event) {
                     </div>
                     <div class="file-preview-info">
                         <div class="file-preview-name">${escapeHtml(file.name)}</div>
-                        <div class="file-preview-size">${formatBytes(file.size)}${isImage ? ' (Vision)' : isPDF ? ' (PDF)' : ''}</div>
+                        <div class="file-preview-size">${formatBytes(file.size)}${isPDF ? ' (PDF)' : isAudio ? ' (Audio)' : ''}</div>
                     </div>
                     <div class="file-preview-remove" onclick="removeFile()">
                         <i class="fas fa-times text-[var(--text-secondary)]"></i>
@@ -7439,6 +7489,7 @@ function removeFile() {
     state.uploadedFileContent = null;
     state.uploadedImageBase64 = null;
     state.uploadedImageMimeType = null;
+    state.uploadedVideoFrames = null;
     
     const preview = document.getElementById('fileUploadPreview');
     if (preview) preview.classList.remove('show');
@@ -9205,6 +9256,57 @@ function formatMarkdown(text, sources = null) {
             return '<div class="v80-artifact"><div class="v80-artifact-h"><span><i class="fas ' + _v80icons[_v80art] + '"></i> ' + _v80names[_v80art] + '</span><span class="v80-artifact-hint">Skill Pack · rendered</span></div><div class="v80-artifact-body" id="' + rid + '"><div class="v80-loading">Rendering…</div></div></div>';
         }
 
+        // v9.23: BIG code builds no longer dump the whole source into the
+        // chat (space hog - the #1 complaint). They render as a compact
+        // Claude-style FILE CARD ("Code · HTML · 312 lines · 15.4 kB").
+        // Tap the card to open the Canvas (Preview | Code), or use the
+        // Copy / Download buttons; "Show code" expands the source inline
+        // for the rare case it is wanted in the chat.
+        const _lineCount = code.split('\n').length;
+        const _isBig = (_lineCount >= 40 || String(code).length >= 1500);
+        if (_isBig) {
+            const _l = String(lang).toLowerCase();
+            const _pvK = ({ html: 'html', react: 'react', jsx: 'react', tsx: 'react' })[_l] || 'code';
+            const _icoMap = { html: 'fab fa-html5', react: 'fab fa-react', jsx: 'fab fa-react', tsx: 'fab fa-react', python: 'fab fa-python', py: 'fab fa-python', javascript: 'fab fa-js', js: 'fab fa-js', java: 'fab fa-java', css: 'fab fa-css3-alt', json: 'fas fa-code', sql: 'fas fa-database' };
+            const _colMap = { html: '#e34f26', react: '#61dafb', jsx: '#61dafb', tsx: '#61dafb', python: '#3776ab', py: '#3776ab', javascript: '#d9a500', js: '#d9a500', java: '#f89820', css: '#264de4' };
+            const _icon = _icoMap[_l] || 'fas fa-file-code';
+            const _color = _colMap[_l] || 'var(--accent)';
+            const _t = String(code).match(/<title>([^<]{1,60})<\/title>/i);
+            const _dispName = (_t && _t[1].trim()) ? _t[1].trim() : (({ html: 'HTML file', react: 'React app', jsx: 'React app', tsx: 'React app', python: 'Python script', javascript: 'JavaScript file' })[_l] || (String(lang).toUpperCase() + ' file'));
+            const _extMap = { html: 'html', react: 'jsx', jsx: 'jsx', tsx: 'tsx', javascript: 'js', js: 'js', python: 'py', py: 'py', java: 'java', c: 'c', cpp: 'cpp', cs: 'cs', php: 'php', ruby: 'rb', rb: 'rb', go: 'go', rust: 'rs', rs: 'rs', swift: 'swift', kotlin: 'kt', sql: 'sql', sh: 'sh', bash: 'sh', css: 'css', json: 'json', xml: 'xml', md: 'md' };
+            const _fname = ((_t && _t[1].trim()) ? _t[1].trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'index') + '.' + (_extMap[_l] || 'txt');
+            const _kb = (String(code).length / 1024).toFixed(1) + ' kB';
+            const _runBig = ({ python: 'python', py: 'python', python3: 'python', runpython: 'python', js: 'js', javascript: 'js', runjs: 'js' })[_l];
+            window.__sahuPvReg = window.__sahuPvReg || {};
+            window.__sahuPvReg[id] = { kind: _pvK, code: code, title: _dispName };
+            window.__sahuFileReg = window.__sahuFileReg || {};
+            window.__sahuFileReg[id] = { code: code, lang: _l, name: _fname, disp: _dispName };
+            if (_runBig) {
+                window.__sahuCodeReg = window.__sahuCodeReg || {};
+                window.__sahuCodeReg[id] = { code: code, lang: _runBig };
+            }
+            return `
+                <div class="artifact-container">
+                    <div class="sahufile-card" onclick="sahuFileOpen('${id}')" title="Open in Canvas">
+                        <span class="sahufile-ico" style="color:${_color};"><i class="${_icon}"></i></span>
+                        <span class="sahufile-meta">
+                            <span class="sahufile-name">${escapeHtml(_dispName)}</span>
+                            <span class="sahufile-sub">Code · ${escapeHtml(String(lang).toUpperCase())} · ${_lineCount} lines · ${_kb}</span>
+                        </span>
+                        <span class="sahufile-btns">
+                            ${_runBig ? `<button title="Run in sandbox" onclick="event.stopPropagation();sahuRunCode('${id}')"><i class="fas fa-play"></i></button>` : ''}
+                            <button title="Copy code" onclick="event.stopPropagation();sahuFileCopy('${id}')"><i class="fas fa-copy"></i></button>
+                            <button title="Download" onclick="event.stopPropagation();sahuFileDownload('${id}')"><i class="fas fa-download"></i> Download</button>
+                        </span>
+                    </div>
+                    <button class="sahufile-reveal" onclick="sahuFileReveal(this,'${id}')"><i class="fas fa-code"></i> Show code</button>
+                    <div class="artifact-content hidden" id="wrap-${id}">
+                        <pre><code id="${id}" class="language-${lang}">${escapedCode}</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+
         let actions = `
             <button onclick="navigator.clipboard.writeText(document.getElementById('${id}').innerText).then(()=>showToast('Code copied'))" class="artifact-action">
                 <i class="fas fa-copy"></i> Copy
@@ -9380,6 +9482,13 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
         throw new Error(`No API key for ${provider.name}`);
     }
     
+    // v9.20 FIX (OpenAI Free 500 error): the Pollinations LEGACY text API is
+    // deprecated for AUTHENTICATED users - a stored key makes every call fail
+    // with 500 "ENOSPC / no space left on device" plus the deprecation notice
+    // ("Anonymous requests to text.pollinations.ai are NOT affected"). The
+    // text call therefore ALWAYS goes anonymous: the key is never sent.
+    if (providerKey === 'pollinations') apiKey = null;
+    
     // Determine streaming support
     // v7.9.10: TRUE streaming for every provider — OpenAI-compatible SSE is
     // parsed live in the reader loop below, so tokens render as they arrive.
@@ -9468,7 +9577,7 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
     // always WITH thinking unless Off). Mirrors OpenAI reasoning_effort,
     // Anthropic thinking budget_tokens, Z.ai thinking.type and Kimi
     // thinking models. xhigh/max also raise the token ceiling below.
-    const _tb = (window.RADE) ? RADE.resolve(providerKey, modelId) : ((typeof _sahuResolveEffort === 'function') ? _sahuResolveEffort(modelId, state.thinkingBudget) : (state.thinkingBudget || 'high')); // v9.19: RADE - per-model DETECTED effort (live catalog + curated knowledge + learned rejections; explicit picks remembered per model)
+    const _tb = state.thinkingBudget || 'high'; // v9.25: BUDGET REMOVED - the single Thinking toggle drives EVERY model (no per-model detection or remembered picks)
     if (_tb === 'off') {
         sysPrompt += "\nTHINKING: OFF. Do NOT output any thinking, reasoning, or chain-of-thought text (no <think> blocks, no reasoning_content). Respond with the final answer only.";
     } else {
@@ -9542,23 +9651,20 @@ async function callModelWithFallback(providerKey, modelId, messages, retryCount 
     }
     
     // Image attachment handling for vision models
-    // v9.16: broad shared vision detection (window._sahuIsVisionModel, defined in the
-    // v9.16 block). The old list missed Gemini, Claude, GLM-4.6V/5V, GPT-5.x, o3, Kimi-K3,
-    // ERNIE-4.5-VL (case-sensitive 'vl' never matched 'VL'), Llama-4...
-    const isVisionModel = (typeof _sahuIsVisionModel === 'function') ? _sahuIsVisionModel(modelId) : false;
-    if (state.uploadedImageBase64 && isVisionModel) {
+    // v9.25: VISION GATING REMOVED - ANY model gets the attached image / video
+    // keyframes as real image parts. No vision list, no eye badge, no gate:
+    // every model TRIES to see the upload; if it can, it can.
+    const _vidFrames = (state.uploadedVideoFrames && state.uploadedVideoFrames.length) ? state.uploadedVideoFrames.slice(0, 4) : null;
+    if (state.uploadedImageBase64 || _vidFrames) {
         // Inject image into the last user message using multimodal content format
         const lastMsg = finalMessages[finalMessages.length - 1];
         if (lastMsg && lastMsg.role === 'user') {
             const textContent = typeof lastMsg.content === 'string' ? lastMsg.content : lastMsg.content;
-            lastMsg.content = [
-                { type: 'text', text: textContent || 'Please analyze this image.' },
-                { type: 'image_url', image_url: { url: state.uploadedImageBase64 } }
-            ];
+            const parts = [{ type: 'text', text: String(textContent || 'Please analyze this.') + (_vidFrames ? '\n\n[VIDEO KEYFRAMES: ' + _vidFrames.length + ' evenly spaced frames from the attached video, in chronological order]' : '') }];
+            if (state.uploadedImageBase64) parts.push({ type: 'image_url', image_url: { url: state.uploadedImageBase64 } });
+            if (_vidFrames) _vidFrames.forEach(function (fr) { parts.push({ type: 'image_url', image_url: { url: fr } }); });
+            lastMsg.content = parts;
         }
-    } else if (state.uploadedImageBase64 && !isVisionModel) {
-        // Non-vision model: describe that an image was attached but can't be processed
-        sysPrompt += `\n\n[NOTE: User attached an image (${state.uploadedImageMimeType}), but the current model does not support vision. Describe what you can based on the text context only.]`;
     }
     
     // Web search context injection
@@ -11060,6 +11166,10 @@ async function sendMessage() {
             displayContent += `\n[File: ${state.uploadedFile.name}]`;
         }
         
+        // v9.24→v9.25: vision-gating warning REMOVED - any model now tries to
+        // see the attachment; no vision model list anywhere.
+        
+        
         // Save user message
         const userMsgObj = { role: 'user', content: displayContent, timestamp: Date.now() };
         state.messages.push(userMsgObj);
@@ -11109,7 +11219,10 @@ async function sendMessage() {
         // v7.0 → v9.15: Plan Mode (ex-Travel Planner) also grounds itself with
         // the live pre-search — read-only grounding, no side effects (MiniMax
         // plan-mode pauses only for tools WITH side effects).
-        const shouldSearch = state.mode === 'research' || state.mode === 'plan';
+        const shouldSearch = (state.mode === 'research' || state.mode === 'plan') && !(document.getElementById('toolWebSearch')?.checked);
+        // v9.20: when the Web Search tool is ON, plan / research / study run
+        // the full model-first agentic loop (below) instead of the blind
+        // pre-search - the agent itself decides every search it needs.
         
         if (shouldSearch && container) {
             container.innerHTML += `
@@ -11182,17 +11295,35 @@ async function sendMessage() {
         }
         
         // Route to appropriate handler based on mode
+        // v9.20: PLAN / RESEARCH / STUDY now run the SAME full agentic loop
+        // as standard mode whenever the Web Search tool is on: the model
+        // decides when/what to search, re-searches and re-thinks, and can
+        // READ / FETCH / BROWSE pages exactly like standard mode. The mode
+        // system prompts (Plan Mode gate, Study tutor, Research depth) stay
+        // active - only the execution path changes.
         if (state.mode === 'research') {
-            await runDeepResearch(fullPrompt, container, thisChatId);
+            if (document.getElementById('toolWebSearch')?.checked) {
+                await runSearchMode(fullPrompt, container, thisChatId, 'chat');
+            } else {
+                await runDeepResearch(fullPrompt, container, thisChatId);
+            }
         } else if (state.mode === 'plan') {
-            // v9.15 PLAN MODE (MiniMax plan-mode): grounded by the pre-search
-            // above; the structured plan + confirmation gate comes from the
-            // mode system prompt ("talk before you build").
-            showToast('Plan Mode: grounded with live search', 'info');
-            await runStandardAggregation(fullPrompt, container, thisChatId);
+            if (document.getElementById('toolWebSearch')?.checked) {
+                await runSearchMode(fullPrompt, container, thisChatId, 'chat');
+            } else {
+                // v9.15 PLAN MODE (MiniMax plan-mode): grounded by the pre-search
+                // above; the structured plan + confirmation gate comes from the
+                // mode system prompt ("talk before you build").
+                showToast('Plan Mode: grounded with live search', 'info');
+                await runStandardAggregation(fullPrompt, container, thisChatId);
+            }
         } else if (state.mode === 'study') {
-            // v7.0 STUDY MODE: Socratic tutor - the mode system prompt drives it
-            await runStandardAggregation(fullPrompt, container, thisChatId);
+            if (document.getElementById('toolWebSearch')?.checked) {
+                await runSearchMode(fullPrompt, container, thisChatId, 'chat');
+            } else {
+                // v7.0 STUDY MODE: Socratic tutor - the mode system prompt drives it
+                await runStandardAggregation(fullPrompt, container, thisChatId);
+            }
         } else if (state.mode === 'search') {
             // Manthan Search mode: agentic loop that displays resources ONLY
             await runSearchMode(fullPrompt, container, thisChatId, 'resources');
@@ -11572,6 +11703,8 @@ const SAHU_SKILLS = [
     { id: 'design_polish', name: 'Design Polish', icon: 'fa-wand-magic', color: 'indigo', desc: 'DESIGN[theme=minimal|editorial|brutalist|glass|retro]: raises every Live Preview build to designer grade - deliberate type scale, 4/8px rhythm, intentional palette, self-critique pass before delivery.' },
     { id: 'self_improvement', name: 'Self-Improvement', icon: 'fa-rotate', color: 'pink', desc: 'When you correct the model it logs NOTED: <wrong> -> <right> and the last five corrections ride along every session, so the same mistake is not repeated. Viewable in Settings.' },
     { id: 'heartbeat', name: 'Heartbeat', icon: 'fa-heart-pulse', color: 'red', desc: 'A periodic check-in while the app is open: composes subscribed briefs (BRIEF:+ <topic>), surfaces due reminders and prunes stale memory - and stays SILENT when there is nothing to say.' }
+    // v9.25: the vision_input skill entry is REMOVED - vision gating is gone;
+    // any model gets attached images / video keyframes as image parts.
 ];
 
 function buildSearchLoopPrompt() {
@@ -12778,13 +12911,11 @@ async function runFastMode(fullPrompt, container, chatId) {
     try {
         for (let turn = 1; turn <= 2; turn++) {
             setBusy(`Fast search ${turn}/2: Wikipedia - TinyFish - YouTube`);
-            addTrace(`<i class="fas fa-bolt text-yellow-500 mr-1"></i>Fast turn ${turn}: Wikipedia (max 20) - TinyFish (max 5) - YouTube (max 10)`);
             let res = [];
             try { res = (await searchWeb(query, FAST_ENGINES, FAST_LIMITS, true)) || []; } catch (e) { res = []; }
             if (state.currentChatId !== chatId) return;
             allSources = allSources.concat(res);
             state.lastSources = allSources;
-            addTrace(`<span class="ml-4">${res.length} result${res.length === 1 ? '' : 's'} this turn (total ${allSources.length})</span>`);
             const srcPanel = document.getElementById(`sources-${divId}`);
             if (srcPanel && allSources.length) srcPanel.innerHTML = _sahuSourcesPanelHtml(allSources, false);
             const ctx = allSources.slice(0, 40).map((s, i) => `[${i + 1}] ${s.title || s.link}\n${s.link || ''}\n${(s.snippet || '').slice(0, 300)}`).join('\n\n');
@@ -12897,14 +13028,14 @@ async function runSearchMode(fullPrompt, container, chatId, displayMode) {
         // message of this chat. Previously it saw ONLY the current request,
         // which is why models "forgot" earlier responses/results/request.
         let convo = _sahuHistoryForModel().concat([{ role: 'user', content: fullPrompt + buildSearchLoopPrompt() }]);
-        const MAX_TURNS = 14;      // agent turns (rethinks) - the loop may
+        const MAX_TURNS = 10;      // v9.20: model turns capped at 10 (was 14)
         const MAX_TOOL_RUNS = 60;  // v6.1: raised headroom now that per-turn caps are gone
         const skillsOn = (id) => (state.enabledSkills || []).includes(id);
 
         while (turn < MAX_TURNS && toolRuns < MAX_TOOL_RUNS) {
             if (!state.isProcessing) throw stopErr();
             turn++;
-            setBusy(turn === 1 ? 'Thinking about the request...' : 'Rethinking...');
+            setBusy(turn === 1 ? 'Thinking about the request...' : 'Thinking...');
             const liveThink = document.getElementById(`thinklive-${divId}`);
             if (liveThink) liveThink.textContent = '';
             let res;
@@ -13741,39 +13872,215 @@ function toggleSkill(id, checked) {
 function renderSkillsSettings() {
     const wrap = document.getElementById('skillsList');
     if (!wrap) return;
-    // v9.17: skills are ALWAYS ON - the disable toggles are gone. Core and
-    // library skills are permanent; user-created custom skills keep their
-    // Delete button so the user still curates what exists.
-    const _row = (s, kind) => `
-        <label class="tools-popover-item" style="display:flex;">
-            <span class="tools-popover-item-label">
-                <i class="fas ${s.icon} text-${s.color}-500"></i>
-                <span>${s.name}</span>
-            </span>
-            <span style="display:flex;align-items:center;gap:8px;">
-            ${(kind === 'own') ? `<button class="custom-skill-del" onclick="event.preventDefault();event.stopPropagation();deleteCustomSkill('${s.id}')">Delete</button>` : ''}
-            <span class="skill-always-on" title="Always enabled - skills cannot be disabled in Manthan"><i class="fas fa-lock"></i> Always on</span>
-            </span>
-        </label>
-        <div class="text-[11px] text-[var(--text-secondary)] mb-2 -mt-1 pl-1">${s.desc}</div>`;
+    // v9.22: SKILL CARDS GRID (Agent-Creator dashboard style). Every skill is
+    // an informative card: icon + title, description, an "Always on" badge
+    // and a three-dot menu (What's inside / Clone / Download - plus Delete
+    // for user-created skills). Tapping the card opens the full contents
+    // of the skill (the directives the agent actually receives).
+    const _card = (s, kind) => {
+        const icon = s.icon || 'fa-wand-magic-sparkles';
+        const color = s.color || 'violet';
+        const menuId = 'skm_' + String(s.id).replace(/[^a-z0-9_]/gi, '');
+        return `
+        <div class="skcard" onclick="sahuSkillDetails('${s.id}')">
+            <div class="skcard-head">
+                <span class="skcard-title"><i class="fas ${icon} text-${color}-500"></i><span>${escapeHtml(s.name || s.id)}</span></span>
+                <button class="skcard-kebab" onclick="event.stopPropagation();sahuSkillMenu(event,'${menuId}')" title="Skill options"><i class="fas fa-ellipsis-vertical"></i></button>
+            </div>
+            <div class="skcard-desc">${escapeHtml(s.desc || '')}</div>
+            <div class="skcard-foot">
+                <span class="skill-always-on" title="Always enabled - skills cannot be disabled in Manthan"><i class="fas fa-lock"></i> Always on</span>
+                <span class="skcard-kind">${kind === 'own' ? 'Custom' : (kind === 'lib' ? 'Library' : 'Core')}</span>
+            </div>
+            <div class="skcard-menu" id="${menuId}">
+                <button onclick="event.stopPropagation();sahuSkillDetails('${s.id}')"><i class="fas fa-eye"></i> What's inside</button>
+                <button onclick="event.stopPropagation();sahuCloneSkill('${s.id}')"><i class="fas fa-copy"></i> Clone</button>
+                <button onclick="event.stopPropagation();sahuDownloadSkill('${s.id}')"><i class="fas fa-download"></i> Download</button>
+                ${(kind === 'own') ? `<button class="skcard-danger" onclick="event.stopPropagation();deleteCustomSkill('${s.id}')"><i class="fas fa-trash"></i> Delete</button>` : ''}
+            </div>
+        </div>`;
+    };
     // v8.0: Persistent Memory panel on top (memory + corrections + briefs)
     let html = '';
     try { if (typeof sahuMemPanelHtml === 'function') html += sahuMemPanelHtml(); } catch (e) {}
-    html += SAHU_SKILLS.map(s => _row(s, false)).join('');
+    html += '<div class="skcard-top">' +
+        '<span class="skcard-count">' + SAHU_SKILLS.length + ' core skills</span>' +
+        '<button class="skcard-newbtn" onclick="sahuNewSkillModal()"><i class="fas fa-plus"></i> New Skill</button></div>';
+    html += '<div class="skcard-grid">' + SAHU_SKILLS.map(s => _card(s, false)).join('') + '</div>';
     const cs = state.customSkills || [];
     // v8.0: split the seeded Skill Library from user-created custom skills
     const libSkills = cs.filter(s => s && String(s.id).indexOf('lib_') === 0);
     const ownSkills = cs.filter(s => s && String(s.id).indexOf('lib_') !== 0);
     if (libSkills.length) {
-        html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Skill Library - 27 built-in prompt skills (v8.0 + v9.16 packs) - always on</div>';
-        html += libSkills.map(s => _row(s, 'lib')).join('');
+        html += '<div class="skcard-section">Skill Library · ' + libSkills.length + ' built-in prompt skills · always on</div>';
+        html += '<div class="skcard-grid">' + libSkills.map(s => _card(s, 'lib')).join('') + '</div>';
     }
     if (ownSkills.length) {
-        html += '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:12px 0 4px 2px;">Custom skills (created by the model via Skill Creator)</div>';
-        html += ownSkills.map(s => _row(s, 'own')).join('');
+        html += '<div class="skcard-section">Custom skills · ' + ownSkills.length + ' created by you or the Skill Creator</div>';
+        html += '<div class="skcard-grid">' + ownSkills.map(s => _card(s, 'own')).join('') + '</div>';
     }
     wrap.innerHTML = html;
 }
+
+// =====================================================================
+// v9.22: SKILL CARD ACTIONS - What's inside / Clone / Download / New
+// =====================================================================
+function _sahuSkillById(id) {
+    const core = (typeof SAHU_SKILLS !== 'undefined' ? SAHU_SKILLS : []).find(s => s.id === id);
+    if (core) return { s: core, kind: 'core' };
+    const cs = (state.customSkills || []).find(x => x && x.id === id);
+    if (cs) return { s: cs, kind: (String(id).indexOf('lib_') === 0) ? 'lib' : 'own' };
+    return null;
+}
+// What the skill actually contains: for custom skills their instructions,
+// for built-in skills the exact directive block the skill adds to the
+// agent prompt (extracted from buildSearchLoopPrompt with only this skill
+// enabled - so the user sees the REAL text the model receives).
+function _sahuSkillDirectives(id) {
+    const found = _sahuSkillById(id);
+    if (!found) return '';
+    if (found.kind !== 'core') return String(found.s.instructions || '');
+    const saved = state.enabledSkills;
+    let txt = '';
+    try { state.enabledSkills = [id]; txt = buildSearchLoopPrompt() || ''; } catch (e) {}
+    try { state.enabledSkills = saved; } catch (e) {}
+    const a = txt.indexOf('to use one:\n');
+    const b = txt.indexOf('\nHow you work:');
+    if (a >= 0 && b > a) {
+        let seg = txt.slice(a + 13, b);
+        seg = seg.replace(/\n?Category keys:[\s\S]*$/i, '').replace(/\n?No search engines[\s\S]*$/i, '');
+        seg = seg.split('\n').filter(l => !/^STYLE:/.test(l.trim())).join('\n');
+        return seg.trim();
+    }
+    return '';
+}
+function sahuSkillMenu(ev, menuId) {
+    document.querySelectorAll('.skcard-menu.open').forEach(m => { if (m.id !== menuId) m.classList.remove('open'); });
+    const m = document.getElementById(menuId);
+    if (m) m.classList.toggle('open');
+}
+document.addEventListener('click', function (e) {
+    if (!(e.target && e.target.closest && (e.target.closest('.skcard-kebab') || e.target.closest('.skcard-menu')))) {
+        document.querySelectorAll('.skcard-menu.open').forEach(m => m.classList.remove('open'));
+    }
+});
+function _sahuSkillModal(innerHtml) {
+    let m = document.getElementById('sahuSkillModal');
+    if (!m) {
+        m = document.createElement('div');
+        m.id = 'sahuSkillModal';
+        m.className = 'sahu-modal-mask';
+        m.style.display = 'none';
+        m.innerHTML = '<div class="sahu-modal skdetail-modal" id="sahuSkillModalBox"></div>';
+        m.addEventListener('click', function (ev) { if (ev.target === m) sahuCloseSkillModal(); });
+        document.body.appendChild(m);
+    }
+    document.getElementById('sahuSkillModalBox').innerHTML = innerHtml;
+    m.style.display = 'flex';
+}
+function sahuCloseSkillModal() {
+    const m = document.getElementById('sahuSkillModal');
+    if (m) m.style.display = 'none';
+}
+window.sahuCloseSkillModal = sahuCloseSkillModal;
+function sahuSkillDetails(id) {
+    const found = _sahuSkillById(id);
+    if (!found) { showToast('Skill not found', 'error'); return; }
+    const s = found.s;
+    const directives = _sahuSkillDirectives(id);
+    const kindLabel = { core: 'Core skill', lib: 'Library skill', own: 'Custom skill' }[found.kind];
+    const icon = s.icon || 'fa-wand-magic-sparkles';
+    _sahuSkillModal(
+        '<div class="skdetail-head">' +
+            '<span class="skdetail-ico"><i class="fas ' + icon + '"></i></span>' +
+            '<div><div class="skdetail-name">' + escapeHtml(s.name || s.id) + '</div>' +
+            '<div class="skdetail-kind">' + kindLabel + ' · <span class="skill-always-on"><i class="fas fa-lock"></i> Always on</span></div></div>' +
+        '</div>' +
+        '<p class="skdetail-desc">' + escapeHtml(s.desc || '') + '</p>' +
+        '<div class="skdetail-sec">What the skill contains <span class="skdetail-note">— the directives the agent receives while this skill is active</span></div>' +
+        '<pre class="skdetail-code">' + escapeHtml(directives || '(This skill works silently in the background - it sends no directives to the model.)') + '</pre>' +
+        '<div class="skdetail-actions">' +
+            '<button class="btn btn-secondary" onclick="sahuCloneSkill(\'' + s.id + '\')"><i class="fas fa-copy"></i> Clone</button>' +
+            '<button class="btn btn-secondary" onclick="sahuDownloadSkill(\'' + s.id + '\')"><i class="fas fa-download"></i> Download</button>' +
+            '<button class="btn btn-primary" onclick="sahuCloseSkillModal()">Close</button>' +
+        '</div>'
+    );
+}
+window.sahuSkillDetails = sahuSkillDetails;
+function sahuCloneSkill(id) {
+    const found = _sahuSkillById(id);
+    if (!found) return;
+    const s = found.s;
+    let name = (s.name || 'Skill') + ' (copy)';
+    const names = new Set((state.customSkills || []).map(x => String((x && x.name) || '').toLowerCase()));
+    let n = 2;
+    while (names.has(name.toLowerCase())) name = (s.name || 'Skill') + ' (copy ' + (n++) + ')';
+    const directives = _sahuSkillDirectives(id);
+    const nid = 'user_' + Date.now().toString(36);
+    state.customSkills = state.customSkills || [];
+    state.customSkills.push({ id: nid, name: name, desc: s.desc || '', instructions: String(directives || s.desc || '').slice(0, 4000), enabled: true, created: Date.now() });
+    state.enabledSkills = state.enabledSkills || [];
+    if (state.enabledSkills.indexOf(nid) < 0) state.enabledSkills.push(nid);
+    saveState();
+    renderSkillsSettings();
+    showToast('Cloned "' + (s.name || s.id) + '" as a custom skill - it now appears under Custom skills');
+}
+window.sahuCloneSkill = sahuCloneSkill;
+function sahuDownloadSkill(id) {
+    const found = _sahuSkillById(id);
+    if (!found) return;
+    const s = found.s;
+    const dir = _sahuSkillDirectives(id);
+    const kindLabel = { core: 'Core', lib: 'Library', own: 'Custom' }[found.kind];
+    const md = '# ' + (s.name || s.id) + '\n\n' +
+        '**Type:** ' + kindLabel + ' skill · Manthan Agent\n' +
+        '**Always on:** yes\n\n' +
+        '## Description\n\n' + (s.desc || '') + '\n\n' +
+        '## What the skill contains (agent directives)\n\n' +
+        (dir ? '```\n' + dir + '\n```' : '_(works silently in the background)_') + '\n';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+    a.download = String(s.name || 'skill').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + '.md';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { try { URL.revokeObjectURL(a.href); } catch (e) {} }, 4000);
+    showToast('Skill downloaded');
+}
+window.sahuDownloadSkill = sahuDownloadSkill;
+function sahuNewSkillModal() {
+    _sahuSkillModal(
+        '<div class="skdetail-head">' +
+            '<span class="skdetail-ico"><i class="fas fa-wand-magic-sparkles"></i></span>' +
+            '<div><div class="skdetail-name">New Skill</div>' +
+            '<div class="skdetail-kind">Create a reusable skill for the agent</div></div>' +
+        '</div>' +
+        '<div class="sknew-form">' +
+            '<label class="sknew-l">Skill name<input id="skNewName" class="input" placeholder="e.g. Interview Coach"></label>' +
+            '<label class="sknew-l">Short description<input id="skNewDesc" class="input" placeholder="What does this skill do?"></label>' +
+            '<label class="sknew-l">Instructions - what the agent should do when this skill applies<textarea id="skNewBody" class="input" rows="6" placeholder="Write the directives the model should follow..."></textarea></label>' +
+        '</div>' +
+        '<div class="skdetail-actions">' +
+            '<button class="btn btn-primary" onclick="sahuCreateSkill()"><i class="fas fa-check"></i> Create Skill</button>' +
+            '<button class="btn btn-secondary" onclick="sahuCloseSkillModal()">Cancel</button>' +
+        '</div>'
+    );
+}
+window.sahuNewSkillModal = sahuNewSkillModal;
+function sahuCreateSkill() {
+    const n = String((document.getElementById('skNewName') || {}).value || '').trim();
+    const d = String((document.getElementById('skNewDesc') || {}).value || '').trim();
+    const b = String((document.getElementById('skNewBody') || {}).value || '').trim();
+    if (!n || !b) { showToast('A skill needs at least a name and instructions', 'error'); return; }
+    const id = 'user_' + Date.now().toString(36);
+    state.customSkills = state.customSkills || [];
+    state.customSkills.push({ id: id, name: n, desc: d || 'Custom skill', instructions: b.slice(0, 4000), enabled: true, created: Date.now() });
+    state.enabledSkills = state.enabledSkills || [];
+    if (state.enabledSkills.indexOf(id) < 0) state.enabledSkills.push(id);
+    saveState();
+    sahuCloseSkillModal();
+    renderSkillsSettings();
+    showToast('Skill "' + n + '" created');
+}
+window.sahuCreateSkill = sahuCreateSkill;
 
 // =====================================================================
 // v8.0.0 "NO-BACKEND SKILL PACK" — 23 core skills + 20 library skills
@@ -13790,6 +14097,49 @@ function renderSkillsSettings() {
 // Library skills (Part 2 of the spec) ship as seeded custom skills in
 // the existing MAKESKILL format (toggleable, deletable, persisted).
 // =====================================================================
+
+// =====================================================================
+// v9.23: FILE CARD actions - the compact card that replaces big inline
+// code dumps. Open in Canvas / Copy / Download / Show code inline.
+// =====================================================================
+function sahuFileOpen(id) {
+    const f = (window.__sahuFileReg || {})[id];
+    if (!f) return;
+    const pv = (window.__sahuPvReg || {})[id];
+    if (pv && (pv.kind === 'html' || pv.kind === 'react')) {
+        // live artifact - open the Canvas on the Preview tab
+        sahuOpenPreview(id);
+    } else {
+        // plain source file - open the Canvas straight on the Code tab
+        sahuPvOpenCode(f.disp || 'Code', f.code);
+    }
+}
+window.sahuFileOpen = sahuFileOpen;
+function sahuFileCopy(id) {
+    const f = (window.__sahuFileReg || {})[id];
+    if (!f) return;
+    try { navigator.clipboard.writeText(f.code); showToast('Code copied'); } catch (e) { showToast('Copy failed', 'error'); }
+}
+window.sahuFileCopy = sahuFileCopy;
+function sahuFileDownload(id) {
+    const f = (window.__sahuFileReg || {})[id];
+    if (!f) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([f.code], { type: 'text/plain' }));
+    a.download = f.name || 'code.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { try { URL.revokeObjectURL(a.href); } catch (e) {} }, 4000);
+    showToast('Downloaded ' + (f.name || 'file'));
+}
+window.sahuFileDownload = sahuFileDownload;
+function sahuFileReveal(btn, id) {
+    const w = document.getElementById('wrap-' + id);
+    if (!w) return;
+    const hidden = w.classList.contains('hidden');
+    w.classList.toggle('hidden', !hidden);
+    if (btn) btn.innerHTML = hidden ? '<i class="fas fa-eye-slash"></i> Hide code' : '<i class="fas fa-code"></i> Show code';
+}
+window.sahuFileReveal = sahuFileReveal;
 
 // ---- v8.0 §0: lazy CDN library loader (nothing new loads at startup;
 // every heavy lib loads on first use and degrades gracefully offline) ----
@@ -14448,6 +14798,104 @@ function _sahuRowsToTable(rows, maxRows) {
     const body = cap.map(r => '| ' + r.map(c => String(c === null || c === undefined ? '' : c).replace(/\|/g, '\\|').slice(0, 120)).join(' | ') + ' |').join('\n');
     return body + (rows.length > cap.length ? '\n…(' + (rows.length - cap.length) + ' more rows truncated)' : '');
 }
+// =====================================================================
+// v9.24: ATTACHMENTS ACTUALLY REACH THE MODEL
+//   - _sahuPoolRegister: every attachment joins the Session files pool
+//   - _sahuExtractVideoFrames: client-side keyframe extraction (<video> +
+//     canvas, 4 evenly spaced JPEG frames)
+//   - _sahuAttachVideo: video state + honest content marker + preview card
+// =====================================================================
+function _sahuPoolRegister(entry) {
+    try {
+        const pool = window.__sahuDocPool = window.__sahuDocPool || [];
+        const existing = pool.findIndex(f => f.name === entry.name && f.size === entry.size);
+        if (existing > -1) pool.splice(existing, 1);
+        pool.push(entry);
+        while (pool.length > 12) pool.shift();
+    } catch (e) {}
+}
+window._sahuPoolRegister = _sahuPoolRegister;
+
+function _sahuExtractVideoFrames(file, maxFrames) {
+    maxFrames = maxFrames || 4;
+    return new Promise(function (resolve) {
+        try {
+            const url = URL.createObjectURL(file);
+            const v = document.createElement('video');
+            v.muted = true; v.preload = 'auto'; v.playsInline = true;
+            let done = false;
+            const finish = function (frames) {
+                if (done) return; done = true;
+                try { URL.revokeObjectURL(url); } catch (e) {}
+                resolve(frames || []);
+            };
+            v.onerror = function () { finish([]); };
+            v.onloadedmetadata = async function () {
+                try {
+                    const dur = (isFinite(v.duration) && v.duration > 0) ? v.duration : 0;
+                    if (!dur || !v.videoWidth) { finish([]); return; }
+                    const canvas = document.createElement('canvas');
+                    const w = Math.min(640, v.videoWidth);
+                    const h = Math.max(1, Math.round(v.videoHeight * (w / v.videoWidth)));
+                    canvas.width = w; canvas.height = h;
+                    const cx = canvas.getContext('2d');
+                    const frames = [];
+                    for (let i = 0; i < maxFrames; i++) {
+                        const t = Math.min(dur - 0.05, Math.max(0, (dur * (i + 0.5)) / maxFrames));
+                        await new Promise(function (res) {
+                            let settled = false;
+                            const onSeek = function () { if (settled) return; settled = true; v.removeEventListener('seeked', onSeek); res(); };
+                            v.addEventListener('seeked', onSeek);
+                            try { v.currentTime = t; } catch (e) { onSeek(); }
+                            setTimeout(onSeek, 2500);
+                        });
+                        try { cx.drawImage(v, 0, 0, w, h); frames.push(canvas.toDataURL('image/jpeg', 0.72)); } catch (e) {}
+                    }
+                    finish(frames.filter(Boolean));
+                } catch (e) { finish([]); }
+            };
+            v.src = url;
+            setTimeout(function () { finish([]); }, 20000);
+        } catch (e) { resolve([]); }
+    });
+}
+window._sahuExtractVideoFrames = _sahuExtractVideoFrames;
+
+async function _sahuAttachVideo(file) {
+    state.uploadedFile = file;
+    state.uploadedImageBase64 = null;
+    state.uploadedImageMimeType = null;
+    let frames = [];
+    try { frames = await _sahuExtractVideoFrames(file, 4); } catch (e) { frames = []; }
+    state.uploadedVideoFrames = frames.length ? frames : null;
+    state.uploadedFileContent = '[VIDEO FILE ATTACHED: ' + file.name + ' (' + formatBytes(file.size) + ')' +
+        (frames.length
+            ? ' - ' + frames.length + ' evenly spaced KEYFRAMES are delivered to models as image parts (the model sees the frames, not the full motion)'
+            : ' - keyframe extraction failed, so the model CANNOT see this video. Tell the user honestly.') + ']';
+    _sahuPoolRegister({ name: file.name, size: file.size, kind: 'video', meta: frames.length ? 'video · ' + frames.length + ' keyframes' : 'video (no keyframes)' });
+    const preview = document.getElementById('fileUploadPreview');
+    if (preview) {
+        preview.innerHTML = `
+            <div class="file-preview-card">
+                <div class="file-preview-icon">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="file-preview-info">
+                    <div class="file-preview-name">${escapeHtml(file.name)}</div>
+                    <div class="file-preview-size">${formatBytes(file.size)} (Video${frames.length ? ' · ' + frames.length + ' keyframes' : ''})</div>
+                </div>
+                <div class="file-preview-remove" onclick="removeFile()">
+                    <i class="fas fa-times text-[var(--text-secondary)]"></i>
+                </div>
+            </div>
+        `;
+        preview.classList.add('show');
+    }
+    if (frames.length) showToast('Video attached - ' + frames.length + ' keyframes will be sent to the model', 'success');
+    else showToast('Video attached - keyframe extraction failed; models cannot watch video directly', 'warning');
+}
+window._sahuAttachVideo = _sahuAttachVideo;
+
 async function _sahuIngestFile(file) {
     const name = file.name, size = file.size, lower = name.toLowerCase();
     const kind = lower.endsWith('.pdf') ? 'pdf' : (/\.xlsx?$/.test(lower) ? 'xlsx' : (/\.docx$/.test(lower) ? 'docx' : (lower.endsWith('.zip') ? 'zip' : (/\.csv$/.test(lower) ? 'csv' : (/\.(txt|md|json|js|py|html|css|xml|yml|yaml|ts|java|c|cpp|log|tsv)$/.test(lower) ? 'text' : 'binary')))));
@@ -15829,65 +16277,28 @@ function toggleIncognito() {
 }
 
 /**
- * Toggle DeepThink with budget selector
+ * Toggle Thinking - v9.25: THE ONLY thinking control. No budget levels, no
+ * per-model detection: ON = every model thinks, OFF = no model thinks.
  * @param {boolean} checked - Toggle state
  */
 function toggleDeepThinkWithBudget(checked) {
     state.deepThinkEnabled = checked;
-    const budgetRow = document.getElementById('deepthinkBudgetRow');
-    if (budgetRow) budgetRow.classList.toggle('show', checked);
-    if (!checked) {
-        state.thinkingBudget = 'off';
-    } else if (!state.thinkingBudget || state.thinkingBudget === 'off') {
-        state.thinkingBudget = 'medium';
-    }
-    updateBudgetPills();
+    state.thinkingBudget = checked ? 'high' : 'off';
+    state.budgetUserSet = true; // v9.25: the toggle is the authoritative explicit pick - mode switches and reloads never override it
     renderActiveModePills();
-    showToast(checked ? 'Thinking Enabled' : 'Thinking Disabled');
+    showToast(checked ? 'Thinking Enabled for every model' : 'Thinking Disabled');
     saveState();
 }
 
 /**
- * v7.9.2: Auto-detect the thinking/reasoning effort from a model id or name.
- * Called when a model is picked from the list or a custom model id is entered —
- * sets the DeepThink budget pill automatically to match the model's capability.
+ * v9.25: BUDGET REMOVED. Picking a model NEVER changes the Thinking toggle -
+ * the toggle is the single global control and applies to every model the
+ * same way. This stub only keeps the checkbox in sync with the state.
  * @param {string} modelId - Model id or display name
  */
 function autoDetectThinkingBudget(modelId, providerKey) {
-    const mid = String(modelId || '').trim();
-    if (!mid) return;
-    // v9.19: RADE DETECTS this model's reasoning/thinking/effort capability
-    // (live catalog probe + curated knowledge + learned rejections) and sets
-    // the Thinking UI to the model's real default. The pills stay free
-    // afterwards, and an explicit pick is remembered PER MODEL.
-    let pk = providerKey || '';
-    if (!pk && window.RADE && typeof RADE.guessProvider === 'function') pk = RADE.guessProvider(mid) || '';
-    let budget;
-    if (window.RADE) {
-        try { RADE.setCtx(pk, mid); } catch (e) {}
-        budget = RADE.resolve(pk, mid);   // remembered per-model pick, else the DETECTED default
-        try {
-            RADE.refreshCatalog().then(function (learned) {
-                if (learned) { try { RADE.syncUI(); } catch (e) {} }
-            });
-        } catch (e) {}
-    } else {
-        budget = (typeof _sahuResolveEffort === 'function') ? _sahuResolveEffort(mid, null) : (state.thinkingBudget || 'high');
-    }
-    state.thinkingBudget = budget;
-    state.budgetUserSet = true;
-    state.deepThinkEnabled = budget !== 'off';
     const _tg = document.getElementById('toolDeepThinkNew');
-    if (_tg) _tg.checked = state.deepThinkEnabled;
-    const _rw = document.getElementById('deepthinkBudgetRow');
-    if (_rw) _rw.classList.toggle('show', state.deepThinkEnabled);
-    try { if (typeof updateBudgetPills === 'function') updateBudgetPills(); } catch (e) {}
-    try { if (window.RADE) RADE.renderStatus(); } catch (e) {}
-    const budgetLabels = { off: 'Off', low: 'Low', medium: 'Medium', high: 'High', xhigh: 'X-High', max: 'Max' };
-    let _note = '';
-    try { if (window.RADE) { const _p = RADE.profile(pk, mid); if (_p && _p.note) _note = ' · ' + _p.note; } } catch (e) {}
-    showToast('Thinking ' + (budgetLabels[budget] || budget) + ' for ' + mid + _note, 'info');
-    saveState();
+    if (_tg) _tg.checked = !!state.deepThinkEnabled;
 }
 
 /**
@@ -15922,6 +16333,125 @@ function updateBudgetPills() {
         pill.classList.toggle('active', pill.dataset.budget === state.thinkingBudget);
     });
 }
+
+// =====================================================================
+// v9.20: THINKING / REASONING / EFFORT LEVELS — FETCHED FROM THE PROVIDER
+// The fixed low/medium/high/xhigh/max ladder is REMOVED. When Thinking is
+// enabled (or a model is picked), the app asks the CURRENT provider what
+// reasoning/effort levels the selected model actually supports and renders
+// exactly those as the pills:
+//   - OpenRouter: the public per-model catalog lists supported_parameters
+//     ("reasoning" / "reasoning_effort") - authoritative.
+//   - Groq: the models endpoint reports reasoning_format per model.
+//   - Every other OpenAI-compatible provider: the provider's /models list
+//     is probed (confirms the model); providers that do not publish effort
+//     levels fall back to the standard Off/Low/Medium/High set, and the
+//     note under the pills always says where the levels came from.
+// =====================================================================
+async function _sahuFetchEffortLevels(providerKey, modelId) {
+    const STANDARD = ['low', 'medium', 'high'];
+    const _base = (ep) => String(ep || '').replace(/\/(chat|agents)\/completions$/, '');
+    try {
+        const pk = String(providerKey || '');
+        const mid = String(modelId || '');
+        if (pk === 'openrouter') {
+            const r = await fetch('https://openrouter.ai/api/v1/models/' + encodeURIComponent(mid));
+            if (r.ok) {
+                const j = await r.json();
+                const sp = (j && j.data && (j.data.supported_parameters || j.data.supportedParameters)) || [];
+                if (sp.some(p => /reasoning/i.test(String(p)))) {
+                    return { levels: STANDARD.slice(), note: 'levels from OpenRouter (provider catalog)', src: 'OpenRouter' };
+                }
+                return { levels: [], note: 'no reasoning support (OpenRouter catalog)', src: 'OpenRouter' };
+            }
+        } else if (pk === 'groq') {
+            const key = localStorage.getItem('sahu_groq_key');
+            if (key) {
+                const r = await fetch('https://api.groq.com/openai/v1/models', { headers: { 'Authorization': 'Bearer ' + key } });
+                if (r.ok) {
+                    const j = await r.json();
+                    const m = (j.data || []).find(x => String(x.id) === mid);
+                    if (m) {
+                        const sp = m.supported_parameters || [];
+                        if (m.reasoning_format || sp.some(p => /reason/i.test(String(p)))) {
+                            return { levels: STANDARD.slice(), note: 'levels from Groq (provider model list)', src: 'Groq' };
+                        }
+                        return { levels: [], note: 'no reasoning support (Groq model list)', src: 'Groq' };
+                    }
+                }
+            }
+        } else {
+            let provider = (typeof PROVIDERS !== 'undefined') ? PROVIDERS[pk] : null;
+            if (!provider && state.customProviders) provider = state.customProviders.find(p => p.id === pk);
+            if (provider && provider.endpoint) {
+                const key = provider.keyName ? localStorage.getItem(provider.keyName) : null;
+                try {
+                    const r = await fetch(_base(provider.endpoint) + '/models', key ? { headers: { 'Authorization': 'Bearer ' + key } } : undefined);
+                    if (r.ok) {
+                        const j = await r.json();
+                        const ids = (j.data || j.models || []).map(x => String(x.id || x.name || ''));
+                        const found = ids.some(x => x === mid || (mid && x.split('/').pop() === mid.split('/').pop()));
+                        return { levels: STANDARD.slice(), note: found
+                            ? (provider.name || pk) + ' does not publish effort levels - standard levels'
+                            : 'model not in ' + (provider.name || pk) + ' list - standard levels', src: provider.name || pk };
+                    }
+                } catch (e) { /* CORS or unreachable - fall through */ }
+            }
+        }
+    } catch (e) { /* best effort */ }
+    return { levels: ['low', 'medium', 'high'], note: 'provider does not publish effort levels - standard levels', src: '' };
+}
+
+function renderEffortPills(levels, note) {
+    const wrap = document.getElementById('effortPillsWrap');
+    const noteEl = document.getElementById('effortSrcNote');
+    if (noteEl) noteEl.textContent = note || '';
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    (levels || []).forEach(lv => {
+        const b = document.createElement('button');
+        b.className = 'budget-pill';
+        b.dataset.budget = lv;
+        b.textContent = lv.charAt(0).toUpperCase() + lv.slice(1);
+        b.onclick = function () { setThinkingBudget(lv); };
+        wrap.appendChild(b);
+    });
+    try { updateBudgetPills(); } catch (e) {}
+}
+
+// Fetch the levels for the CURRENTLY selected model and render the pills.
+async function _sahuSyncEffortPills() {
+    try {
+        const row = document.getElementById('deepthinkBudgetRow');
+        const wrap = document.getElementById('effortPillsWrap');
+        const noteEl = document.getElementById('effortSrcNote');
+        if (wrap) wrap.innerHTML = '';
+        if (noteEl) noteEl.textContent = 'Fetching reasoning levels from the provider\u2026';
+        if (!row || !row.classList.contains('show')) { if (noteEl) noteEl.textContent = ''; return; }
+        const m = (state.selectedModels && state.selectedModels[0]) || null;
+        const res = await _sahuFetchEffortLevels(m && m.provider, m && m.modelId);
+        if (state.thinkingBudget === 'off') { renderEffortPills([], ''); return; }
+        if (!res.levels.length) {
+            state.thinkingBudget = 'off';
+            state.deepThinkEnabled = false;
+            const tg = document.getElementById('toolDeepThinkNew');
+            if (tg) tg.checked = false;
+            if (row) row.classList.remove('show');
+            renderEffortPills([], res.note);
+            showToast('This model has no reasoning support (' + (res.src || 'provider') + ') - Thinking stays off', 'info');
+            saveState();
+            return;
+        }
+        if (res.levels.indexOf(state.thinkingBudget) < 0) {
+            state.thinkingBudget = (res.levels.indexOf('high') >= 0) ? 'high' : res.levels[res.levels.length - 1];
+        }
+        renderEffortPills(res.levels, res.note);
+        saveState();
+    } catch (e) {}
+}
+window._sahuFetchEffortLevels = _sahuFetchEffortLevels;
+window._sahuSyncEffortPills = _sahuSyncEffortPills;
+window.renderEffortPills = renderEffortPills;
 
 /**
  * Toggle Style popover
@@ -16020,7 +16550,8 @@ if (typeof state !== 'undefined') {
     if (!state.persona) state.persona = 'none';
     if (!state.incognitoMode) state.incognitoMode = false;
     // BUG FIX: migrate old budget values; v6.9 default effort is HIGH
-    const VALID_BUDGETS = ['off', 'low', 'medium', 'high', 'xhigh', 'max'];
+    // v9.20: the five-level ladder is gone - only Off/Low/Medium/High
+    const VALID_BUDGETS = ['off', 'low', 'medium', 'high'];
     if (!state.thinkingBudget || !VALID_BUDGETS.includes(state.thinkingBudget)) state.thinkingBudget = 'high';
     // v6.9: one-time migration - the old default was 'medium'; the new app
     // default reasoning effort is HIGH (user directive: low/medium/high/
@@ -16217,7 +16748,13 @@ window.updateToolsNavStyleLabel = updateToolsNavStyleLabel;
             '<div class="sahupv-window">' +
                 '<div class="sahupv-head">' +
                     '<span class="sahupv-title"><i class="fas fa-bolt"></i><span class="sahupv-title-text" id="sahuPvTitle">Live Preview</span><span id="sahuPvLang" class="sahupv-chip">HTML</span></span>' +
+                    '<div class="sahupv-tabs">' +
+                        '<button id="sahuPvTabPreview" class="sahupv-tab active" onclick="sahuPvShowPreview()"><i class="fas fa-eye"></i> Preview</button>' +
+                        '<button id="sahuPvTabCode" class="sahupv-tab" onclick="sahuPvShowCode()"><i class="fas fa-code"></i> Code</button>' +
+                    '</div>' +
                     '<div class="sahupv-tools">' +
+                        '<button onclick="sahuPvCopyCode()" title="Copy source code"><i class="fas fa-copy"></i></button>' +
+                        '<button onclick="sahuPvDownloadCode()" title="Download file"><i class="fas fa-download"></i></button>' +
                         '<button onclick="sahuPvRefresh()" title="Reload"><i class="fas fa-rotate-right"></i></button>' +
                         '<button onclick="sahuPvToggleWidth()" title="Phone / desktop width"><i class="fas fa-mobile-alt"></i></button>' +
                         '<button onclick="sahuPvOpenTab()" title="Open in new tab"><i class="fas fa-external-link-alt"></i></button>' +
@@ -16225,7 +16762,7 @@ window.updateToolsNavStyleLabel = updateToolsNavStyleLabel;
                         '<button onclick="sahuClosePreview()" title="Close"><i class="fas fa-times"></i></button>' +
                     '</div>' +
                 '</div>' +
-                '<div class="sahupv-body"><iframe id="sahuPvFrame" class="sahupv-frame" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe></div>' +
+                '<div class="sahupv-body"><iframe id="sahuPvFrame" class="sahupv-frame" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe><pre id="sahuPvCodeView" class="sahupv-codeview" style="display:none"></pre></div>' +
                 '<div class="sahupv-console" id="sahuPvConsole" style="display:none">' +
                     '<div class="sahupv-console-head"><span>Console</span><button onclick="sahuPvClearConsole()">clear</button></div>' +
                     '<div class="sahupv-console-lines" id="sahuPvLines"></div>' +
@@ -16237,6 +16774,7 @@ window.updateToolsNavStyleLabel = updateToolsNavStyleLabel;
     function openWith(kind, code, title) {
         _pvState = {
             doc: kind === 'react' ? buildReactDoc(code) : buildHtmlDoc(code),
+            raw: String(code || ''),
             kind: kind,
             title: (title || 'Live Preview').slice(0, 80)
         };
@@ -16248,6 +16786,9 @@ window.updateToolsNavStyleLabel = updateToolsNavStyleLabel;
         document.getElementById('sahuPvLines').innerHTML = '';
         _pvCount = 0; updateConBadge();
         f.srcdoc = _pvState.doc;
+        const cv = document.getElementById('sahuPvCodeView');
+        if (cv) cv.textContent = _pvState.raw;
+        sahuPvShowPreview();
         document.getElementById('sahuPvModal').classList.add('show');
     }
 
@@ -16270,6 +16811,57 @@ window.updateToolsNavStyleLabel = updateToolsNavStyleLabel;
     window.sahuPvToggleWidth = function () {
         const f = document.getElementById('sahuPvFrame');
         if (f) f.classList.toggle('phone');
+    };
+    // v9.23: Canvas tabs - switch between the live Preview and the raw Code
+    window.sahuPvShowPreview = function () {
+        if (!_pvState.doc) return;   // code-only artifact - stay on Code
+        const f = document.getElementById('sahuPvFrame'); const cv = document.getElementById('sahuPvCodeView');
+        if (f) f.style.display = ''; if (cv) cv.style.display = 'none';
+        const tp = document.getElementById('sahuPvTabPreview'); const tc = document.getElementById('sahuPvTabCode');
+        if (tp) tp.classList.add('active'); if (tc) tc.classList.remove('active');
+    };
+    window.sahuPvShowCode = function () {
+        const f = document.getElementById('sahuPvFrame'); const cv = document.getElementById('sahuPvCodeView');
+        if (cv) { cv.textContent = _pvState.raw || ''; cv.style.display = 'block'; }
+        if (f) f.style.display = 'none';
+        const tp = document.getElementById('sahuPvTabPreview'); const tc = document.getElementById('sahuPvTabCode');
+        if (tc) tc.classList.add('active'); if (tp) tp.classList.remove('active');
+    };
+    window.sahuPvCopyCode = function () {
+        try {
+            navigator.clipboard.writeText(_pvState.raw || '');
+            try { showToast('Canvas code copied'); } catch (e) {}
+        } catch (e) { try { showToast('Copy failed', 'error'); } catch (er) {} }
+    };
+    window.sahuPvDownloadCode = function () {
+        try {
+            const t = String(_pvState.title || 'canvas').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'canvas';
+            const ext = _pvState.kind === 'html' ? 'html' : (_pvState.kind === 'react' ? 'jsx' : 'txt');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([_pvState.raw || ''], { type: 'text/plain' }));
+            a.download = t + '.' + ext;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { try { URL.revokeObjectURL(a.href); } catch (e) {} }, 4000);
+            try { showToast('Downloaded ' + t + '.' + ext); } catch (e) {}
+        } catch (e) { try { showToast('Download failed', 'error'); } catch (er) {} }
+    };
+    // v9.23: open the Canvas straight into the Code view (plain source files)
+    window.sahuPvOpenCode = function (title, code) {
+        _pvState = { doc: '', raw: String(code || ''), kind: 'code', title: String(title || 'Code').slice(0, 80) };
+        ensureModal();
+        const f = document.getElementById('sahuPvFrame');
+        if (f) f.classList.remove('phone');
+        const chip = document.getElementById('sahuPvLang');
+        if (chip) chip.textContent = 'CODE';
+        document.getElementById('sahuPvTitle').textContent = _pvState.title;
+        const lines = document.getElementById('sahuPvLines');
+        if (lines) lines.innerHTML = '';
+        _pvCount = 0; updateConBadge();
+        if (f) f.srcdoc = '<!DOCTYPE html><html><body></body></html>';
+        const cv = document.getElementById('sahuPvCodeView');
+        if (cv) cv.textContent = _pvState.raw;
+        sahuPvShowCode();
+        document.getElementById('sahuPvModal').classList.add('show');
     };
     window.sahuPvOpenTab = function () {
         const inner = encodeURIComponent(_pvState.doc);
@@ -16531,6 +17123,8 @@ function updateHeaderActionBtn() {
             if (row) row.classList.toggle('show', on);
             if (s && typeof s.deepThinkEnabled !== 'undefined') s.deepThinkEnabled = on;
             try { if (typeof updateBudgetPills === 'function') updateBudgetPills(); } catch (e) {}
+            // v9.20: boot sync also fetches the effort levels from the provider
+            try { if (on && typeof _sahuSyncEffortPills === 'function') _sahuSyncEffortPills(); } catch (e) {}
         } catch (e) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
@@ -17408,7 +18002,7 @@ try { window.renderInputModeTags(); } catch (e) {}
                 while (refineQ.length) {
                     convo.push({ role: 'user', content: '[REFINE - mid-research instruction from the user]: ' + refineQ.shift() + '\nIncorporate this immediately: adjust the plan if needed, then continue the workflow (tool lines or ANSWER:).' });
                 }
-                setBusy(turn === 1 ? 'Thinking about the research task\u2026' : 'Rethinking (' + turn + '/' + tier.maxTurns + ')\u2026');
+                setBusy(turn === 1 ? 'Thinking about the research task\u2026' : 'Thinking (' + turn + '/' + tier.maxTurns + ')\u2026');
 
                 var res;
                 try {
@@ -17764,7 +18358,7 @@ try { window.renderInputModeTags(); } catch (e) {}
 <script>
 // ---- v9.16 §0: namespace + CSS + CDN registry entries ----
 window.__V916 = window.__V916 || { rec: null, db: null, dbInit: null };
-var V916_SKILL_IDS = ['sql_sandbox', 'deck_studio', 'pdf_studio', 'voice_input', 'vision_input'];
+var V916_SKILL_IDS = ['sql_sandbox', 'deck_studio', 'pdf_studio', 'voice_input'];
 
 try {
     SAHU_CDNS.sqljs = 'https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js';
@@ -17778,8 +18372,7 @@ try {
         '.skill-always-on { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; color: #059669; background: rgba(5,150,105,.12); border: 1px solid rgba(5,150,105,.35); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }',
         '.skill-always-on i { font-size: 8px; }',
         '@keyframes v916pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.45); } 50% { box-shadow: 0 0 0 7px rgba(239,68,68,0); } }',
-        '.v916-vbadge { display: inline-block; margin-left: 6px; font-size: 10px; vertical-align: 1px; opacity: .8; cursor: help; }',
-        '.v916-vbadge svg { width: 12px; height: 12px; }',
+        // v9.25: eye-badge CSS removed with the badges (no vision model list)
         '.v916-sql-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0; font-size: 11px; color: var(--text-secondary, #6b7280); }',
         '.v916-sql-meta b { color: var(--text-primary, #111827); }',
         '.v916-tblwrap { overflow-x: auto; max-height: 300px; overflow-y: auto; border-radius: 8px; border: 1px solid rgba(120,120,140,.25); }',
@@ -17858,9 +18451,8 @@ try {
         { id: 'pdf_studio', name: 'Paged PDF Studio', icon: 'fa-file-pdf', color: 'red',
           desc: 'Print-grade PDF documents: the model writes styled HTML, Paged.js paginates it into real A4 pages with running heads and page numbers, an automatic layout QA check catches overflow, and one click saves it as PDF (Sarvam Paged.js engine).' },
         { id: 'voice_input', name: 'Live Voice Input', icon: 'fa-microphone-lines', color: 'orange',
-          desc: 'The chatbar mic button is a live dictation mic: speech-to-text with a live transcription preview while you speak, appending into a half-written message instead of replacing it; tap the mic to start, tap again to stop (browser SpeechRecognition - keyless, no Whisper round-trip).' },
-        { id: 'vision_input', name: 'Vision Input', icon: 'fa-eye', color: 'sky',
-          desc: 'Attach any image and vision-capable models actually SEE it: broad model detection (Gemini, Claude, GLM-4.6V/5V, GPT-5.x, o3, Kimi, ERNIE-VL, Llama-4, Pixtral...), a vision badge on every capable model in the picker, attach-time guidance, and a structured image-analysis protocol.' }
+          desc: 'The chatbar mic button is a live dictation mic: speech-to-text with a live transcription preview while you speak, appending into a half-written message instead of replacing it; tap the mic to start, tap again to stop (browser SpeechRecognition - keyless, no Whisper round-trip).' }
+        // v9.25: vision_input skill REMOVED - no vision gating or vision model list anymore; any model gets attached images as image parts
     ];
     V916_CORE.forEach(function (s) {
         if (!SAHU_SKILLS.some(function (x) { return x.id === s.id; })) SAHU_SKILLS.push(s);
@@ -18511,99 +19103,28 @@ try {
 
 
 // ---- v9.16 §6: VISION INPUT - broad detection + badge + guidance ----
-window._sahuIsVisionModel = function (modelId) {
-    var m = String(modelId || '').toLowerCase();
-    if (!m) return false;
-    var PATTERNS = [
-        'vision', '-vl', 'vl-', '4.6v', 'glm-4v', 'glm-5v', 'gpt-4o', 'gpt-4.1', 'gpt-4v',
-        'gpt-5', 'o3', 'o4-mini', 'claude', 'gemini', 'llama-4', 'llama4', 'llama-3.2-90b',
-        'gemma-3n', 'gemma-4', 'kimi-k', 'kimi-v', 'ernie', 'deepseek-ocr', 'deepseek-vl',
-        'pixtral', 'mistral-small-4', 'qwen-vl', 'qwen2-vl', 'qwen2.5-vl', 'qwen3-vl',
-        'qwen3.5-vl', 'qwen3.5-397b', 'qwen3.5-122b', 'phi-3.5-vision', 'phi-4-multimodal',
-        'llava', 'internvl', 'minicpm-v', 'molmo', 'idefics', 'cogvlm', 'gpt-4-turbo'
-    ];
-    for (var i = 0; i < PATTERNS.length; i++) {
-        if (m.indexOf(PATTERNS[i]) >= 0) return true;
-    }
-    return false;
-};
+// v9.25: the shared vision-model detector is REMOVED - there is no vision
+// gating any more. Every model receives attached images / video keyframes
+// as image parts; a model that can see them is a vision model.
 
 (function () {
-    function visionOn() {
-        try { return (state.enabledSkills || []).indexOf('vision_input') >= 0; } catch (e) { return false; }
-    }
+    // v9.25: eye badges, vision model list and attach-time vision guidance
+    // are ALL REMOVED - any model tries to see an attached upload.
 
-    // attach-time guidance: tell the user whether the current models can see
-    window.__V916.visionUploadNote = function () {
-        try {
-            if (!state.uploadedImageBase64) return;
-            if (!visionOn()) return;
-            var sel = state.selectedModels || [];
-            if (!sel.length) return;
-            var cap = sel.filter(function (m2) { return window._sahuIsVisionModel(m2.modelId); }).length;
-            if (cap > 0) showToast('Image attached - ' + cap + ' of ' + sel.length + ' selected model' + (cap === 1 ? '' : 's') + ' can see it', 'success');
-            else showToast('No vision-capable model selected - switch to e.g. Gemini, Claude, GLM-4.6V, GPT-5.x or Kimi to analyze the image', 'warning');
-        } catch (e) {}
-    };
-
-    // wrap handleFileUpload: run the note AFTER the original completes
-    try {
-        var _origHFU = handleFileUpload;
-        handleFileUpload = async function (ev) {
-            await _origHFU(ev);
-            try { window.__V916.visionUploadNote(); } catch (e) {}
-        };
-    } catch (e) {}
-
-    // wrap callModelWithFallback: inject the image-analysis protocol when a
-    // vision model receives an image (messages are cloned inside the
-    // original, so mutating the array beforehand is safe)
+    // wrap callModelWithFallback: inject the image-analysis protocol when
+    // ANY model receives an image (messages are cloned inside the original,
+    // so mutating the array beforehand is safe)
     try {
         var _origCMWF = callModelWithFallback;
         callModelWithFallback = async function (providerKey, modelId, messages, retryCount, onToken) {
             try {
-                if (state.uploadedImageBase64 && visionOn() && window._sahuIsVisionModel(modelId) && Array.isArray(messages) && messages.length) {
-                    var GUIDE = '\n\n[VISION INPUT PROTOCOL - v9.16]: The user attached an image; it is delivered to you as an image part in the last user message. Work through it IN ORDER: (1) LAYOUT - describe what kind of image it is and its overall structure in one or two sentences; (2) TEXT - read out every piece of visible text verbatim (labels, titles, axis labels, buttons, error messages, handwriting) unless the user asked you to skip it; (3) DATA - extract any numbers, tables, chart values or relationships into a clean list or table; (4) ANSWER - address the user\'s actual question using what you extracted; (5) HONESTY - if a region is blurry, cut off or unreadable, say exactly what you cannot read - NEVER invent details, values or text you cannot see.';
+                if ((state.uploadedImageBase64 || (state.uploadedVideoFrames && state.uploadedVideoFrames.length)) && Array.isArray(messages) && messages.length) {
+                    var GUIDE = '\n\n[VISION INPUT PROTOCOL - v9.16]: The user attached an image; it is delivered to you as an image part in the last user message. Work through it IN ORDER: (1) LAYOUT - describe what kind of image it is and its overall structure in one or two sentences; (2) TEXT - read out every piece of visible text verbatim (labels, titles, axis labels, buttons, error messages, handwriting) unless the user asked you to skip it; (3) DATA - extract any numbers, tables, chart values or relationships into a clean list or table; (4) ANSWER - address the user\'s actual question using what you extracted; (5) HONESTY - if a region is blurry, cut off or unreadable, say exactly what you cannot read - NEVER invent details, values or text you cannot see. If you genuinely did NOT receive or cannot see the image part at all, say so plainly instead of guessing.';
                     var sys = messages[0];
                     if (sys && sys.role === 'system' && typeof sys.content === 'string') sys.content += GUIDE;
                 }
             } catch (e) {}
             return _origCMWF(providerKey, modelId, messages, retryCount, onToken);
-        };
-    } catch (e) {}
-
-    // vision badge on every capable model card in the picker
-    window.__V916.badgeModels = function () {
-        try {
-            var host = document.getElementById('modelSelectorContent');
-            if (!host) return;
-            // map display name -> modelId from the provider tables
-            var nameToId = {};
-            function collect(pk, provider) {
-                var models = Object.assign({}, (provider && provider.models) || {}, (state.dynamicModels && state.dynamicModels[pk]) || {});
-                Object.keys(models).forEach(function (k) { nameToId[k] = models[k]; });
-            }
-            Object.keys((typeof PROVIDERS !== 'undefined' ? PROVIDERS : {})).forEach(function (pk) { collect(pk, PROVIDERS[pk]); });
-            (state.customProviders || []).forEach(function (p2) { collect(p2.id, p2); });
-            host.querySelectorAll('.model-card .model-name').forEach(function (nm) {
-                if (nm.querySelector('.v916-vbadge')) return;
-                var key = (nm.textContent || '').trim();
-                var mid = nameToId[key];
-                if (mid && window._sahuIsVisionModel(mid)) {
-                    var b = document.createElement('span');
-                    b.className = 'v916-vbadge';
-                    b.title = 'Vision - this model can see attached images';
-                    b.textContent = '👁';
-                    nm.appendChild(b);
-                }
-            });
-        } catch (e) {}
-    };
-    try {
-        var _origRMS = renderModelSelector;
-        renderModelSelector = function () {
-            _origRMS();
-            window.__V916.badgeModels();
         };
     } catch (e) {}
 })();
@@ -18627,7 +19148,8 @@ window._sahuIsVisionModel = function (modelId) {
                 L.push('PRINT-GRADE PDF - for documents meant to be printed or shared formally (reports, letters, papers, one-pagers, assignments), output ONE fenced block:\n```pagedpdf\n<h1>Document title</h1>\n<h2>Section</h2>\n<p>...</p>\n```\nRules: ONE self-contained HTML fragment - semantic tags only (h1/h2/h3, p, ul/ol, table, blockquote, pre, figure, img); the first h1 becomes the running header on every page; page numbers are automatic (A4); an optional inline <style> block may restyle fonts/colors (classes + tag selectors only, NO scripts, no external CSS); use pre/code for code, tables for data. The engine paginates it into real A4 pages, runs a layout QA check (overflow detection) and gives the user a page-by-page preview + one-click Save-as-PDF + HTML download. Use this INSTEAD of FILE[pdf] whenever the document must look print-grade.');
             }
             if (has('vision_input')) {
-                L.push('VISION - the user can attach images (photos, screenshots, charts, scans, whiteboards). Vision-capable models receive them natively as image parts; follow the [VISION INPUT PROTOCOL] (layout -> read all text verbatim -> extract data -> answer -> honesty about unreadable parts). If you did NOT receive an image part, say so - never pretend to see one, and never guess what a missing image contains.');
+                // v9.25: vision is no longer a skill - EVERY model receives attached
+                // images/video keyframes as image parts (no vision model list)
             }
             if (L.length) {
                 var mk = 'How you work:';
@@ -19022,7 +19544,11 @@ window._sahuIsVisionModel = function (modelId) {
             { timeout: 50000, dropModel: false },
             { timeout: 60000, dropModel: false },
             { timeout: 60000, dropModel: true },
-            { timeout: 75000, dropModel: true }
+            { timeout: 75000, dropModel: true },
+            // v9.20: two more patient attempts - the legacy free tier 500s/
+            // 402-queues under load far more often than 4 tries can absorb
+            { timeout: 85000, dropModel: true },
+            { timeout: 95000, dropModel: true }
         ];
         var lastErr = null;
         for (var attempt = 0; attempt < plans.length; attempt++) {
@@ -19072,7 +19598,7 @@ window._sahuIsVisionModel = function (modelId) {
             _btnRow(card);
             return;
         }
-        wrap.innerHTML = '<div class="v80-err">Image failed after 4 tries (' + escapeHtml(String((lastErr && lastErr.message) || lastErr)) + '). The free provider is busy - hit Retry or ask the model to regenerate with IMG:.</div><div class="v80-card-btns"><button class="v80-btn" onclick="sahuV80Regen(\'' + card.id + '\')"><i class="fas fa-arrows-rotate"></i> Retry</button></div>';
+        wrap.innerHTML = '<div class="v80-err">Image failed after ' + plans.length + ' tries (' + escapeHtml(String((lastErr && lastErr.message) || lastErr)) + '). The free provider is busy - hit Retry or ask the model to regenerate with IMG:.</div><div class="v80-card-btns"><button class="v80-btn" onclick="sahuV80Regen(\'' + card.id + '\')"><i class="fas fa-arrows-rotate"></i> Retry</button></div>';
     }
     window.__V918.loadImgCard = _loadImgCard;
 
@@ -19169,42 +19695,19 @@ window._sahuIsVisionModel = function (modelId) {
         };
     }
 
-    // ---- v9.19: boot - sync the effort UI to the DETECTED profile -----
+    // ---- v9.19→v9.25: boot - the Thinking TOGGLE is the only control ----
     function syncEffortUI() {
+        // v9.25: BUDGET REMOVED - this must NEVER overwrite the user's toggle
+        // state with a per-model detected default. It only syncs the checkbox
+        // display with the saved state.
         try {
-            var mid = '', pk = '';
-            try {
-                if (state.selectedModels && state.selectedModels[0]) {
-                    mid = String(state.selectedModels[0].modelId || '');
-                    pk = String(state.selectedModels[0].provider || '');
-                }
-            } catch (e) {}
-            if (!mid) return;
-            if (window.RADE) {
-                try { RADE.setCtx(pk, mid); } catch (e) {}
-                state.thinkingBudget = RADE.resolve(pk, mid);   // detected default (or remembered pick)
-                try {
-                    RADE.refreshCatalog().then(function (learned) {
-                        if (learned) { try { RADE.syncUI(); } catch (e) {} }
-                    });
-                } catch (e) {}
-            } else {
-                state.thinkingBudget = window._sahuResolveEffort(mid, state.thinkingBudget);
-            }
-            window.__V918.effModel = mid.toLowerCase();
-            state.deepThinkEnabled = state.thinkingBudget !== 'off';
-            try { saveState(); } catch (e) {}
             var tg = document.getElementById('toolDeepThinkNew');
-            if (tg) tg.checked = state.deepThinkEnabled;
-            var rw = document.getElementById('deepthinkBudgetRow');
-            if (rw) rw.classList.toggle('show', state.deepThinkEnabled);
-            try { if (typeof updateBudgetPills === 'function') updateBudgetPills(); } catch (e) {}
-            try { if (window.RADE) RADE.renderStatus(); } catch (e) {}
-        } catch (e) { console.warn('v9.19 effort sync failed:', e); }
+            if (tg) tg.checked = !!state.deepThinkEnabled;
+        } catch (e) {}
     }
     function boot() {
         syncEffortUI();
-        try { console.log('%c[v9.19] Reasoning Auto-Detect Engine mounted: every model thinking/reasoning/effort capability is DETECTED (live OpenRouter catalog probe + curated knowledge + response sensing + 400 self-heal) - pills free, picks remembered per model', 'color:#22d3ee;font-weight:600'); } catch (e) {}
+        try { console.log('%c[v9.25] Single Thinking toggle mounted - ON = every model thinks, OFF = none do. No budget levels, no per-model detection, no vision gating: any model gets attached images/video keyframes as image parts.', 'color:#22d3ee;font-weight:600'); } catch (e) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 140); });
     else setTimeout(boot, 140);
